@@ -43,6 +43,8 @@ Authored JavaScript tasks run in bounded QuickJS with 16 MB heap, 256 KB stack a
 
 Optional Piston supports free-form Python, C# and Java. Run `scripts/start-piston.ps1` after reviewing `docker-compose.piston.yml`; it binds to localhost only. Production needs an authenticated private `piston` HTTP tunnel (`CUSTOMER_HTTP_PISTON`) or a private runner configuration. Piston runs are bounded, persisted and unscored. Local Docker availability is not evidence of a connected production runner.
 
+The production connection is prepared with `scripts/piston-gateway.mjs`: loopback-only, secret bearer authentication, two permitted routes, enforced execution limits, bounded request/output and a concurrency/rate cap. HTTPS connections use `PISTON_URL` plus secret `PISTON_API_KEY`; public plain HTTP and redirects are rejected. A private Sites binding can use the same authenticated gateway. `scripts/verify-piston.mjs` performs real smoke tests for all three languages. See [deployment and activation checklist](docs/piston-production.md). A stable host or registered private tunnel is still required; no temporary public runner is automatically created.
+
 ## Architecture and publishing
 
 - `web/`: vanilla UI; `assessment.js` owns scans/notes, `learning.js` owns account controls, projects, AI feedback and audio.
@@ -53,4 +55,4 @@ Optional Piston supports free-form Python, C# and Java. Run `scripts/start-pisto
 
 The existing Site remains owner-private. Sites provisions logical D1 binding `DB` and applies source migrations before deployment. Identity headers are trusted only behind the Sites authenticated dispatcher. Every personal query is owner-scoped; user IDs and grades from request bodies are never trusted. Mutations require same-origin requests. JSON and audio bodies are bounded while streaming. Service keys never reach browser assets, source control or exports.
 
-Publish the exact pushed source SHA with its Worker archive. Source is mirrored to `melisau/RealDev`; GitHub does not independently deploy the Site. `.env*`, local databases, verification screenshots and generated bundles are ignored. The remaining production activation constraint is available API credit; unrestricted real-world IDE execution, private GitHub OAuth and native mobile packaging are separate future work.
+Publish the exact pushed source SHA with its Worker archive. Source is mirrored to `melisau/RealDev`; GitHub does not independently deploy the Site. `.env*`, local databases, verification screenshots and generated bundles are ignored. Production activation still requires available API credit and a stable Piston host/registered private tunnel. Unrestricted real-world IDE execution, private GitHub OAuth and native mobile packaging are separate future work.

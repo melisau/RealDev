@@ -8,4 +8,6 @@ web/code-worker.js
 web/practice.js
 .env
 .env.local
+.env.*
+!.env.example
 .dev.vars
