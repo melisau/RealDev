@@ -1,6 +1,7 @@
 import {database} from './db.mjs';
 import {tasks,areas,baselineIds,goals,goalLabels,VERSION,publicTask} from './catalog.mjs';
 import {grade,evidence,route} from './assessment.mjs';
+import {newsFeed,githubRepo,validateRepo} from './live.mjs';
 const json=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 const validId=x=>typeof x==='string'&&/^[a-zA-Z0-9-]{1,80}$/.test(x);
@@ -27,18 +28,39 @@ export async function api(req,env){
    if(req.headers.get('origin')!==url.origin)throw fail('origin_not_allowed',403);
    if(!(req.headers.get('content-type')||'').startsWith('application/json'))throw fail('json_required',415);
   }
-  let body={};if(method!=='GET'){const text=await req.text();if(text.length>16000)throw fail('request_too_large',413);try{body=JSON.parse(text);}catch{throw fail('invalid_json');}if(!body||typeof body!=='object'||Array.isArray(body))throw fail('invalid_json');}
+  let body={};if(method!=='GET'){const text=await req.text();if(text.length>36000)throw fail('request_too_large',413);try{body=JSON.parse(text);}catch{throw fail('invalid_json');}if(!body||typeof body!=='object'||Array.isArray(body))throw fail('invalid_json');}
   const p=url.pathname;
+  if(p==='/api/news'&&method==='GET')return json(await newsFeed(db));
+  if(p==='/api/github'&&method==='GET'){
+   const profile=await db.one('SELECT repository FROM github_profiles WHERE user_id = ?',user.id);const repository=profile?.repository||'melisau/RealDev';return json({selected:repository,...await githubRepo(db,repository)});
+  }
+  if(p==='/api/github'&&method==='PUT'){
+   if(!validateRepo(body.repository))throw fail('invalid_repository');
+   const result=await githubRepo(db,body.repository);if(!result.repository) return json(result,422);
+   await db.write('INSERT INTO github_profiles (user_id,repository) VALUES (?,?) ON CONFLICT(user_id) DO UPDATE SET repository=excluded.repository',user.id,body.repository);return json({saved:true,selected:body.repository,...result});
+  }
+  if(p==='/api/code-runs'&&method==='GET')return json({records:await db.all('SELECT id, task_id, code, result, created_at FROM code_runs WHERE user_id = ? ORDER BY created_at DESC LIMIT 30',user.id)});
+  if(p==='/api/code-runs'&&method==='POST'){
+   if(!validId(body.id)||!['sum-positive','missing-return','null-name','queue-copy','playground'].includes(body.taskId)||typeof body.code!=='string'||body.code.length>12000||!body.result||JSON.stringify(body.result).length>18000)throw fail('invalid_code_run');
+   const prior=await db.one('SELECT user_id FROM code_runs WHERE id = ?',body.id);if(prior&&prior.user_id!==user.id)throw fail('code_run_not_found',404);
+   await db.write('INSERT OR IGNORE INTO code_runs (id,user_id,task_id,code,result,created_at) VALUES (?,?,?,?,?,?)',body.id,user.id,body.taskId,body.code,JSON.stringify({verification:'browser-sandbox',report:body.result}),new Date().toISOString());return json({saved:true,verification:'browser-sandbox'});
+  }
   if(p==='/api/state'&&method==='GET'){
+   const account=await db.one('SELECT display_name, technologies, created_at, updated_at FROM accounts WHERE user_id = ?',user.id);
    const prefs=await profile(db,user.id);const records=(await db.all('SELECT * FROM attempts WHERE user_id = ? ORDER BY created_at, id',user.id)).map(unpack);
    const active=await db.one("SELECT id FROM runs WHERE user_id = ? AND kind = 'baseline' AND complete = 0 ORDER BY created_at DESC LIMIT 1",user.id);
    const notes=await db.all('SELECT id, task_id, body, resolved, created_at, updated_at FROM notes WHERE user_id = ? ORDER BY created_at DESC',user.id);
    const library=await db.all('SELECT task_id, attempt_id, created_at FROM saved_questions WHERE user_id = ? ORDER BY created_at DESC',user.id);
-   return json({user:{email:user.email},profile:prefs,tasks:tasks.map(publicTask),areas,goals:goalLabels,version:VERSION,attempts:records,notes,library,evidence:evidence(records),route:route(prefs,records),activeRun:active?await runData(db,user.id,active.id):null});
+   return json({user:{email:user.email},account,profile:prefs,tasks:tasks.map(publicTask),areas,goals:goalLabels,version:VERSION,attempts:records,notes,library,evidence:evidence(records),route:route(prefs,records),activeRun:active?await runData(db,user.id,active.id):null});
   }
   if(p==='/api/profile'&&method==='PUT'){
    if(!Array.isArray(body.goals)||!body.goals.length||body.goals.length>goals.length||body.goals.some(g=>!goals.includes(g))||![10,15,25].includes(body.dailyMinutes))throw fail('invalid_profile');
-   await db.write('INSERT INTO profiles (user_id, goals, daily_minutes, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET goals=excluded.goals, daily_minutes=excluded.daily_minutes, updated_at=excluded.updated_at',user.id,JSON.stringify([...new Set(body.goals)]),body.dailyMinutes,new Date().toISOString());return json({saved:true});
+   const now=new Date().toISOString();const statements=[['INSERT INTO profiles (user_id, goals, daily_minutes, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET goals=excluded.goals, daily_minutes=excluded.daily_minutes, updated_at=excluded.updated_at',user.id,JSON.stringify([...new Set(body.goals)]),body.dailyMinutes,now]];
+   if(body.displayName!==undefined){
+    if(typeof body.displayName!=='string'||!body.displayName.trim()||body.displayName.length>80||typeof body.technologies!=='string'||body.technologies.length>500)throw fail('invalid_account');
+    statements.push(['INSERT INTO accounts (user_id,display_name,technologies,created_at,updated_at) VALUES (?,?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET display_name=excluded.display_name,technologies=excluded.technologies,updated_at=excluded.updated_at',user.id,body.displayName.trim(),body.technologies.trim(),now,now]);
+   }
+   await db.batch(statements);return json({saved:true});
   }
   if(p==='/api/library'&&method==='POST'){
    if(!validId(body.attemptId))throw fail('invalid_attempt');

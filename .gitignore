@@ -4,3 +4,5 @@ dist/
 .sites-runtime/
 server/assets.generated.mjs
 *.log
+web/code-worker.js
+web/practice.js

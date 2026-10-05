@@ -13,6 +13,10 @@ Bilingual (Turkish/English) developer practice app with account-backed assessmen
 - Saved question library: revisit the original question, inspect a previous answer and retry. Notes start collapsed; explanation criteria appear only for a submitted explanation and remain collapsed until opened.
 - Turkish/English topic search, including data structures, API, React, Git and C#.
 - Responsive dark/light themes.
+- ChatGPT sign-in with first-use registration: display name, technologies, goals and daily time persist per user. The current deployment remains owner-private.
+- Four editable JavaScript/debug exercises and a free playground using QuickJS in a Web Worker; saved code history is account-scoped.
+- Official live RSS feeds (OpenAI, GitHub, .NET and Kubernetes), cached 15 minutes with explicit stale/error status. Summaries are source excerpts, not generated claims.
+- Public GitHub repository selector with commits, pull requests and Actions runs, cached five minutes.
 
 ## Local development
 
@@ -21,6 +25,7 @@ Requires Node.js 22.13+ (Node 24 recommended for the built-in SQLite preview ada
 ```sh
 npm ci
 npm test
+npm run build
 npm run dev
 ```
 
@@ -47,11 +52,11 @@ The Worker bundles frontend assets. Dependencies, generated output, local databa
 
 ## Assessment boundaries
 
-This is formative practice, not certification or an overall employment ranking. Choice tasks use authored answer keys. Code tasks accept a restricted side-effect-free expression subset: numbers, n, comparisons, arithmetic and logical operators. No arbitrary user program is executed. Passing tests demonstrates behavior on the displayed inputs, not all possible inputs.
+This is formative practice, not certification or an overall employment ranking. Choice tasks use authored answer keys. Code tasks accept a restricted side-effect-free expression subset: numbers, n, comparisons, arithmetic and logical operators. The assessment expression interpreter never executes arbitrary host JavaScript. A separate practice workspace runs JavaScript inside a QuickJS WebAssembly engine in a disposable Web Worker: 16 MB QuickJS heap, 256 KB stack, 350 ms interrupt budget, five-second worker cutoff, bounded input/output, and no exposed host networking, filesystem, DOM or account APIs. Browser test reports are explicitly unverified and excluded from server assessment scoring. Passing tests demonstrates behavior on the displayed inputs, not all possible inputs.
 
 Written/spoken explanations are saved alongside explicit self-review criteria. They are **not AI-graded for technical accuracy**. Dictation depends on browser permission/support and may use the browser provider's recognition service. This app does not store audio.
 
-Coverage is limited. AI/data/mobile goals currently use shared foundation tasks; specialist competency is not claimed. News, legacy error-lab and GitHub cards retain the earlier prototype behavior. News is curated static content, not a live feed. Legacy local prototype scores are not imported as verified evidence.
+Coverage is limited. AI/data/mobile goals currently use shared foundation tasks; specialist competency is not claimed. Remaining work: specialized AI/data/mobile question banks; Python/C#/Java execution; independent server verification of full-program practice; technical grading of written/spoken explanations; private GitHub OAuth; public registration/access policy; account export/deletion; richer Git/IDE diagnostics. Public news/GitHub data can be temporarily unavailable or rate-limited; cached stale data is labeled. Legacy local prototype scores are not imported as verified evidence.
 
 ## Publishing
 

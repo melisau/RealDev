@@ -1,5 +1,22 @@
 {
-  "name": "real-developer", "private": true, "type": "module",
-  "scripts": {"build":"node scripts/build.mjs", "test":"node --test tests/*.test.mjs", "db:generate":"drizzle-kit generate", "dev":"node scripts/dev.mjs"},
-  "devDependencies": {"acorn":"8.15.0", "drizzle-kit":"0.31.10", "drizzle-orm":"0.45.2", "esbuild":"0.25.12"}
+  "name": "real-developer",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "db:generate": "drizzle-kit generate",
+    "dev": "node scripts/dev.mjs"
+  },
+  "devDependencies": {
+    "acorn": "8.15.0",
+    "drizzle-kit": "0.31.10",
+    "drizzle-orm": "0.45.2",
+    "esbuild": "0.25.12"
+  },
+  "dependencies": {
+    "@jitl/quickjs-singlefile-browser-release-sync": "0.32.0",
+    "fast-xml-parser": "5.11.2",
+    "quickjs-emscripten-core": "0.32.0"
+  }
 }

@@ -22,6 +22,13 @@
       "when": 1791199682282,
       "tag": "0002_equal_satana",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1791200690347,
+      "tag": "0003_clear_tarantula",
+      "breakpoints": true
     }
   ]
 }

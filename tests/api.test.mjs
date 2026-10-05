@@ -27,6 +27,18 @@ test('unsupported code is not recorded, completed run and history survive reload
  assert.equal((await a('run?id=practice-1')).body.complete,true);DB.close();
 });
 test('database failure has a recoverable error and never reports saved',async()=>{const r=await client(null)('state');assert.equal(r.status,503);assert.equal(r.body.error,'storage_unavailable');});
+test('registration is durable, validates fields and isolates accounts and code history',async()=>{
+ const DB=localDb(),a=client(DB),b=client(DB,'user-b');
+ const p={displayName:'Melisa Çığ',technologies:'C#, React, Unity',goals:['fullstack'],dailyMinutes:15};
+ assert.equal((await a('profile',{...p,displayName:' '},'PUT')).status,400);
+ assert.equal((await a('profile',p,'PUT')).status,200);
+ const first=(await a('state')).body;assert.equal(first.account.display_name,p.displayName);assert.equal((await b('state')).body.account,null);
+ await a('profile',{...p,technologies:'Python'},'PUT');const later=(await a('state')).body;assert.equal(later.account.created_at,first.account.created_at);assert.equal(later.account.technologies,'Python');
+ const code={id:'code-one',taskId:'playground',code:'console.log(42)',result:{logs:['42']}};
+ assert.equal((await a('code-runs',code)).status,200);await a('code-runs',code);
+ assert.equal((await a('code-runs')).body.records.length,1);assert.equal((await b('code-runs')).body.records.length,0);assert.equal((await b('code-runs',code)).status,404);
+ assert.equal((await a('state')).body.attempts.length,0);DB.close();
+});
 test('notes persist with answers, are idempotent, editable and user-owned',async()=>{
  const DB=localDb(),a=client(DB),b=client(DB,'user-b');
  await a('runs',{id:'note-run',kind:'practice',taskId:'cors-1'});
