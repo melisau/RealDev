@@ -415,11 +415,15 @@
     window.realdevLocale = locale;
     document.documentElement.lang = locale;
     const title = document.querySelector('title');
-    if (title) title.textContent = locale === 'tr' ? 'Real Developer · Yazılım çalışma alanı' : 'Real Developer · Developer workspace';
+    if (title) title.textContent = locale === 'tr' ? 'RealDeveloper · Yazılım çalışma alanı' : 'RealDeveloper · Developer practice workspace';
     const description = document.querySelector('meta[name="description"]');
     if (description) description.content = locale === 'tr'
-      ? 'Kod yazma, hata çözme ve teknik kavramları açıklama becerilerini geliştir.'
-      : 'Build your coding, debugging, and technical explanation skills.';
+      ? 'Kod yazma, hata ayıklama ve teknik açıklama becerilerini geliştir; kişisel çalışma rotanı takip et.'
+      : 'Build your coding, debugging and technical explanation skills with a personal developer learning path.';
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    if (ogTitle) ogTitle.content = locale === 'tr' ? 'RealDeveloper · Yazılım çalışma alanı' : 'RealDeveloper · Developer practice workspace';
+    if (ogDescription) ogDescription.content = description?.content || '';
     translate(document.body);
     updateLanguageButton();
     try { localStorage.setItem('realdev-language', locale); } catch (_) {}
