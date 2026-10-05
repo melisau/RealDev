@@ -25,6 +25,18 @@ test('news requests follow canonical redirects and reject feeds leaving their tr
 test('GitHub validates repo paths, tolerates independent section failure and caches',async()=>{
  assert.equal(validateRepo('melisau/RealDev'),true);for(const x of ['https://evil.test','x/../../y','x/y?z','x/y/z'])assert.equal(validateRepo(x),false);
  const DB=localDb(),db=database({DB});let count=0;
- const mock=async url=>{count++;if(url.includes('/actions/'))return new Response('',{status:403});if(url.includes('/commits')||url.includes('/pulls'))return Response.json([]);if(url.includes('/languages'))return Response.json({JavaScript:100});return Response.json({private:false,full_name:'melisau/RealDev',html_url:'https://github.com/melisau/RealDev',default_branch:'main'});};
+ const mock=async (url,options)=>{count++;assert.equal(options.redirect,'follow');if(url.includes('/actions/'))return new Response('',{status:403});if(url.includes('/commits')||url.includes('/pulls'))return Response.json([]);if(url.includes('/languages'))return Response.json({JavaScript:100});return Response.json({private:false,full_name:'melisau/RealDev',html_url:'https://github.com/melisau/RealDev',default_branch:'main'});};
  const r=await githubRepo(db,'melisau/RealDev',mock);assert.equal(r.repository.name,'melisau/RealDev');assert.equal(r.errors[0].section,'actions');await githubRepo(db,'melisau/RealDev',mock);assert.equal(count,5);DB.close();
+});
+
+test('GitHub follows redirects only while the final API host remains trusted',async()=>{
+ const DB=localDb(),db=database({DB});
+ const result=await githubRepo(db,'melisau/RealDev',async(url,options)=>{
+  assert.equal(options.redirect,'follow');
+  const response=Response.json({private:false,full_name:'melisau/RealDev',html_url:'https://github.com/melisau/RealDev',default_branch:'main'});
+  Object.defineProperty(response,'url',{value:'https://untrusted.example/repos/melisau/RealDev'});
+  return response;
+ });
+ assert.equal(result.error,'unexpected_github_host');
+ DB.close();
 });
