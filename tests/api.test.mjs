@@ -34,8 +34,9 @@ test('registration is durable, validates fields and isolates accounts and code h
  assert.equal((await a('profile',p,'PUT')).status,200);
  const first=(await a('state')).body;assert.equal(first.account.display_name,p.displayName);assert.equal((await b('state')).body.account,null);
  await a('profile',{...p,technologies:'Python'},'PUT');const later=(await a('state')).body;assert.equal(later.account.created_at,first.account.created_at);assert.equal(later.account.technologies,'Python');
- const code={id:'code-one',taskId:'playground',code:'console.log(42)',result:{logs:['42']}};
- assert.equal((await a('code-runs',code)).status,200);await a('code-runs',code);
+ const code={id:'code-one',taskId:'sum-positive',code:'function solve(numbers) { return numbers.filter(n => n > 0).reduce((sum, n) => sum + n, 0); }',result:{passed:999,total:999}};
+ const verified=await a('code-runs',code);assert.equal(verified.status,200);assert.equal(verified.body.verification,'server-verified');assert.equal(verified.body.result.total,4);assert.equal(verified.body.result.passed,4);
+ await a('code-runs',code);assert.equal((await a('code-runs',{...code,code:'function solve(n){return 999}'})).status,409);
  assert.equal((await a('code-runs')).body.records.length,1);assert.equal((await b('code-runs')).body.records.length,0);assert.equal((await b('code-runs',code)).status,404);
  assert.equal((await a('state')).body.attempts.length,0);DB.close();
 });

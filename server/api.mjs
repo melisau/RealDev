@@ -2,6 +2,7 @@ import {database} from './db.mjs';
 import {tasks,areas,baselineIds,goals,goalLabels,VERSION,publicTask} from './catalog.mjs';
 import {grade,evidence,route} from './assessment.mjs';
 import {newsFeed,githubRepo,validateRepo} from './live.mjs';
+import {execute} from '../sandbox/runtime.mjs';
 const json=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 const validId=x=>typeof x==='string'&&/^[a-zA-Z0-9-]{1,80}$/.test(x);
@@ -41,9 +42,13 @@ export async function api(req,env){
   }
   if(p==='/api/code-runs'&&method==='GET')return json({records:await db.all('SELECT id, task_id, code, result, created_at FROM code_runs WHERE user_id = ? ORDER BY created_at DESC LIMIT 30',user.id)});
   if(p==='/api/code-runs'&&method==='POST'){
-   if(!validId(body.id)||!['sum-positive','missing-return','null-name','queue-copy','playground'].includes(body.taskId)||typeof body.code!=='string'||body.code.length>12000||!body.result||JSON.stringify(body.result).length>18000)throw fail('invalid_code_run');
-   const prior=await db.one('SELECT user_id FROM code_runs WHERE id = ?',body.id);if(prior&&prior.user_id!==user.id)throw fail('code_run_not_found',404);
-   await db.write('INSERT OR IGNORE INTO code_runs (id,user_id,task_id,code,result,created_at) VALUES (?,?,?,?,?,?)',body.id,user.id,body.taskId,body.code,JSON.stringify({verification:'browser-sandbox',report:body.result}),new Date().toISOString());return json({saved:true,verification:'browser-sandbox'});
+   if(!validId(body.id)||!['sum-positive','missing-return','null-name','queue-copy','playground'].includes(body.taskId)||typeof body.code!=='string'||body.code.length>12000)throw fail('invalid_code_run');
+   const prior=await db.one('SELECT user_id,task_id,code,result FROM code_runs WHERE id = ?',body.id);if(prior&&prior.user_id!==user.id)throw fail('code_run_not_found',404);
+   if(prior&&(prior.task_id!==body.taskId||prior.code!==body.code))throw fail('code_run_conflict',409);
+   if(prior)return json({saved:true,verification:'server-verified',result:JSON.parse(prior.result).report});
+   const report=await execute(body.code,body.taskId==='playground'?null:body.taskId);
+   const verified={...report,verification:'server-verified'};
+   await db.write('INSERT INTO code_runs (id,user_id,task_id,code,result,created_at) VALUES (?,?,?,?,?,?)',body.id,user.id,body.taskId,body.code,JSON.stringify({verification:'server-verified',report:verified}),new Date().toISOString());return json({saved:true,verification:'server-verified',result:verified});
   }
   if(p==='/api/state'&&method==='GET'){
    const account=await db.one('SELECT display_name, technologies, created_at, updated_at FROM accounts WHERE user_id = ?',user.id);

@@ -97,6 +97,8 @@
  document.addEventListener('submit',e=>{if(e.target.id==='rd-form'||e.target.id==='rd-profile')e.preventDefault();});
  document.addEventListener('input',e=>{if(e.target.closest('#rd-form')||e.target.id==='rd-note')remember();if(e.target.id==='rd-search'){topicQuery=e.target.value;document.getElementById('rd-search-results').innerHTML=searchResults();}if(e.target.closest('#rd-profile'))profileDraft={goals:[...document.querySelectorAll('#rd-profile input:checked')].map(i=>i.value),dailyMinutes:Number(document.getElementById('rd-minutes').value),displayName:document.getElementById('rd-name').value,technologies:document.getElementById('rd-technologies').value};});
  window.addEventListener('pagehide',stopSpeech);
+ window.realdevDiagnostics=()=>data?.tasks.filter(q=>q.kind==='error-diagnostic')||[];
+ window.realdevPracticeTask=async id=>{if(!data)await refresh();if(!data.tasks.some(q=>q.id===id&&q.kind==='error-diagnostic'))throw Error('invalid_task');run=await request('runs',{id:crypto.randomUUID(),kind:'practice',taskId:id});result=null;state.view='quiz';draw();window.scrollTo(0,0);};
  renderers.today=guarded(dashboard);renderers.quiz=guarded(assessment);renderers.map=guarded(map);renderers.route=guarded(routeView);renderers.history=guarded(history);renderers.account=guarded(account);renderers.topics=guarded(topicsView);renderers.notes=guarded(notesView);renderers.library=guarded(libraryView);renderers.review=guarded(reviewView);
  draw();load();
 })();

@@ -21,6 +21,6 @@ export async function execute(code,taskId=null){
     else{if(test){let actual;try{actual=JSON.parse(vm.getString(result.value));}catch{actual=null;}cases.push({input:test.input,expected:test.expected,actual,pass:JSON.stringify(canonical(actual))===JSON.stringify(canonical(test.expected))});}result.value.dispose();}
    }finally{vm.dispose();}
   }
-  return {logs,cases,passed:cases.filter(c=>c.pass).length,total:cases.length,verification:'browser-sandbox'};
+  return {logs,cases,passed:cases.filter(c=>c.pass).length,total:cases.length,verification:'server-verified'};
  }catch(error){return {logs,cases,error:String(error.message||error).slice(0,1000)};}finally{rt.dispose();}
 }
