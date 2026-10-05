@@ -1,4 +1,5 @@
 import {database} from './db.mjs';
+import {verifyFirebaseSession} from './firebase-auth.mjs';
 import {tasks,areas,baselineIds,goals,goalLabels,VERSION,publicTask} from './catalog.mjs';
 import {grade,evidence,route} from './assessment.mjs';
 import {newsFeed,githubRepo,validateRepo} from './live.mjs';
@@ -17,7 +18,7 @@ const json=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 const validId=x=>typeof x==='string'&&/^[a-zA-Z0-9-]{1,80}$/.test(x);
 async function boundedBody(req,max){const reader=req.body?.getReader();if(!reader)return new Uint8Array();const chunks=[];let total=0;while(true){const {value,done}=await reader.read();if(done)break;total+=value.length;if(total>max){await reader.cancel();throw fail('request_too_large',413);}chunks.push(value);}const bytes=new Uint8Array(total);let offset=0;for(const part of chunks){bytes.set(part,offset);offset+=part.length;}return bytes;}
-function identity(req){const id=req.headers.get('oai-authenticated-user-id');if(!id)throw fail('sign_in_required',401);return {id,email:req.headers.get('oai-authenticated-user-email')||''};}
+async function identity(req,env){const authorization=req.headers.get('authorization')||'';if(authorization){const match=/^Bearer ([^ ]+)$/i.exec(authorization);if(!match)throw fail('sign_in_required',401);if(!env.FIREBASE_PROJECT_ID||!env.FIREBASE_API_KEY)throw fail('auth_not_configured',503);try{return await verifyFirebaseSession(match[1],env);}catch(error){if(error?.message==='auth_provider_unavailable')throw fail('auth_provider_unavailable',503);throw fail('sign_in_required',401);}}const id=req.headers.get('oai-authenticated-user-id');if(!id)throw fail('sign_in_required',401);return {id,email:req.headers.get('oai-authenticated-user-email')||''};}
 const defaultProfile={goals:['fullstack','game'],dailyMinutes:15};
 function noteQuery(user,note,taskId){
  if(!note||!validId(note.id)||typeof note.text!=='string'||!note.text.trim()||note.text.length>3000||!tasks.some(t=>t.id===taskId))throw fail('invalid_note');
@@ -34,7 +35,7 @@ async function runData(db,user,id){
 }
 export async function api(req,env){
  try{
-  const user=identity(req);const url=new URL(req.url);const method=req.method;const db=database(env);
+  const url=new URL(req.url);const method=req.method;if(url.pathname==='/api/auth/config'&&method==='GET'){const configured=!!(env.FIREBASE_PROJECT_ID&&env.FIREBASE_API_KEY);return json({configured,provider:configured?'firebase':'platform',projectId:configured?env.FIREBASE_PROJECT_ID:null,apiKey:configured?env.FIREBASE_API_KEY:null});}const user=await identity(req,env);const db=database(env);
   if(!['GET','POST','PUT'].includes(method))throw fail('method_not_allowed',405);
   if(method!=='GET'){
    if(req.headers.get('origin')!==url.origin)throw fail('origin_not_allowed',403);

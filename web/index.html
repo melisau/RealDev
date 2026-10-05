@@ -56,7 +56,7 @@
       <header class="topbar">
         <button class="mobile-menu" id="menuButton" aria-label="Menüyü aç">☰</button>
         <div class="breadcrumb"><span>Çalışma alanı</span><span class="crumb-sep">/</span><strong id="crumbCurrent">Bugün</strong></div>
-        <div class="top-actions"><span class="today-date">5 Ekim 2026</span><button class="icon-button language-toggle" id="languageToggle" type="button" aria-label="Switch language to English" title="Switch language to English">EN</button><button class="icon-button theme-toggle" id="themeToggle" type="button" aria-label="Koyu temayı aç" title="Koyu temayı aç"><span id="themeIcon" aria-hidden="true">◐</span></button><button class="icon-button" id="reminderButton" title="Hatırlatıcı ayarla" aria-label="Hatırlatıcı ayarla">♧</button><button class="avatar avatar-small" id="profileOpenTop" aria-label="Profil">M</button></div>
+        <div class="top-actions"><a class="secondary-button" id="authLink" href="/auth.html#/sign-in">Giriş / Kayıt</a><span class="today-date">5 Ekim 2026</span><button class="icon-button language-toggle" id="languageToggle" type="button" aria-label="Switch language to English" title="Switch language to English">EN</button><button class="icon-button theme-toggle" id="themeToggle" type="button" aria-label="Koyu temayı aç" title="Koyu temayı aç"><span id="themeIcon" aria-hidden="true">◐</span></button><button class="icon-button" id="reminderButton" title="Hatırlatıcı ayarla" aria-label="Hatırlatıcı ayarla">♧</button><button class="avatar avatar-small" id="profileOpenTop" aria-label="Profil">M</button></div>
       </header>
       <div class="content" id="viewRoot"></div>
     </main>
@@ -80,6 +80,7 @@
     <label class="field-label" for="dailyGoal">Günlük çalışma süresi</label><select id="dailyGoal"><option>10 dakika</option><option selected>15 dakika</option><option>25 dakika</option></select>
     <button class="primary-button full-button" id="saveProfile">Profili kaydet <span>→</span></button>
   </dialog>
+  <script src="/auth.js?v=20261005-22" defer></script>
   <script src="/content-bank.js?v=20261005-20" defer></script>
   <script src="/app.js?v=20261005-21" defer></script>
   <script src="/assessment.js?v=20261005-18" defer></script>

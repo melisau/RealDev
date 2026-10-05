@@ -425,6 +425,7 @@
     if (ogTitle) ogTitle.content = locale === 'tr' ? 'RealDeveloper · Yazılım çalışma alanı' : 'RealDeveloper · Developer practice workspace';
     if (ogDescription) ogDescription.content = description?.content || '';
     translate(document.body);
+    window.realdevAuthLocale?.(locale);
     updateLanguageButton();
     try { localStorage.setItem('realdev-language', locale); } catch (_) {}
   }
