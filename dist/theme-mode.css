@@ -3,10 +3,18 @@
   --purple: #63efff;
   --purple-soft: #c5faff;
   --green-soft: #63efff;
+  --orange-soft: #e0f2ff;
   --neon-blue-ink: #07333a;
 }
 
 .theme-toggle { flex: 0 0 auto; display: grid; place-items: center; font-size: 17px; }
+.language-toggle { font: 12px 'Share Tech Mono', 'Plus Jakarta Sans', Arial, sans-serif; }
+h1, .brand { font-family: 'Major Mono Display', 'Plus Jakarta Sans', Arial, sans-serif; }
+.nav-item, .side-label, .eyebrow, .primary-button, .hero-overline, .today-date, .task-time,
+.quiz-step, .concept-type, .news-card-top, .news-actions, .practice-tile > span, .day-pill,
+.source-badge, .modal-eyebrow, .field-label, .sidebar-foot {
+  font-family: 'Share Tech Mono', 'Plus Jakarta Sans', Arial, sans-serif;
+}
 .nav-item.active { color: var(--neon-blue-ink); }
 .primary-button, .hero-card .primary-button, .toast { color: var(--neon-blue-ink); }
 .primary-button:hover, .hero-card .primary-button:hover { background: #a8f7ff; }
@@ -17,6 +25,7 @@
 .result-box { background: #c5faff; color: #07333a; }
 .concept-detail .analogy, .news-summary { background: #c5faff; color: #17383d; }
 .toast { background: var(--purple); }
+.result-box.warning { background: #fff1e6; border-color: #f0cfb2; color: #70431f; }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
