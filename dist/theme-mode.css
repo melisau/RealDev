@@ -282,3 +282,4 @@ h1, .brand { font-family: 'Major Mono Display', 'Plus Jakarta Sans', Arial, sans
   background: var(--purple);
   border-color: var(--line);
 }
+.brand { font-size: 15px; letter-spacing: -.75px; }
