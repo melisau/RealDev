@@ -139,6 +139,14 @@ function sourceConceptsView(){
  return html;
 }
 const renderers={today,quiz:quizView,map:mapView,errors:errorsView,concepts:sourceConceptsView,news:newsView,github:githubView};
+const routeNames=new Set(['today','quiz','map','errors','concepts','news','github','route','history','topics','notes','library','lab','interview','codehistory','review','account','advanced']);
+const routeFromHash=()=>{let value;try{value=decodeURIComponent(location.hash.slice(1))}catch{return 'today'}return routeNames.has(value)?value:'today'};
+let currentView=routeFromHash();
+if(location.hash!==`#${currentView}`)history.replaceState(null,'',`#${currentView}`);
+Object.defineProperty(state,'view',{configurable:true,enumerable:true,get:()=>currentView,set:value=>{currentView=routeNames.has(value)?value:'today';const hash=`#${currentView}`;if(location.hash!==hash)location.hash=hash;}});
+function syncViewFromUrl(){const next=routeFromHash();if(state.view===next)return;state.view=next;state.quizMode=false;render();}
+window.addEventListener('hashchange',syncViewFromUrl);
+window.addEventListener('popstate',syncViewFromUrl);
 function render(){const view=state.view;root.innerHTML=(renderers[view]||today)();const names={advanced:window.realdevLocale==='en'?'Advanced practice':'İleri eğitim',interview:window.realdevLocale==='en'?'Interviews and projects':'Mülakat ve projeler',today:'Bugün',quiz:'Beceri taraması',map:'Beceri haritam',errors:'Hata laboratuvarı',concepts:'Kavramlar',news:'Yazılım haberleri',github:'GitHub pratiği',route:'Çalışma rotam',history:'Cevap geçmişim',topics:'Konu ara',notes:'Notlarım',account:'Hesabım',lab:'Kod alanı',codehistory:'Kod geçmişim',library:'Kütüphanem',review:'Soruyu tekrar incele'};document.getElementById('crumbCurrent').textContent=names[view]||'Bugün';document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view||(view==='quiz'&&b.dataset.view==='today')))}
 function go(view){state.view=view;state.quizMode=false;document.getElementById('sidebar').classList.remove('open');render();window.scrollTo(0,0)}
 document.addEventListener('input',e=>{if(e.target.id!=='conceptSearch')return;const terms=e.target.value.toLocaleLowerCase('tr-TR').trim().split(/\s+/).filter(Boolean);let visible=0;document.querySelectorAll('.concept-card').forEach(card=>{const text=card.textContent.toLocaleLowerCase('tr-TR');const show=terms.every(term=>text.includes(term));card.hidden=!show;if(show)visible++});const count=document.getElementById('conceptSearchCount');if(count)count.textContent=`${visible} kavram`;});
