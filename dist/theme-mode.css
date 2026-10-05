@@ -284,3 +284,19 @@ h1, .brand { font-family: 'Major Mono Display', 'Plus Jakarta Sans', Arial, sans
 }
 .brand { font-size: 15px; letter-spacing: -.75px; }
 :root .icon-button, :root .avatar-small { color: #ffffff; }
+:root:not([data-theme="dark"]) .hero-overline { color: #ffffff; }
+:root[data-theme="dark"] .text-button,
+:root[data-theme="dark"] .subtle-link,
+:root[data-theme="dark"] .news-actions button,
+:root[data-theme="dark"] .news-actions a { color: #c8b2fa; }
+:root[data-theme="dark"] .subtle-link { font-weight: 700; }
+:root[data-theme="dark"] .error-meta .chip {
+  background: #303742;
+  border-color: #6f7885;
+  color: #e7edf5;
+}
+:root[data-theme="dark"] .error-meta .chip.red {
+  background: #58353b;
+  border-color: #9a626d;
+  color: #ffe5e8;
+}
