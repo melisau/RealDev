@@ -1,0 +1,26 @@
+services:
+  piston:
+    image: ghcr.io/engineer-man/piston@sha256:2f66b7456189c4d713aa986d98eccd0b6ee16d26c7ec5f21b30e942756fd127a
+    container_name: realdev-piston
+    privileged: true
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:2000:2000"
+    environment:
+      PISTON_DISABLE_NETWORKING: "true"
+      PISTON_MAX_CONCURRENT_JOBS: "2"
+      PISTON_MAX_PROCESS_COUNT: "32"
+      PISTON_MAX_OPEN_FILES: "32"
+      PISTON_MAX_FILE_SIZE: "1048576"
+      PISTON_OUTPUT_MAX_SIZE: "32768"
+      PISTON_COMPILE_TIMEOUT: "10000"
+      PISTON_RUN_TIMEOUT: "3000"
+      PISTON_COMPILE_CPU_TIME: "10000"
+      PISTON_RUN_CPU_TIME: "3000"
+      PISTON_COMPILE_MEMORY_LIMIT: "536870912"
+      PISTON_RUN_MEMORY_LIMIT: "268435456"
+    mem_limit: 2g
+    cpus: 2
+    pids_limit: 1024
+    volumes:
+      - ./.local/piston:/piston

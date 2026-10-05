@@ -4,6 +4,7 @@ import {grade,evidence,route} from './assessment.mjs';
 import {newsFeed,githubRepo,validateRepo} from './live.mjs';
 import {execute} from '../sandbox/runtime.mjs';
 import {codeTasks} from '../sandbox/tasks.mjs';
+import {executePiston,runtimes as pistonRuntimes} from '../sandbox/piston.mjs';
 const json=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 const validId=x=>typeof x==='string'&&/^[a-zA-Z0-9-]{1,80}$/.test(x);
@@ -42,6 +43,19 @@ export async function api(req,env){
    await db.write('INSERT INTO github_profiles (user_id,repository) VALUES (?,?) ON CONFLICT(user_id) DO UPDATE SET repository=excluded.repository',user.id,body.repository);return json({saved:true,selected:body.repository,...result});
   }
   if(p==='/api/code-runs'&&method==='GET')return json({records:await db.all('SELECT id, task_id, code, result, created_at FROM code_runs WHERE user_id = ? ORDER BY created_at DESC LIMIT 30',user.id)});
+  if(p==='/api/piston/runtimes'&&method==='GET')return json({runtimes:await pistonRuntimes(env)});
+  if(p==='/api/piston-runs'&&method==='POST'){
+   if(!validId(body.id)||!['python','csharp','java'].includes(body.language)||typeof body.code!=='string'||body.code.length>12000||typeof (body.stdin||'')!=='string'||(body.stdin||'').length>8000)throw fail('invalid_code_run');
+   const taskId='piston-'+body.language;const prior=await db.one('SELECT user_id,task_id,code,result FROM code_runs WHERE id = ?',body.id);if(prior&&prior.user_id!==user.id)throw fail('code_run_not_found',404);
+   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(body.code+'\0'+(body.stdin||'')));
+   const sourceHash=Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');
+   if(prior&&(prior.task_id!==taskId||prior.code!==body.code||JSON.parse(prior.result).sourceHash!==sourceHash))throw fail('code_run_conflict',409);
+   if(prior)return json({saved:true,verification:'piston-executed-unscored',result:JSON.parse(prior.result).report});
+   const report=await executePiston(env,{language:body.language,code:body.code,stdin:body.stdin||''});
+   const record={verification:'piston-executed-unscored',sourceHash,report};
+   await db.write('INSERT INTO code_runs (id,user_id,task_id,code,result,created_at) VALUES (?,?,?,?,?,?)',body.id,user.id,taskId,body.code,JSON.stringify(record),new Date().toISOString());
+   return json({saved:true,verification:record.verification,result:report});
+  }
   if(p==='/api/code-runs'&&method==='POST'){
    if(!validId(body.id)||!(body.taskId==='playground'||codeTasks.some(t=>t.id===body.taskId))||typeof body.code!=='string'||body.code.length>12000)throw fail('invalid_code_run');
    const prior=await db.one('SELECT user_id,task_id,code,result FROM code_runs WHERE id = ?',body.id);if(prior&&prior.user_id!==user.id)throw fail('code_run_not_found',404);

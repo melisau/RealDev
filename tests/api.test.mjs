@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {api} from '../server/api.mjs';import {localDb} from '../scripts/local-db.mjs';
 const origin='https://realdev.test';
-function client(DB,user='user-a'){return async(path,body,method='POST',other={})=>{const headers={...(user?{'oai-authenticated-user-id':user,'oai-authenticated-user-email':user+'@test.local'}:{}),...(body?{'Content-Type':'application/json',Origin:origin}:{}),...other};const response=await api(new Request(origin+'/api/'+path,{method:body?method:'GET',headers,body:body?JSON.stringify(body):undefined}),{DB});return {status:response.status,body:await response.json()};};}
+function client(DB,user='user-a',extra={}){return async(path,body,method='POST',other={})=>{const headers={...(user?{'oai-authenticated-user-id':user,'oai-authenticated-user-email':user+'@test.local'}:{}),...(body?{'Content-Type':'application/json',Origin:origin}:{}),...other};const response=await api(new Request(origin+'/api/'+path,{method:body?method:'GET',headers,body:body?JSON.stringify(body):undefined}),{DB,...extra});return {status:response.status,body:await response.json()};};}
 test('account ownership, durable state, idempotency, hints and profile route flow',async()=>{
  const DB=localDb();const a=client(DB),b=client(DB,'user-b');
  assert.equal((await client(DB,null)('state')).status,401);
@@ -63,4 +63,17 @@ test('saved questions keep the wrong answer, survive reload and cannot cross acc
  assert.equal(response.body.attempt.score,0);assert.equal((await b('library',{attemptId:id})).status,404);
  assert.equal((await a('library',{attemptId:id})).status,200);await a('library',{attemptId:id});
  const state=(await a('state')).body;assert.equal(state.library.length,1);assert.equal(state.library[0].attempt_id,id);assert.equal(state.attempts.find(x=>x.id===id).answer,1);assert.equal((await b('state')).body.library.length,0);DB.close();
+});
+test('Piston runtimes and runs are authenticated, bounded, persisted and never count as skill evidence',async()=>{
+ const DB=localDb(),requests=[];const runtimes=[{language:'python',version:'3.12.0',aliases:[]},{language:'csharp',version:'6.12.0',aliases:['cs']},{language:'csharp.net',version:'5.0.201',aliases:['csharp.net']},{language:'java',version:'21.0.1',aliases:[]}];
+ const service={fetch:async request=>{const url=new URL(request.url);requests.push({url:url.pathname,body:request.method==='POST'?await request.json():null});return url.pathname.endsWith('/runtimes')?Response.json(runtimes):Response.json({compile:null,run:{stdout:'Merhaba, Melisa!\n',stderr:'',code:0,status:'OK',cpu_time:5,wall_time:8,memory:1048576}});}};
+ const a=client(DB,'user-a',{CUSTOMER_HTTP_PISTON:service}),b=client(DB,'user-b',{CUSTOMER_HTTP_PISTON:service}),before=(await a('state')).body.evidence.length;
+ assert.equal((await client(DB,null,{CUSTOMER_HTTP_PISTON:service})('piston/runtimes')).status,401);
+ assert.deepEqual((await a('piston/runtimes')).body.runtimes.map(r=>r.id),['python','csharp','java']);
+ const run={id:'piston-run',language:'csharp',code:'Console.WriteLine("Merhaba");',stdin:''};
+ const saved=await a('piston-runs',run);assert.equal(saved.status,200);assert.equal(saved.body.verification,'piston-executed-unscored');assert.equal(saved.body.result.stdout,'Merhaba, Melisa!\n');
+ assert.equal(requests.at(-1).url,'/api/v2/execute');assert.equal(requests.at(-1).body.language,'csharp');assert.equal(requests.at(-1).body.files[0].name,'main.cs');assert.equal(requests.at(-1).body.run_memory_limit,67108864);assert.equal(requests.at(-1).body.run_timeout,3000);
+ assert.equal((await b('piston-runs',run)).status,404);assert.equal((await a('piston-runs',{...run,stdin:'changed'})).status,409);
+ assert.equal((await a('code-runs')).body.records.length,1);assert.equal((await b('code-runs')).body.records.length,0);
+ assert.equal((await a('state')).body.evidence.length,before);DB.close();
 });

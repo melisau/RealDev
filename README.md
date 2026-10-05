@@ -15,6 +15,8 @@ Bilingual (Turkish/English) developer practice app with account-backed assessmen
 - Responsive dark/light themes.
 - ChatGPT sign-in with first-use registration: display name, technologies, goals and daily time persist per user. The current deployment remains owner-private.
 - Four editable JavaScript/debug exercises and a free playground using QuickJS in a Web Worker; saved code history is account-scoped.
+- Specialty code tasks and interview/project practice for AI, data, mobile, frontend, API, .NET, DevOps and Unity. Only server-verified authored tasks add skill evidence; open-ended project responses are saved as notes and are not auto-graded.
+- Optional account-scoped Piston execution for free-form Python, C# and Java. These runs are persisted with bounded output and explicitly excluded from skill scoring.
 - Official live RSS feeds (OpenAI, GitHub, .NET and Kubernetes), cached 15 minutes with explicit stale/error status. Summaries are source excerpts, not generated claims.
 - Public GitHub repository selector with commits, pull requests and Actions runs, cached five minutes.
 
@@ -30,6 +32,10 @@ npm run dev
 ```
 
 Open http://127.0.0.1:4317. Preview uses a fixed **local-only identity** and isolated SQLite file in `.local/preview.sqlite`. It binds to loopback. Never expose this development server publicly. The identity adapter is excluded from the production Worker.
+
+To start the local Piston service on Docker Desktop, review `docker-compose.piston.yml` and run `./scripts/start-piston.ps1` in PowerShell. It binds only to `127.0.0.1:2000`, disables networking for code jobs and limits concurrent jobs, runtime, CPU, memory, output, processes, open files and file sizes. Piston requires a privileged Linux container for its Isolate/cgroup setup; Docker Desktop's Linux VM is the trust boundary. The script installs the Python, C# and Java packages that the Piston package index offers. Start `npm run dev` after Piston is ready. The local preview config points to `http://127.0.0.1:2000` by default; set `PISTON_URL` to override it.
+
+Production Piston execution requires an authenticated private HTTP tunnel binding named `piston` (mapped to `CUSTOMER_HTTP_PISTON`) or another private `PISTON_URL` service configuration. The Site UI reports unavailable runtimes when that service is not connected; the browser never contacts the runner directly.
 
 ```sh
 npm run db:generate   # after changing db/schema.ts
@@ -56,7 +62,7 @@ This is formative practice, not certification or an overall employment ranking. 
 
 Written/spoken explanations are saved alongside explicit self-review criteria. They are **not AI-graded for technical accuracy**. Dictation depends on browser permission/support and may use the browser provider's recognition service. This app does not store audio.
 
-Coverage is limited. AI/data/mobile goals currently use shared foundation tasks; specialist competency is not claimed. Remaining work: specialized AI/data/mobile question banks; Python/C#/Java execution; independent server verification of full-program practice; technical grading of written/spoken explanations; private GitHub OAuth; public registration/access policy; account export/deletion; richer Git/IDE diagnostics. Public news/GitHub data can be temporarily unavailable or rate-limited; cached stale data is labeled. Legacy local prototype scores are not imported as verified evidence.
+Coverage is formative. AI/data/mobile/game-oriented tasks and additional area-specific interview/project scenarios broaden practice, but this is not a certification: several specialty prompts remain choice-based, open responses are not technically graded, and test cases cannot establish general expertise. Piston code is run and recorded, but free-form results do not add skill evidence. Remaining work includes broader real project/debugging evaluations, technical grading of explanations, private GitHub OAuth, access policy, account export/deletion and richer IDE diagnostics. Public news/GitHub data can be temporarily unavailable or rate-limited; cached stale data is labeled. Legacy local prototype scores are not imported as verified evidence.
 
 ## Publishing
 
