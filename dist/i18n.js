@@ -43,6 +43,7 @@
     'AI’ın ürettiği bir kodu kullanmadan önce kendine sor: Girdi ne? Çıktı ne? Hata olursa ilk hangi kanıta bakarım?': 'Before using AI-generated code, ask: What goes in? What comes out? If it fails, what evidence should I check first?',
     'KAYNAĞI BELLİ, GÜNCEL GELİŞMELER': 'LATEST UPDATES',
     'GÜNCEL GELİŞMELER': 'LATEST UPDATES',
+    'Güncel gelişmeler': 'Latest updates',
     'Haberleri gör →': 'View updates →',
     'SENİN ÖĞRENME YOLUN': 'YOUR LEARNING PATH',
     'Geliştirici profilin': 'Your developer profile',
