@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6f8">
+  <meta name="description" content="Kod yazma, hata çözme ve teknik kavramları açıklama becerilerini geliştir.">
+  <title>Gerçek Geliştirici · Yazılım çalışma alanı</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#today" aria-label="Gerçek Geliştirici ana sayfa">
+        <span class="brand-mark">&lt;/&gt;</span><span>gerçek<span class="brand-light">geliştirici</span></span>
+      </a>
+      <div class="side-label">ÇALIŞMA ALANIN</div>
+      <nav class="nav-list" aria-label="Ana menü">
+        <button class="nav-item active" data-view="today"><span class="nav-icon">◷</span> Bugün <span class="nav-count">1</span></button>
+        <button class="nav-item" data-view="map"><span class="nav-icon">⌘</span> Beceri haritam</button>
+        <button class="nav-item" data-view="errors"><span class="nav-icon">⌁</span> Hata laboratuvarı</button>
+        <button class="nav-item" data-view="concepts"><span class="nav-icon">▤</span> Kavramlar</button>
+        <button class="nav-item" data-view="news"><span class="nav-icon">◉</span> Yazılım haberleri <span class="nav-dot"></span></button>
+        <button class="nav-item" data-view="github"><span class="nav-icon">◈</span> GitHub pratiği</button>
+      </nav>
+      <div class="side-divider"></div>
+      <button class="profile-card" id="profileOpen">
+        <span class="avatar">M</span><span class="profile-copy"><strong>Geliştirici profili</strong><small>Full stack · Unity</small></span><span class="chevron">⌄</span>
+      </button>
+      <div class="sidebar-foot"><span class="status-dot"></span> Öğrenme yolun sana göre şekillenir</div>
+    </aside>
+    <main class="main-area">
+      <header class="topbar">
+        <button class="mobile-menu" id="menuButton" aria-label="Menüyü aç">☰</button>
+        <div class="breadcrumb"><span>Çalışma alanı</span><span class="crumb-sep">/</span><strong id="crumbCurrent">Bugün</strong></div>
+        <div class="top-actions"><span class="today-date">5 Ekim 2026</span><button class="icon-button" id="reminderButton" title="Hatırlatıcı ayarla" aria-label="Hatırlatıcı ayarla">♧</button><button class="avatar avatar-small" id="profileOpenTop" aria-label="Profil">M</button></div>
+      </header>
+      <div class="content" id="viewRoot"></div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog id="profileDialog" class="modal">
+    <form method="dialog"><button class="modal-close" aria-label="Kapat">×</button></form>
+    <div class="modal-eyebrow">SENİN ÖĞRENME YOLUN</div><h2>Geliştirici profilin</h2>
+    <p>Çalıştığın alanlar öğrenme örneklerini kişiselleştirir. Seviyeni görevlerde verdiğin cevaplara göre birlikte keşfedeceğiz.</p>
+    <div class="profile-tags"><span>Full stack</span><span>JavaScript</span><span>TypeScript</span><span>React</span><span>Java</span><span>Python</span><span>C</span><span>C# / .NET</span><span>Unity · mobil oyun</span></div>
+    <label class="field-label" for="dailyGoal">Günlük çalışma süresi</label><select id="dailyGoal"><option>10 dakika</option><option selected>15 dakika</option><option>25 dakika</option></select>
+    <button class="primary-button full-button" id="saveProfile">Profili kaydet <span>→</span></button>
+  </dialog>
+  <script src="/app.js" defer></script>
+</body>
+</html>
