@@ -269,3 +269,16 @@ h1, .brand { font-family: 'Major Mono Display', 'Plus Jakarta Sans', Arial, sans
 :root[data-theme="dark"] .live-dot { border-color: #48d1cc; }
 :root[data-theme="dark"] .hero-card { border-color: var(--line); }
 :root[data-theme="dark"] .sidebar { box-shadow: 8px 0 0 #252b34; }
+/* White symbols stay legible on saturated brand and selected-navigation surfaces. */
+:root .nav-item.active .nav-icon,
+:root[data-theme="dark"] .nav-item.active .nav-icon { color: #ffffff; }
+:root .brand-mark {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  font-size: 16px;
+  letter-spacing: -1px;
+  color: #ffffff;
+  background: var(--purple);
+  border-color: var(--line);
+}
