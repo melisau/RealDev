@@ -1,7 +1,7 @@
 import {readFileSync,writeFileSync,mkdirSync,readdirSync,copyFileSync,rmSync} from 'node:fs';
 import {resolve,dirname,basename} from 'node:path';
 import {build} from 'esbuild';
-const types={html:'text/html',css:'text/css',js:'text/javascript',svg:'image/svg+xml'};
+const types={html:'text/html',css:'text/css',js:'text/javascript',svg:'image/svg+xml',webmanifest:'application/manifest+json'};
 const output=resolve('dist');if(dirname(output)!==resolve('.')||basename(output)!=='dist')throw Error('Unsafe build path');
 rmSync(output,{recursive:true,force:true});
 await build({entryPoints:['sandbox/worker.mjs'],outfile:'web/code-worker.js',bundle:true,format:'iife',platform:'browser',target:'es2022',minify:true});

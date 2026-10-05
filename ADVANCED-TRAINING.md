@@ -1,0 +1,13 @@
+# Advanced curriculum
+
+The advanced screen adds three three-stage projects and three six-phase, 75-minute interview rehearsals. It is accessible from the existing interview/project page and the learning route. Both Turkish and English metadata are supplied.
+
+* API/SQLite: Python HTTP adapter plus a real SQLite database; parameterized inserts/input validation, ownership and atomic stock transfer with injected rollback failure. Download `main.py` and use `python main.py --serve` on localhost:8080. The hosted sandbox exercises the same handler with JSON stdin requests in a fresh memory database. Identity flags in this training protocol are not authentication for an internet-facing server.
+* .NET service: pure C# models for status contracts, partial stock writes and cancellation/retry state. The local extension brief requires ASP.NET Core routing, ProblemDetails, cancellation and EF Core transaction integration. Mono console tests do not verify ASP.NET/EF hosting.
+* Unity lifecycle: pure C# models for duplicate event subscriptions, stale pool health and save migration. The local extension brief requires OnEnable/OnDisable pairing and EditMode/PlayMode checks. Console tests do not verify Unity scene wiring, callbacks, serialization or performance.
+
+The nine tasks have five independently selected server cases each, inaccessible in browser metadata. Compilation, signals and outputs are checked before grading; client-provided grades are ignored. Previous project stages must pass before later submissions are accepted. Results are persistent, replay-safe and account-scoped. All current authored Piston tasks share the twelve-submissions-per-fifteen-minutes account limit. The production Piston runner still requires a stable authenticated server, as documented in the deployment preparation guide. When disconnected, the UI disables server tests and still allows downloading starters and interviewing.
+
+Full stack, .NET and Unity interview tracks cover requirements, architecture/data models, incident debugging, implementation/review, transfer and reflection. Answers are autosaved sequentially to prevent out-of-order overwrites. Session start and answers resume from the account; the proposed duration is not a forced timer. Audio uses the existing explicit-consent transcription flow. Self-review rubrics do not award verified skill points. Learning reset and full account deletion remove interview sessions; export includes them.
+
+Verification: server/API tests for stage prerequisites, account isolation, independent grading, unavailable runners, suite versions and interview persistence; all reference solutions and buggy starters are additionally exercised against the local Python/C# Piston installation.

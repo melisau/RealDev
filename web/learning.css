@@ -9,3 +9,5 @@
 .rd .rd-table pre{white-space:pre-wrap;max-width:320px;overflow-wrap:anywhere}
 .rd-note-text{white-space:pre-wrap}
 @media(max-width:720px){.rd-grid{grid-template-columns:1fr}.rd .rd-table pre{max-width:220px}.rd textarea{max-width:100%}}
+.reminder-dialog{width:min(560px,92vw);max-height:90vh;overflow:auto;background:var(--paper);color:var(--ink);border:2px solid var(--line);padding:24px}.reminder-dialog::backdrop{background:#161b22aa}.reminder-dialog input[type=time],.reminder-dialog select{padding:10px;font:inherit;background:var(--paper);color:var(--ink);border:1px solid var(--line)}
+

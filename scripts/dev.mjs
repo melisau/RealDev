@@ -15,9 +15,10 @@ createServer(async(req,res)=>{
    const chunks=[];for await(const chunk of req)chunks.push(chunk);
    const headers=new Headers(req.headers);headers.set('oai-authenticated-user-id','local-preview-user');headers.set('oai-authenticated-user-email','preview@local.test');
    const request=new Request(url,{method:req.method,headers,body:['GET','HEAD'].includes(req.method)?undefined:Buffer.concat(chunks)});
-   response=await api(request,{DB,OPENAI_API_KEY:process.env.OPENAI_API_KEY,OPENAI_TEXT_MODEL:process.env.OPENAI_TEXT_MODEL,PISTON_URL:process.env.PISTON_URL||'http://127.0.0.1:2000',PISTON_API_KEY:process.env.PISTON_API_KEY});
+   response=await api(request,{DB,VAPID_PUBLIC_KEY:process.env.VAPID_PUBLIC_KEY,VAPID_PRIVATE_KEY:process.env.VAPID_PRIVATE_KEY,REMINDER_DISPATCH_TOKEN:process.env.REMINDER_DISPATCH_TOKEN,REMINDER_SCHEDULE_ENABLED:process.env.REMINDER_SCHEDULE_ENABLED,OPENAI_API_KEY:process.env.OPENAI_API_KEY,OPENAI_TEXT_MODEL:process.env.OPENAI_TEXT_MODEL,PISTON_URL:process.env.PISTON_URL||'http://127.0.0.1:2000',PISTON_API_KEY:process.env.PISTON_API_KEY});
   }else if(url.pathname.startsWith('/sign')){response=Response.redirect(host,302);}
   else{const base=resolve('web');const file=resolve(base,url.pathname==='/'?'index.html':'.'+url.pathname);if(!file.startsWith(base+sep)||!existsSync(file))response=new Response('Not found',{status:404});else response=new Response(readFileSync(file),{headers:{'content-type':(types[file.split('.').pop()]||'text/plain')+'; charset=utf-8','cache-control':'no-store'}});}
   res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));
  }catch(e){console.error(e);res.writeHead(500);res.end('Preview error');}
 }).listen(port,'127.0.0.1',()=>console.log('Local preview: '+host+' (isolated preview account)'));
+

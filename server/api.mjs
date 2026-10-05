@@ -10,6 +10,9 @@ import {capabilities,reserveAI,summarize,evaluateExplanation,transcribe} from '.
 import {practicalTasks,publicPractice,projects,practiceProgress} from './practice.mjs';
 import {polyglotTasks} from '../sandbox/polyglot-tasks.mjs';
 import {gradePolyglot,polyglotEvidence} from './polyglot.mjs';
+import {reminderState,saveReminder,saveSubscription,removeSubscription,testReminder,pushConfigured} from './reminders.mjs';
+import {advancedTasks,advancedProgress,interviewTracks} from './advanced.mjs';
+import {gradeAdvanced,advancedEvidence} from './advanced-grading.mjs';
 const json=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 const validId=x=>typeof x==='string'&&/^[a-zA-Z0-9-]{1,80}$/.test(x);
@@ -47,6 +50,36 @@ export async function api(req,env){
   }
   let body={};if(method!=='GET'){const text=new TextDecoder().decode(await boundedBody(req,144000));if(text.length>36000)throw fail('request_too_large',413);try{body=JSON.parse(text);}catch{throw fail('invalid_json');}if(!body||typeof body!=='object'||Array.isArray(body))throw fail('invalid_json');}
   const p=url.pathname;
+  if(p==='/api/advanced'&&method==='GET'){
+   const records=await db.all("SELECT id,task_id,code,result,created_at FROM code_runs WHERE user_id=? AND task_id LIKE 'advanced-%' ORDER BY created_at,id",user.id);
+   const sessions=await db.all('SELECT track,started_at,answers,updated_at FROM interview_sessions WHERE user_id=?',user.id);
+   return json({tasks:advancedTasks,projects:advancedProgress(records),records,tracks:interviewTracks,sessions:sessions.map(s=>({...s,answers:JSON.parse(s.answers)}))});
+  }
+  if(p==='/api/interviews'&&method==='POST'){
+   const track=interviewTracks.find(t=>t.id===body.track);if(!track)throw fail('invalid_interview');const now=new Date().toISOString();
+   await db.write('INSERT OR IGNORE INTO interview_sessions (user_id,track,started_at,answers,updated_at) VALUES (?,?,?,?,?)',user.id,track.id,now,'{}',now);return json({saved:true});
+  }
+  if(p==='/api/interviews'&&method==='PUT'){
+   const track=interviewTracks.find(t=>t.id===body.track);if(!track||!track.steps.some(s=>s.id===body.step)||typeof body.answer!=='string'||body.answer.length>6000)throw fail('invalid_interview');
+   const session=await db.one('SELECT answers FROM interview_sessions WHERE user_id=? AND track=?',user.id,track.id);if(!session)throw fail('interview_not_started',409);
+   // JSON path is selected from a trusted track; atomic update avoids lost parallel answers.
+   await db.write('UPDATE interview_sessions SET answers=json_set(answers,?,?),updated_at=? WHERE user_id=? AND track=?','$."'+body.step+'"',body.answer,new Date().toISOString(),user.id,track.id);return json({saved:true});
+  }
+  if(p==='/api/advanced-runs'&&method==='POST'){
+   const task=advancedTasks.find(t=>t.id===body.taskId);if(!task||!validId(body.id)||typeof body.code!=='string'||!body.code.trim()||body.code.length>12000)throw fail('invalid_code_run');
+   const prior=await db.one('SELECT * FROM code_runs WHERE id=?',body.id);if(prior&&prior.user_id!==user.id)throw fail('code_run_not_found',404);if(prior){if(prior.task_id!==task.id||prior.code!==body.code)throw fail('code_run_conflict',409);return json({saved:true,result:JSON.parse(prior.result).report});}
+   const project=advancedProgress(await db.all("SELECT task_id,result FROM code_runs WHERE user_id=? AND task_id LIKE 'advanced-%' ORDER BY created_at,id",user.id)).find(p=>p.id===task.project);
+   if(project.stageResults.slice(0,project.stages.indexOf(task.id)).some(s=>!s.passed))throw fail('project_stage_locked',409);
+   const usage=await db.one("SELECT COUNT(*) AS count FROM code_runs WHERE user_id=? AND (task_id LIKE 'advanced-%' OR task_id LIKE 'polyglot-%') AND created_at>=?",user.id,new Date(Date.now()-15*60000).toISOString());if(usage.count>=12)throw fail('polyglot_rate_limited',429);
+   const report=await gradeAdvanced(env,task.id,body.code);await db.write('INSERT INTO code_runs (id,user_id,task_id,code,result,created_at) VALUES (?,?,?,?,?,?)',body.id,user.id,task.id,body.code,JSON.stringify({verification:'server-verified',report}),new Date().toISOString());return json({saved:true,result:report});
+  }
+  if(p==='/api/reminders'&&method==='GET')return json(await reminderState(db,user.id,env));
+  if(p==='/api/reminders'&&method==='PUT'){await saveReminder(db,user.id,body);return json({saved:true});}
+  if(p==='/api/reminders/subscription'&&method==='POST'){
+   if(body.remove===true){await removeSubscription(db,user.id,body.endpoint);return json({removed:true});}
+   if(!pushConfigured(env))throw fail('push_not_configured',503);await saveSubscription(db,user.id,body.subscription);return json({saved:true});
+  }
+  if(p==='/api/reminders/test'&&method==='POST')return json(await testReminder(db,user.id,body,env));
   if(p==='/api/account/export'&&method==='GET')return json(await exportAccount(db,user.id));
   if(p==='/api/account/erase'&&method==='POST'){
    if(!['learning','account'].includes(body.scope)||body.confirmation!==(body.scope==='account'?'DELETE REALDEV':'RESET LEARNING'))throw fail('confirmation_required');
@@ -101,7 +134,7 @@ export async function api(req,env){
    if(prior&&(prior.task_id!==task.id||prior.code!==body.code))throw fail('code_run_conflict',409);
    if(prior)return json({saved:true,verification:'server-verified',result:JSON.parse(prior.result).report});
    const since=new Date(Date.now()-15*60*1000).toISOString();
-   const usage=await db.one("SELECT COUNT(*) AS count FROM code_runs WHERE user_id = ? AND task_id LIKE 'polyglot-%' AND created_at >= ?",user.id,since);
+   const usage=await db.one("SELECT COUNT(*) AS count FROM code_runs WHERE user_id = ? AND (task_id LIKE 'polyglot-%' OR task_id LIKE 'advanced-%') AND created_at >= ?",user.id,since);
    if(usage.count>=12)throw fail('polyglot_rate_limited',429);
    const report=await gradePolyglot(env,task.id,body.code);
    await db.write('INSERT INTO code_runs (id,user_id,task_id,code,result,created_at) VALUES (?,?,?,?,?,?)',body.id,user.id,task.id,body.code,JSON.stringify({verification:'server-verified',report}),new Date().toISOString());
@@ -132,7 +165,7 @@ export async function api(req,env){
    const account=await db.one('SELECT display_name, technologies, created_at, updated_at FROM accounts WHERE user_id = ?',user.id);
    const prefs=await profile(db,user.id);const records=(await db.all('SELECT * FROM attempts WHERE user_id = ? ORDER BY created_at, id',user.id)).map(unpack);
    const codeRecords=await db.all('SELECT task_id,result,created_at FROM code_runs WHERE user_id = ? ORDER BY created_at,id',user.id);
-   const codeEvidence=codeRecords.flatMap(row=>{if(row.task_id.startsWith('polyglot-'))return polyglotEvidence(row);const task=codeTasks.find(t=>t.id===row.task_id);if(!task?.area)return [];try{const report=JSON.parse(row.result).report;if(!report?.total)return [];return [{task_id:row.task_id,area:task.area,score:Math.round(report.passed/report.total*100),hinted:0,skipped:0,created_at:row.created_at}];}catch{return [];}});
+   const codeEvidence=codeRecords.flatMap(row=>{if(row.task_id.startsWith('advanced-'))return advancedEvidence(row);if(row.task_id.startsWith('polyglot-'))return polyglotEvidence(row);const task=codeTasks.find(t=>t.id===row.task_id);if(!task?.area)return [];try{const report=JSON.parse(row.result).report;if(!report?.total)return [];return [{task_id:row.task_id,area:task.area,score:Math.round(report.passed/report.total*100),hinted:0,skipped:0,created_at:row.created_at}];}catch{return [];}});
    const active=await db.one("SELECT id FROM runs WHERE user_id = ? AND kind = 'baseline' AND complete = 0 ORDER BY created_at DESC LIMIT 1",user.id);
    const notes=await db.all('SELECT id, task_id, body, resolved, created_at, updated_at FROM notes WHERE user_id = ? ORDER BY created_at DESC',user.id);
    const library=await db.all('SELECT task_id, attempt_id, created_at FROM saved_questions WHERE user_id = ? ORDER BY created_at DESC',user.id);
