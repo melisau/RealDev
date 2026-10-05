@@ -1,0 +1,131 @@
+:root {
+  color-scheme: light;
+  --purple: #63efff;
+  --purple-soft: #c5faff;
+  --green-soft: #63efff;
+  --neon-blue-ink: #07333a;
+}
+
+.theme-toggle { flex: 0 0 auto; display: grid; place-items: center; font-size: 17px; }
+.nav-item.active { color: var(--neon-blue-ink); }
+.primary-button, .hero-card .primary-button, .toast { color: var(--neon-blue-ink); }
+.primary-button:hover, .hero-card .primary-button:hover { background: #a8f7ff; }
+.hero-card { box-shadow: 7px 7px 0 var(--purple); }
+.hero-card:after { border-color: #63efff40; box-shadow: 0 0 0 25px #63efff19, 0 0 0 53px #63efff0e; }
+.task-row:hover, .practice-tile:hover, .concept-card:hover { background: #c5faff; }
+.profile-card:hover, .choice:hover, .choice.selected, .goal-option:has(input:checked) { background: #c5faff; }
+.result-box { background: #c5faff; color: #07333a; }
+.concept-detail .analogy, .news-summary { background: #c5faff; color: #17383d; }
+.toast { background: var(--purple); }
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #e8f3f5;
+  --muted: #afbdc1;
+  --line: #34434a;
+  --paper: #192126;
+  --canvas: #101619;
+  --purple: #63efff;
+  --purple-soft: #14363d;
+  --green: #70dfb4;
+  --green-soft: #63efff;
+  --orange-soft: #382c26;
+  --blue-soft: #202e54;
+  --shadow: 5px 5px 0 #050809;
+}
+
+:root[data-theme="dark"] body {
+  background-color: var(--canvas);
+  background-image: linear-gradient(#ffffff0a 1px, transparent 1px), linear-gradient(90deg, #ffffff0a 1px, transparent 1px);
+  color: var(--ink);
+}
+:root[data-theme="dark"] .sidebar,
+:root[data-theme="dark"] .topbar { background: #151d21; border-color: var(--line); }
+:root[data-theme="dark"] .main-area { background: #101619e8; }
+:root[data-theme="dark"] .brand-light,
+:root[data-theme="dark"] .side-label,
+:root[data-theme="dark"] .eyebrow,
+:root[data-theme="dark"] .hero-overline,
+:root[data-theme="dark"] .today-date,
+:root[data-theme="dark"] .task-time,
+:root[data-theme="dark"] .quiz-step,
+:root[data-theme="dark"] .concept-type,
+:root[data-theme="dark"] .news-card-top,
+:root[data-theme="dark"] .practice-tile > span,
+:root[data-theme="dark"] .day-pill,
+:root[data-theme="dark"] .source-badge { color: #c1d0d4; }
+:root[data-theme="dark"] .page-heading { border-color: var(--line); }
+:root[data-theme="dark"] .page-heading p,
+:root[data-theme="dark"] .welcome-row p,
+:root[data-theme="dark"] .task-copy small,
+:root[data-theme="dark"] .task-copy small,
+:root[data-theme="dark"] .task-copy p,
+:root[data-theme="dark"] .skill-name,
+:root[data-theme="dark"] .skill-state,
+:root[data-theme="dark"] .concept-card p,
+:root[data-theme="dark"] .news-card > p,
+:root[data-theme="dark"] .news-mini p,
+:root[data-theme="dark"] .quiz-context,
+:root[data-theme="dark"] .concept-detail p,
+:root[data-theme="dark"] .modal p,
+:root[data-theme="dark"] .text-muted,
+:root[data-theme="dark"] .source-note { color: #afbdc1; }
+:root[data-theme="dark"] .nav-item { color: #e2ecee; }
+:root[data-theme="dark"] .nav-item:hover { background: #202c31; border-color: var(--line); color: #fff; }
+:root[data-theme="dark"] .nav-item.active { background: var(--purple); border-color: #d5fcff; color: var(--neon-blue-ink); }
+:root[data-theme="dark"] .icon-button,
+:root[data-theme="dark"] .avatar-small { background: var(--purple); border-color: #d5fcff; color: var(--neon-blue-ink); }
+:root[data-theme="dark"] .panel,
+:root[data-theme="dark"] .quiz-card,
+:root[data-theme="dark"] .feature-card,
+:root[data-theme="dark"] .news-mini,
+:root[data-theme="dark"] .news-card,
+:root[data-theme="dark"] .concept-card,
+:root[data-theme="dark"] .concept-detail,
+:root[data-theme="dark"] .practice-tile,
+:root[data-theme="dark"] .modal { background: var(--paper); border-color: var(--line); color: var(--ink); box-shadow: 5px 5px 0 #050809; }
+:root[data-theme="dark"] .task-row,
+:root[data-theme="dark"] .choice,
+:root[data-theme="dark"] .answer-area,
+:root[data-theme="dark"] .modal select,
+:root[data-theme="dark"] .secondary-button,
+:root[data-theme="dark"] .mic-button { background: #11191d; border-color: var(--line); color: var(--ink); }
+:root[data-theme="dark"] .task-row:hover,
+:root[data-theme="dark"] .practice-tile:hover,
+:root[data-theme="dark"] .concept-card:hover,
+:root[data-theme="dark"] .choice:hover,
+:root[data-theme="dark"] .choice.selected,
+:root[data-theme="dark"] .goal-option:has(input:checked) { background: #14363d; border-color: var(--purple); color: #e9fdff; }
+:root[data-theme="dark"] .primary-button,
+:root[data-theme="dark"] .hero-card .primary-button,
+:root[data-theme="dark"] .toast,
+:root[data-theme="dark"] .goal-option:has(input:checked) { color: var(--neon-blue-ink); }
+:root[data-theme="dark"] .hero-card { background: #080e11; border-color: #52646a; color: #f1f8fa; }
+:root[data-theme="dark"] .hero-card p { color: #c5d2d5; }
+:root[data-theme="dark"] .hero-card .primary-button { background: var(--purple); }
+:root[data-theme="dark"] .tip-card { background: #172c4a; border-color: #52646a; }
+:root[data-theme="dark"] .tip-card p { color: #e4efff; }
+:root[data-theme="dark"] .streak,
+:root[data-theme="dark"] .day-pill { background: #382c26; color: #ffe0c8; border-color: #8a634b; }
+:root[data-theme="dark"] .progress,
+:root[data-theme="dark"] .skill-track { background: #0c1215; border-color: var(--line); }
+:root[data-theme="dark"] .code-block { background: #080d10; border-color: #46575d; }
+:root[data-theme="dark"] .result-box,
+:root[data-theme="dark"] .concept-detail .analogy,
+:root[data-theme="dark"] .news-summary,
+:root[data-theme="dark"] .profile-tags span { background: #14363d; border-color: #3d737b; color: #d9fbff; }
+:root[data-theme="dark"] .result-box.warning { background: #392b20; color: #ffe2c9; border-color: #76573d; }
+:root[data-theme="dark"] .source-note { background: #11191d; border-color: var(--line); }
+:root[data-theme="dark"] .news-mini .source-badge,
+:root[data-theme="dark"] .source-badge { background: #14363d; border-color: #3d737b; color: #d9fbff; }
+:root[data-theme="dark"] .profile-tags span { color: #d9fbff; }
+:root[data-theme="dark"] .goal-option { border-color: var(--line); color: #dce8eb; }
+:root[data-theme="dark"] .answer-area::placeholder { color: #819196; }
+:root[data-theme="dark"] .modal::backdrop { background: #020607c9; }
+:root[data-theme="dark"] .toast { background: var(--purple); }
+:root[data-theme="dark"] .topbar .breadcrumb strong { color: var(--ink); }
+:root[data-theme="dark"] .mobile-menu { color: var(--ink); }
+
+@media (max-width: 720px) {
+  .theme-toggle { margin-left: 2px; }
+}
