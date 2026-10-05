@@ -3,6 +3,7 @@ import {tasks,areas,baselineIds,goals,goalLabels,VERSION,publicTask} from './cat
 import {grade,evidence,route} from './assessment.mjs';
 import {newsFeed,githubRepo,validateRepo} from './live.mjs';
 import {execute} from '../sandbox/runtime.mjs';
+import {codeTasks} from '../sandbox/tasks.mjs';
 const json=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 const validId=x=>typeof x==='string'&&/^[a-zA-Z0-9-]{1,80}$/.test(x);
@@ -42,7 +43,7 @@ export async function api(req,env){
   }
   if(p==='/api/code-runs'&&method==='GET')return json({records:await db.all('SELECT id, task_id, code, result, created_at FROM code_runs WHERE user_id = ? ORDER BY created_at DESC LIMIT 30',user.id)});
   if(p==='/api/code-runs'&&method==='POST'){
-   if(!validId(body.id)||!['sum-positive','missing-return','null-name','queue-copy','playground'].includes(body.taskId)||typeof body.code!=='string'||body.code.length>12000)throw fail('invalid_code_run');
+   if(!validId(body.id)||!(body.taskId==='playground'||codeTasks.some(t=>t.id===body.taskId))||typeof body.code!=='string'||body.code.length>12000)throw fail('invalid_code_run');
    const prior=await db.one('SELECT user_id,task_id,code,result FROM code_runs WHERE id = ?',body.id);if(prior&&prior.user_id!==user.id)throw fail('code_run_not_found',404);
    if(prior&&(prior.task_id!==body.taskId||prior.code!==body.code))throw fail('code_run_conflict',409);
    if(prior)return json({saved:true,verification:'server-verified',result:JSON.parse(prior.result).report});
@@ -53,10 +54,13 @@ export async function api(req,env){
   if(p==='/api/state'&&method==='GET'){
    const account=await db.one('SELECT display_name, technologies, created_at, updated_at FROM accounts WHERE user_id = ?',user.id);
    const prefs=await profile(db,user.id);const records=(await db.all('SELECT * FROM attempts WHERE user_id = ? ORDER BY created_at, id',user.id)).map(unpack);
+   const codeRecords=await db.all('SELECT task_id,result,created_at FROM code_runs WHERE user_id = ? ORDER BY created_at,id',user.id);
+   const codeEvidence=codeRecords.flatMap(row=>{const task=codeTasks.find(t=>t.id===row.task_id);if(!task?.area)return [];try{const report=JSON.parse(row.result).report;if(!report?.total)return [];return [{task_id:row.task_id,area:task.area,score:Math.round(report.passed/report.total*100),hinted:0,skipped:0,created_at:row.created_at}];}catch{return [];}});
    const active=await db.one("SELECT id FROM runs WHERE user_id = ? AND kind = 'baseline' AND complete = 0 ORDER BY created_at DESC LIMIT 1",user.id);
    const notes=await db.all('SELECT id, task_id, body, resolved, created_at, updated_at FROM notes WHERE user_id = ? ORDER BY created_at DESC',user.id);
    const library=await db.all('SELECT task_id, attempt_id, created_at FROM saved_questions WHERE user_id = ? ORDER BY created_at DESC',user.id);
-   return json({user:{email:user.email},account,profile:prefs,tasks:tasks.map(publicTask),areas,goals:goalLabels,version:VERSION,attempts:records,notes,library,evidence:evidence(records),route:route(prefs,records),activeRun:active?await runData(db,user.id,active.id):null});
+   const allEvidence=[...records,...codeEvidence];
+   return json({user:{email:user.email},account,profile:prefs,tasks:tasks.map(publicTask),areas,goals:goalLabels,version:VERSION,attempts:records,notes,library,evidence:evidence(allEvidence),route:route(prefs,allEvidence),activeRun:active?await runData(db,user.id,active.id):null});
   }
   if(p==='/api/profile'&&method==='PUT'){
    if(!Array.isArray(body.goals)||!body.goals.length||body.goals.length>goals.length||body.goals.some(g=>!goals.includes(g))||![10,15,25].includes(body.dailyMinutes))throw fail('invalid_profile');

@@ -6,6 +6,15 @@ test('QuickJS exercises evaluate actual output and equivalent object key order',
  const right=await execute('function solve(xs){return xs.filter(n=>n>0).reduce((a,b)=>a+b,0)}','sum-positive');assert.equal(right.passed,4);
  const queue=await execute('function solve(xs){const remaining=[...xs];const value=remaining.shift()??null;return {remaining,value}}','queue-copy');assert.equal(queue.passed,3);
 });
+test('hands-on AI, data, mobile and game code tasks run independent edge cases',async()=>{
+ const solutions=[
+  ['ai-code-grounding','function solve(claims){return claims.filter(c=>typeof c.sourceId==="string"&&c.sourceId.trim().length>0).map(c=>({id:c.id,sourceId:c.sourceId}))}'],
+  ['data-code-dedupe','function solve(records){const seen=new Set();return records.filter(r=>{if(seen.has(r.id))return false;seen.add(r.id);return true})}'],
+  ['mobile-code-stale-response','function solve(input){const {state,currentRequestId,response}=input;return response.requestId===currentRequestId?{...state,data:response.data}:state}'],
+  ['game-code-health','function solve(input){const [health,damage,maxHealth]=input;const next=Math.min(maxHealth,Math.max(0,health-damage));return {health:next,defeated:next===0}}']
+ ];
+ for(const [id,code] of solutions){const r=await execute(code,id);assert.equal(r.passed,r.total,id);assert.ok(r.total>=3,id);}
+});
 test('QuickJS has no host network, filesystem, DOM or identity access',async()=>{
  const r=await execute('console.log(typeof fetch,typeof process,typeof require,typeof document,typeof localStorage,typeof postMessage)');assert.deepEqual(r.logs,['undefined undefined undefined undefined undefined undefined']);
  const escape=await execute('console.log(console.log.constructor("return typeof process")())');assert.equal(escape.logs[0],'undefined');

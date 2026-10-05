@@ -38,7 +38,10 @@ test('registration is durable, validates fields and isolates accounts and code h
  const verified=await a('code-runs',code);assert.equal(verified.status,200);assert.equal(verified.body.verification,'server-verified');assert.equal(verified.body.result.total,4);assert.equal(verified.body.result.passed,4);
  await a('code-runs',code);assert.equal((await a('code-runs',{...code,code:'function solve(n){return 999}'})).status,409);
  assert.equal((await a('code-runs')).body.records.length,1);assert.equal((await b('code-runs')).body.records.length,0);assert.equal((await b('code-runs',code)).status,404);
- assert.equal((await a('state')).body.attempts.length,0);DB.close();
+ const practical={id:'data-code-one',taskId:'data-code-dedupe',code:'function solve(records){const seen=new Set();return records.filter(r=>{if(seen.has(r.id))return false;seen.add(r.id);return true})}'};
+ const executed=await a('code-runs',practical);assert.equal(executed.body.result.passed,3);assert.equal(executed.body.result.total,3);
+ const measured=(await a('state')).body;const data=measured.evidence.find(e=>e.area==='data');assert.equal(data.distinct,1);assert.equal(data.independent,1);assert.equal(data.status,'initial');assert.equal(measured.route.find(r=>r.area==='data').taskId,'error-data-unique');
+ assert.equal(measured.attempts.length,0);DB.close();
 });
 test('notes persist with answers, are idempotent, editable and user-owned',async()=>{
  const DB=localDb(),a=client(DB),b=client(DB,'user-b');

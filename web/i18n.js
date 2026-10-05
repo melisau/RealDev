@@ -7,6 +7,7 @@
     'Kavramlar': 'Concepts',
     'Yazılım haberleri': 'Software updates',
     'GitHub pratiği': 'GitHub practice',
+    'Mülakat ve proje provası': 'Interview and project practice',
     'Geliştirici profili': 'Developer profile',
     'Öğrenme yolun sana göre şekillenir': 'Your learning path adapts to you',
     'Çalışma alanı': 'Workspace',
