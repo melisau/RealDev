@@ -270,7 +270,7 @@
         translated = trimmed.split(' · ').map(part => dict[part] || part).join(' · ');
         if (translated === trimmed) translated = null;
       }
-      if (!translated) continue;
+      if (!translated || translated === trimmed) continue;
       const leading = node.nodeValue.match(/^\s*/)[0];
       const trailing = node.nodeValue.match(/\s*$/)[0];
       node.nodeValue = leading + translated + trailing;
