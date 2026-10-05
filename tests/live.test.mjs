@@ -17,6 +17,11 @@ test('live feeds cache successful data and label stale fallback on failure',asyn
  const stale=await newsFeed(db,async()=>{throw Error('offline');});assert.equal(stale.items.length,4);assert.ok(stale.items.every(x=>x.stale));assert.ok(stale.sources.every(x=>x.error==='offline'));
  DB.close();
 });
+test('news requests follow canonical redirects and reject feeds leaving their trusted host',async()=>{
+ const DB=localDb(),db=database({DB});let calls=0;
+ const result=await newsFeed(db,async(url,options)=>{calls++;assert.equal(options.redirect,'follow');const r=new Response(xml(new URL(url).hostname));if(url.includes('openai.com'))Object.defineProperty(r,'url',{value:'https://untrusted.example/feed.xml'});return r;});
+ assert.equal(calls,4);assert.equal(result.sources.find(x=>x.id==='openai').error,'unexpected_feed_host');assert.ok(result.sources.filter(x=>x.id!=='openai').every(x=>!x.error));assert.equal(result.items.length,3);DB.close();
+});
 test('GitHub validates repo paths, tolerates independent section failure and caches',async()=>{
  assert.equal(validateRepo('melisau/RealDev'),true);for(const x of ['https://evil.test','x/../../y','x/y?z','x/y/z'])assert.equal(validateRepo(x),false);
  const DB=localDb(),db=database({DB});let count=0;

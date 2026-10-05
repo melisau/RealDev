@@ -25,7 +25,7 @@ async function cache(db,key,ttl,load){
  catch(error){if(prior)return {...JSON.parse(prior.payload),fetchedAt:prior.fetched_at,stale:true,error:String(error.message).slice(0,100)};return {error:String(error.message).slice(0,100),stale:true,fetchedAt:null};}
 }
 export async function newsFeed(db,fetcher=fetch){
- const results=await Promise.all(feeds.map(feed=>cache(db,'feed:'+feed.id,900000,async()=>{const r=await fetcher(feed.url,{headers:{Accept:'application/rss+xml, application/xml, text/xml','User-Agent':'RealDev/1.0'},signal:AbortSignal.timeout(10000),redirect:'error'});if(!r.ok)throw Error('HTTP '+r.status);return {items:parseFeed(await boundedText(r),feed)};}).then(r=>({...r,id:feed.id,name:feed.name}))));
+ const results=await Promise.all(feeds.map(feed=>cache(db,'feed:'+feed.id,900000,async()=>{const r=await fetcher(feed.url,{headers:{Accept:'application/rss+xml, application/xml, text/xml','User-Agent':'RealDev/1.0'},signal:AbortSignal.timeout(10000),redirect:'follow'});if(!r.ok)throw Error('HTTP '+r.status);if(new URL(r.url||feed.url).hostname!==feed.host)throw Error('unexpected_feed_host');return {items:parseFeed(await boundedText(r),feed)};}).then(r=>({...r,id:feed.id,name:feed.name}))));
  return {sources:results.map(({items,...x})=>x),items:results.flatMap(r=>(r.items||[]).map(i=>({...i,stale:r.stale}))).sort((a,b)=>b.publishedAt.localeCompare(a.publishedAt)).slice(0,45)};
 }
 export const validateRepo=value=>typeof value==='string'&&/^[a-zA-Z0-9][a-zA-Z0-9-]{0,38}\/[a-zA-Z0-9_.-]{1,100}$/.test(value)&&!value.includes('..');

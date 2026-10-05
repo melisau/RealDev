@@ -38,7 +38,7 @@ export function evidence(attempts){
   const independent=distinct.filter(a=>a.score===100&&!a.hinted&&!a.skipped);
   return {area,count:rows.length,distinct:distinct.length,independent:independent.length,
    score:distinct.length?Math.round(distinct.reduce((s,a)=>s+a.score,0)/distinct.length):null,
-   status:!distinct.length?'unmeasured':independent.length>=2?'supported':independent.length===1?'initial':'practice',
+   status:!distinct.length?'unmeasured':independent.length>=5&&distinct.length>=5?'supported':independent.length?'initial':'practice',
    lastAt:rows.at(-1)?.created_at||null};
  });
 }
