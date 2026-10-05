@@ -42,7 +42,7 @@ export function evidence(attempts){
    lastAt:rows.at(-1)?.created_at||null};
  });
 }
-const relevance={fullstack:['frontend','dotnet','api','sql','git','testing','devops','structures'],frontend:['frontend','api','testing','git','structures'],ai:['testing','api','sql','devops','structures'],data:['sql','testing','git','structures'],devops:['devops','git','api'],mobile:['api','testing','unity','structures'],game:['unity','dotnet','testing','git','structures']};
+const relevance={fullstack:['frontend','dotnet','api','sql','git','testing','devops','structures','ai','data','mobile','game'],frontend:['frontend','api','testing','git','structures'],ai:['ai','testing','api','devops','structures'],data:['data','sql','structures','testing'],devops:['devops','git','api','data'],mobile:['mobile','api','testing','unity'],game:['game','unity','dotnet','testing','git','structures']};
 export function route(profile,attempts,now=new Date()){
  const selected=new Set(profile.goals.flatMap(g=>relevance[g]||[]));
  const suggestions=evidence(attempts).map(e=>{
