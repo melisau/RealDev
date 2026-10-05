@@ -8,6 +8,7 @@
   <title>Gerçek Geliştirici · Yazılım çalışma alanı</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/goals.css">
 </head>
 <body>
   <div class="app-shell">
@@ -26,7 +27,7 @@
       </nav>
       <div class="side-divider"></div>
       <button class="profile-card" id="profileOpen">
-        <span class="avatar">M</span><span class="profile-copy"><strong>Geliştirici profili</strong><small>Full stack · Unity</small></span><span class="chevron">⌄</span>
+        <span class="avatar">M</span><span class="profile-copy"><strong>Geliştirici profili</strong><small id="goalSubtitle">Full stack · Unity</small></span><span class="chevron">⌄</span>
       </button>
       <div class="sidebar-foot"><span class="status-dot"></span> Öğrenme yolun sana göre şekillenir</div>
     </aside>
@@ -44,7 +45,17 @@
     <form method="dialog"><button class="modal-close" aria-label="Kapat">×</button></form>
     <div class="modal-eyebrow">SENİN ÖĞRENME YOLUN</div><h2>Geliştirici profilin</h2>
     <p>Çalıştığın alanlar öğrenme örneklerini kişiselleştirir. Seviyeni görevlerde verdiğin cevaplara göre birlikte keşfedeceğiz.</p>
-    <div class="profile-tags"><span>Full stack</span><span>JavaScript</span><span>TypeScript</span><span>React</span><span>Java</span><span>Python</span><span>C</span><span>C# / .NET</span><span>Unity · mobil oyun</span></div>
+    <div class="profile-tags"><span>JavaScript</span><span>TypeScript</span><span>React</span><span>Java</span><span>Python</span><span>C</span><span>C# / .NET</span><span>Unity · mobil oyun</span></div>
+    <label class="field-label">Öğrenme hedeflerin <span class="text-muted">(birden fazla seçebilirsin)</span></label>
+    <div class="goal-options" id="goalOptions">
+      <label class="goal-option"><input type="checkbox" value="Full stack" checked><span>Full stack</span></label>
+      <label class="goal-option"><input type="checkbox" value="Frontend"><span>Frontend</span></label>
+      <label class="goal-option"><input type="checkbox" value="AI mühendisliği"><span>AI mühendisliği</span></label>
+      <label class="goal-option"><input type="checkbox" value="Veri ve veritabanı"><span>Veri ve veritabanı</span></label>
+      <label class="goal-option"><input type="checkbox" value="DevOps"><span>DevOps</span></label>
+      <label class="goal-option"><input type="checkbox" value="Mobil geliştirme"><span>Mobil geliştirme</span></label>
+      <label class="goal-option"><input type="checkbox" value="Oyun geliştirme" checked><span>Oyun geliştirme</span></label>
+    </div>
     <label class="field-label" for="dailyGoal">Günlük çalışma süresi</label><select id="dailyGoal"><option>10 dakika</option><option selected>15 dakika</option><option>25 dakika</option></select>
     <button class="primary-button full-button" id="saveProfile">Profili kaydet <span>→</span></button>
   </dialog>
