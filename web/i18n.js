@@ -362,6 +362,7 @@
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     let node;
     while ((node = walker.nextNode())) {
+      if (node.parentElement?.closest('[translate="no"]')) continue;
       const trimmed = node.nodeValue.trim();
       if (!trimmed) continue;
       let translated = lookup(trimmed, dict);
@@ -379,6 +380,7 @@
     if (root.nodeType === Node.ELEMENT_NODE) {
       const elements = [root, ...root.querySelectorAll('[aria-label],[title],input[placeholder],textarea[placeholder]')];
       for (const element of elements) {
+        if (element.closest('[translate="no"]')) continue;
         for (const attr of ['aria-label', 'title', 'placeholder']) {
           const value = element.getAttribute?.(attr);
           const translated = value && lookup(value, dict);

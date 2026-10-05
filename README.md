@@ -1,53 +1,57 @@
-# Gerçek Geliştirici
+# RealDev / Real Developer
 
-Türkçe, web ve mobil ekrana uyumlu yazılım çalışma alanı. Ürün fikri; AI ile kod üretirken geliştiricinin kodu açıklama, hata ayıklama, teknik karar verme ve mülakat pratiği becerilerini de geliştirmesine yardımcı olmak.
+Bilingual (Turkish/English) developer practice app with account-backed assessment, personal learning routes, notes and topic search.
 
-## Ürün hedefi
+## Implemented
 
-Kullanıcı bir rol veya birden fazla öğrenme hedefi seçer. Uygulama önce kısa görevlerle başlangıç becerilerini keşfeder; sonra bağımsız çözme, açıklama, hata teşhisi ve yeni duruma aktarma görevleriyle kişisel çalışma planını günceller. Tek bir doğru cevap uzmanlık kanıtı sayılmaz. Henüz ölçülmemiş alanlar “ölçülmedi” olarak kalır.
+- Eight-task initial assessment and 19-task catalog across nine areas.
+- Choice answer keys and code-expression tests with expected/actual results.
+- Written explanations and optional browser dictation, confidence and hint tracking.
+- Evidence map distinguishes unmeasured, initial evidence, practice needed and two independent examples. Repeating one task does not increase distinct evidence.
+- Personal daily routes based on goals, available minutes, gaps and 1/3/7-day review intervals.
+- Persistent profile, answer history, question notes and resolved/open personal gap list.
+- Turkish/English topic search, including data structures, API, React, Git and C#.
+- Responsive dark/light themes.
 
-## İlk çalışma alanları
+## Local development
 
-- **Bugün:** Günlük kısa çalışma rotası ve ilerleme özeti.
-- **Beceri haritası:** Frontend, backend, veritabanı, Git, test, DevOps/cloud, Unity ve AI ile çalışma alanları.
-- **Hata laboratuvarı:** IDE/SDK, derleme, çalışma zamanı, API, veritabanı, Git, Unity, build ve deployment hata senaryoları.
-- **Kavram atölyesi:** CLR, DDD, Kubernetes, DDL ve .NET Aspire için kaynaklı açıklama, örnek ve kullanıcının kendi cümlesiyle anlatma alanı.
-- **GitHub pratiği:** Branch, commit, pull request, merge conflict, GitHub Actions ve workflow hata ayıklama.
-- **Yazılım haberleri:** Yayın tarihi, türü, kaynak bağlantısı ve açılıp kapanabilen kısa özet.
-- **Yazılı ve sesli anlatım:** Cevap yazma veya tarayıcı destekliyorsa Türkçe ses tanımayı kullanma.
+Requires Node.js 22.13+ (Node 24 recommended for the built-in SQLite preview adapter).
 
-İlk kullanıcı profili full stack geliştirici; JavaScript, TypeScript, React, Java, Python, C, C#/.NET ve Unity ile mobil oyun geliştirme deneyimine sahip. Öncelik genel eksikleri kapatmak.
+```sh
+npm ci
+npm test
+npm run dev
+```
 
-## Bilginin doğruluğu ve güncelliği
+Open http://127.0.0.1:4317. Preview uses a fixed **local-only identity** and isolated SQLite file in `.local/preview.sqlite`. It binds to loopback. Never expose this development server publicly. The identity adapter is excluded from the production Worker.
 
-1. Sürüm, API, platform davranışı ve haber iddialarında ilk kaynak resmi dokümantasyon, changelog veya proje duyurusudur.
-2. Medium, Stack Overflow ve benzeri topluluk kaynakları deneyim ve örnek bulmak için kullanılabilir. Bunlar resmi bilgi gibi sunulmadan önce birincil kaynakla karşılaştırılır.
-3. İçerik kartı kaynak bağlantısını ve kontrol/yayın tarihini gösterir. Kaynaktan doğrulanamayan ayrıntı kesin bilgi gibi yazılmaz.
-4. Değişken bilgiler temel kavramlardan ayrılır. Haber kartları canlı akış değilse bu durum açıkça belirtilir.
-5. AI değerlendirmesi gerekirse, kullanıcı yanıtına kanıta dayalı geribildirim verir; belirsiz durumda kesin puan uydurmaz. Kaynak ve teknik sürüm gösterilir.
+```sh
+npm run db:generate   # after changing db/schema.ts
+npm run build        # dist/server/index.js Worker bundle
+```
 
-## İlk sürümün teknik sınırları
+## Architecture and security
 
-Mevcut prototip statik HTML/CSS/JavaScript’tir ve telefon ekranına uyum sağlar. Gezinme, örnek görevler, seçenekli tarama, hata senaryosu, kaynak bağlantılı kavramlar, haber özeti aç/kapat, yerel ilerleme saklama ve tarayıcı desteklerse sesli yazma etkileşimlidir.
+- `web/`: existing vanilla frontend; assessment.js owns new learning flows.
+- `server/catalog.mjs`: versioned bilingual tasks and official references.
+- `server/assessment.mjs`: deterministic scoring, restricted expression interpreter, evidence and routes.
+- `server/api.mjs`: identity, ownership, input checks, idempotent recording and notes.
+- `db/schema.ts`, `drizzle/`: schema and generated migrations.
+- `scripts/`: build, local preview and test-only SQLite adapter.
+- `tests/`: grading, route, storage, ownership, notes, retry and failure tests.
 
-- İlerleme ve görev durumu bu tarayıcıdaki `localStorage` içinde tutulur.
-- Haber listesi **5 Ekim 2026 tarihinde kontrol edilmiş sabit örnek içeriktir**, canlı olarak yenilenmez.
-- Haber özeti editoryal örnektir; orijinal kaynağa bağlantı her zaman sunulur.
-- Kavram açıklamalarındaki kullanıcı yanıtı sunucuya gönderilmez. Otomatik AI teknik değerlendirmesi henüz bağlı değildir.
-- Hatırlatıcı, tam profil düzenleme/senkronizasyonu, gerçek ses kaydı ve mikrofon desteklemeyen tarayıcılar için STT servisi henüz bağlı değildir.
-- Gerçek çok kullanıcılı beceri profili ve güvenilir haber güncelleme servisi için backend, kaynak güncelleme akışı, kaynak doğrulama ve erişilebilirlik çalışması gerekir.
+Production runs on the existing private Sites project. The hosting manifest declares logical D1 binding DB. Sites provisions storage and applies migrations before publishing. The oai-authenticated-user-id header is trusted **only behind the Sites authenticated dispatcher**, which owns sign-in and identity forwarding. Every user query is scoped to that ID. Service credentials without a user identity cannot access account APIs. Browser mutations require same-origin JSON. User IDs are never accepted from request bodies.
 
-## Prototipi çalıştırma
+The Worker bundles frontend assets. Dependencies, generated output, local databases and secrets are excluded from Git. Profile, attempts and notes live in D1. Browser storage is used by theme/language preferences and retained legacy prototype modules, not the new learning records.
 
-`dist/index.html` dosyasını yerel bir HTTP sunucusuyla aç. JavaScript sözdizimi `node --check dist/app.js` ile denetlenebilir.
+## Assessment boundaries
 
-## İlk örneklerde kullanılan kaynaklar
+This is formative practice, not certification or an overall employment ranking. Choice tasks use authored answer keys. Code tasks accept a restricted side-effect-free expression subset: numbers, n, comparisons, arithmetic and logical operators. No arbitrary user program is executed. Passing tests demonstrates behavior on the displayed inputs, not all possible inputs.
 
-- [Microsoft Learn: CLR overview](https://learn.microsoft.com/en-us/dotnet/standard/clr)
-- [Microsoft Learn: .NET Aspire overview](https://learn.microsoft.com/en-us/dotnet/aspire/get-started/aspire-overview)
-- [PostgreSQL: Data Definition](https://www.postgresql.org/docs/current/ddl.html)
-- [Kubernetes: Concepts overview](https://kubernetes.io/docs/concepts/overview/)
-- [Git: git-merge documentation](https://git-scm.com/docs/git-merge)
-- [GitHub Changelog: September 2026 Actions updates](https://github.blog/changelog/2026-09-03-github-actions-early-september-2026-updates/)
-- [Kubernetes Blog: Memory QoS Beta](https://kubernetes.io/blog/2026/09/14/kubernetes-v1-37-memory-qos-graduates-to-beta/)
-- [OpenAI API Changelog](https://developers.openai.com/api/docs/changelog)
+Written/spoken explanations are saved alongside explicit self-review criteria. They are **not AI-graded for technical accuracy**. Dictation depends on browser permission/support and may use the browser provider's recognition service. This app does not store audio.
+
+Coverage is limited. AI/data/mobile goals currently use shared foundation tasks; specialist competency is not claimed. News, legacy error-lab and GitHub cards retain the earlier prototype behavior. News is curated static content, not a live feed. Legacy local prototype scores are not imported as verified evidence.
+
+## Publishing
+
+Use the existing Sites project, preserve its audience, and deploy the exact pushed SHA with its Worker archive and migrations. Source is mirrored to git@github.com:melisau/RealDev.git. GitHub hosting does not independently deploy the live site.

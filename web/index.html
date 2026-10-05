@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/goals.css?v=20261005-12">
   <link rel="stylesheet" href="/theme.css?v=20261005-12">
   <link rel="stylesheet" href="/theme-mode.css?v=20261005-12">
+  <link rel="stylesheet" href="/assessment.css?v=20261005-13">
   <script src="/theme-mode.js?v=20261005-12"></script>
   <script src="/i18n.js?v=20261005-12" defer></script>
 </head>
@@ -24,6 +25,10 @@
       <nav class="nav-list" aria-label="Ana menü">
         <button class="nav-item active" data-view="today"><span class="nav-icon">◷</span> Bugün <span class="nav-count">1</span></button>
         <button class="nav-item" data-view="map"><span class="nav-icon">⌘</span> Beceri haritam</button>
+        <button class="nav-item" data-view="route"><span class="nav-icon">↗</span> <span id="routeNav">Çalışma rotam</span></button>
+        <button class="nav-item" data-view="history"><span class="nav-icon">≡</span> <span id="historyNav">Cevap geçmişim</span></button>
+        <button class="nav-item" data-view="topics"><span class="nav-icon">⌕</span> <span id="topicsNav">Konu ara</span></button>
+        <button class="nav-item" data-view="notes"><span class="nav-icon">✎</span> <span id="notesNav">Notlarım</span></button>
         <button class="nav-item" data-view="errors"><span class="nav-icon">⌁</span> Hata laboratuvarı</button>
         <button class="nav-item" data-view="concepts"><span class="nav-icon">▤</span> Kavramlar</button>
         <button class="nav-item" data-view="news"><span class="nav-icon">◉</span> Yazılım haberleri <span class="nav-dot"></span></button>
@@ -64,5 +69,6 @@
     <button class="primary-button full-button" id="saveProfile">Profili kaydet <span>→</span></button>
   </dialog>
   <script src="/app.js?v=20261005-12" defer></script>
+  <script src="/assessment.js?v=20261005-13" defer></script>
 </body>
 </html>

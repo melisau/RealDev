@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.local/
+.sites-runtime/
+server/assets.generated.mjs
+*.log
