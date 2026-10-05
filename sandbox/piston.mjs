@@ -29,12 +29,26 @@ export async function runtimes(env){
   return found?[{id:key,label:info.label,language:found.language,version:found.version}]:[];
  });
 }
-export async function executePiston(env,{language,code,stdin=''}){
+async function executeRuntime(env,{language,code,stdin=''},runtime){
  const info=pistonLanguages[language];if(!info)throw Object.assign(Error('unsupported_language'),{status:400});
  if(typeof code!=='string'||code.length<1||code.length>12000||typeof stdin!=='string'||stdin.length>8000)throw Object.assign(Error('invalid_code_run'),{status:400});
- const available=await runtimes(env);const runtime=available.find(item=>item.id===language);if(!runtime)throw Object.assign(Error('piston_runtime_missing'),{status:503});
  const payload={language:runtime.language,version:runtime.version,files:[{name:info.file,content:code}],stdin,compile_timeout:10000,run_timeout:3000,compile_cpu_time:10000,run_cpu_time:3000,compile_memory_limit:268435456,run_memory_limit:language==='java'?268435456:67108864};
  const output=await request(env,'/api/v2/execute',{method:'POST',headers:jsonHeaders,body:JSON.stringify(payload),signal:AbortSignal.timeout(15000)});
  const compile=output.compile||null,run=output.run||{};
- return {language,version:runtime.version,stdin,stdout:String(run.stdout||'').slice(0,16000),stderr:String(run.stderr||'').slice(0,16000),compileStdout:String(compile?.stdout||'').slice(0,4000),compileStderr:String(compile?.stderr||'').slice(0,4000),compileStatus:compile?.status||null,runStatus:run.status||null,exitCode:run.code??null,signal:run.signal||null,cpuMs:run.cpu_time??null,wallMs:run.wall_time??null,memoryBytes:run.memory??null,message:String(run.message||compile?.message||'').slice(0,500)};
+ return {language,version:runtime.version,stdin,stdout:String(run.stdout||'').slice(0,16000),stderr:String(run.stderr||'').slice(0,16000),compileStdout:String(compile?.stdout||'').slice(0,4000),compileStderr:String(compile?.stderr||'').slice(0,4000),compileStatus:compile?.status||null,compileExitCode:compile?.code??null,compileSignal:compile?.signal||null,runStatus:run.status||null,exitCode:run.code??null,signal:run.signal||null,cpuMs:run.cpu_time??null,wallMs:run.wall_time??null,memoryBytes:run.memory??null,message:String(run.message||compile?.message||'').slice(0,500)};
+}
+export async function executePiston(env,job){
+ const runtime=(await runtimes(env)).find(item=>item.id===job.language);if(!runtime)throw Object.assign(Error('piston_runtime_missing'),{status:503});
+ return executeRuntime(env,job,runtime);
+}
+export async function executePistonCases(env,{language,code,inputs}){
+ if(!pistonLanguages[language]||typeof code!=='string'||!code.trim()||code.length>12000||!Array.isArray(inputs)||inputs.length<1||inputs.length>6||inputs.some(x=>typeof x!=='string'||x.length>8000))throw Object.assign(Error('invalid_code_run'),{status:400});
+ const runtime=(await runtimes(env)).find(item=>item.id===language);if(!runtime)throw Object.assign(Error('piston_runtime_missing'),{status:503});
+ const results=[];
+ for(const stdin of inputs){
+  const result=await executeRuntime(env,{language,code,stdin},runtime);results.push(result);
+  // A compile failure is identical for every input: avoid recompiling it repeatedly.
+  if(result.compileSignal||(result.compileExitCode!==null&&result.compileExitCode!==0)||(result.compileStatus&&!['OK'].includes(result.compileStatus)))break;
+ }
+ return results;
 }

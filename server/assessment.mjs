@@ -33,7 +33,7 @@ export function grade(task,answer,skipped=false){
 export function evidence(attempts){
  return Object.keys(areas).map(area=>{
   const rows=attempts.filter(a=>a.area===area);
-  const latest=new Map();for(const a of [...rows].sort((a,b)=>a.created_at.localeCompare(b.created_at)))latest.set(a.task_id,a);
+  const latest=new Map();for(const a of [...rows].sort((a,b)=>a.created_at.localeCompare(b.created_at)))latest.set(a.evidence_key||a.task_id,a);
   const distinct=[...latest.values()];
   const verified=distinct.filter(a=>a.verification!=='ai-provisional');
   const independent=verified.filter(a=>a.score===100&&!a.hinted&&!a.skipped);
@@ -41,7 +41,7 @@ export function evidence(attempts){
   const provisional=distinct.filter(a=>a.verification==='ai-provisional').length;
   const depth=modalities.includes('project')&&modalities.includes('transfer')&&modalities.some(m=>['code','debug'].includes(m));
   return {area,count:rows.length,distinct:distinct.length,independent:independent.length,
-   score:verified.length?Math.round(verified.reduce((s,a)=>s+a.score,0)/verified.length):null,modalities,provisional,
+   score:verified.length?Math.round(verified.reduce((s,a)=>s+a.score,0)/verified.length):null,modalities,provisional,languages:[...new Set(rows.filter(a=>a.verification==='server-verified'&&a.language).map(a=>a.language))],
    status:!distinct.length?'unmeasured':independent.length>=5&&depth?'supported':independent.length?'initial':'practice',
    lastAt:rows.at(-1)?.created_at||null};
  });

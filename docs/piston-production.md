@@ -31,7 +31,7 @@ Deploy a saved Site version after setting runtime values or bindings. Never stor
 
 Set `PISTON_URL` and `PISTON_API_KEY` in a protected environment and run `node scripts/verify-piston.mjs`. All three real programs must return `42`. Verify requests without the key fail, package-management routes fail, redirect destinations cannot receive the key, and resource/concurrency limits are enforced. Then sign into the live Site, load its runtime list and execute/save one program in each language; check saved history after reload and isolation with a second account.
 
-Free-form Piston output is stored as **executed, unscored**. Successful execution alone does not imply a correct answer or mastery. Authored multi-language tasks with independent tests must be implemented separately before those runs can contribute to skill evidence.
+Free-form Piston output is stored as **executed, unscored**. Successful execution alone does not imply a correct answer or mastery. The code workspace also offers nine authored Python/C#/Java tasks (three per language), with five independent server-defined tests per task. These use `/api/polyglot-runs`, ignore client grades and contribute verified evidence. Equivalent problems across languages share one evidence family. Run `node scripts/verify-polyglot.mjs` to verify that every buggy starter fails at least one case and every solution fixture passes all five. Test inputs are authored practice cases, not an exhaustive certification suite. Runner activation is still required before live submissions can be evaluated.
 
 ## Operations
 

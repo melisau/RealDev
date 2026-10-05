@@ -1,0 +1,27 @@
+const L=(tr,en)=>({tr,en});
+const languages={python:'Python',csharp:'C#',java:'Java'};
+const sources={python:{label:'Python · input/output',url:'https://docs.python.org/3/tutorial/inputoutput.html'},csharp:{label:'Microsoft · Console.ReadLine',url:'https://learn.microsoft.com/en-us/dotnet/api/system.console.readline'},java:{label:'Oracle · Scanner',url:'https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Scanner.html'}};
+const problems=[
+ {id:'positive-sum',area:'structures',modality:'code',minutes:12,title:L('Yalnızca pozitifleri topla','Sum only positive values'),prompt:L('İlk satır n, ikinci satır n adet tam sayı içerir. Yalnızca sıfırdan büyük değerleri topla ve tek tam sayı yazdır. n=0 için 0 yazdır. Girdi değerleri -1000..1000, n=0..100.','The first line is n; the second contains n integers. Sum only values greater than zero and print one integer. Print 0 for n=0. Values are -1000..1000, n=0..100.'),examples:[{stdin:'4\n2 -3 0 5\n',stdout:'7'}]},
+ {id:'stable-unique',area:'data',modality:'debug',minutes:15,title:L('Tekrarları sırayı bozmadan ayır','Remove duplicates without reordering'),prompt:L('İlk satır n, ikinci satır n adet tam sayı içerir. Her farklı sayının ilk görünümünü koru; değerleri boşlukla ayırıp yazdır. n=0 için boş satır yazdır. Başlangıç kodu sayıları sıraladığı için girdi sırasını kaybediyor; düzelt. Değerler -1000..1000, n=0..100.','The first line is n; the second contains n integers. Keep the first occurrence of each value and print the values separated by spaces. Print an empty line for n=0. The starter sorts the values and loses input order; fix it. Values are -1000..1000, n=0..100.'),examples:[{stdin:'6\n3 1 3 0 1 -2\n',stdout:'3 1 0 -2'}]},
+ {id:'health-clamp',area:'game',modality:'transfer',minutes:12,title:L('Can sınırını oyuna uygula','Apply bounds to game health'),prompt:L('Tek satırda health damage maxHealth tam sayıları gelir. Sonuç max(0, min(maxHealth, health-damage)) olmalıdır; negatif hasar iyileşme demektir. Son can ve can sıfırsa true, değilse false yazdır (küçük harfle, aralarında boşluk). health ve damage -1000..1000, maxHealth=0..1000. Bu görev oyun motoru değil, durum hesaplamasını ölçer.','Read integers health damage maxHealth from one line. Compute max(0, min(maxHealth, health-damage)); negative damage means healing. Print the new health and true if it is zero, otherwise false (lowercase, separated by a space). health and damage are -1000..1000, maxHealth=0..1000. This task tests state calculation rather than an engine integration.'),examples:[{stdin:'3 8 10\n',stdout:'0 true'}]}
+];
+const python={
+ 'positive-sum':'import sys\nvalues = list(map(int, sys.stdin.read().split()))\nn = values[0]\nnumbers = values[1:1+n]\n# TODO: sum only positive values\nprint(sum(numbers))',
+ 'stable-unique':'import sys\nvalues = list(map(int, sys.stdin.read().split()))\nn = values[0]\nnumbers = values[1:1+n]\n# BUG: sorting destroys first-occurrence order\nprint(" ".join(map(str, sorted(set(numbers)))))',
+ 'health-clamp':'import sys\nhealth, damage, max_health = map(int, sys.stdin.read().split())\n# TODO: enforce both bounds\nnext_health = health - damage\nprint(next_health, str(next_health == 0).lower())'
+};
+function csharp(problem){
+ const setup='using System;\nusing System.Linq;\nusing System.Collections.Generic;\npublic class Program {\n public static void Main() {\n  var v = Console.In.ReadToEnd().Split((char[])null, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();\n';
+ const body=problem==='positive-sum'?'  var numbers = v.Skip(1).Take(v[0]);\n  // TODO: sum only positive values\n  Console.WriteLine(numbers.Sum());':problem==='stable-unique'?'  var numbers = v.Skip(1).Take(v[0]);\n  // BUG: sorting loses first-occurrence order\n  Console.WriteLine(string.Join(" ", numbers.Distinct().OrderBy(x => x)));':'  // TODO: enforce lower and upper bounds\n  int next = v[0] - v[1];\n  Console.WriteLine(next + " " + (next == 0).ToString().ToLowerInvariant());';
+ return setup+body+'\n }\n}';
+}
+function java(problem){
+ const setup='import java.util.*;\npublic class Main {\n public static void main(String[] args) {\n  Scanner in = new Scanner(System.in);\n';
+ const body=problem==='positive-sum'?'  int n = in.nextInt(), sum = 0;\n  for (int i=0; i<n; i++) {\n   int value = in.nextInt();\n   // TODO: sum only positive values\n   sum += value;\n  }\n  System.out.println(sum);':problem==='stable-unique'?'  int n = in.nextInt();\n  // BUG: TreeSet sorts instead of preserving order\n  Set<Integer> seen = new TreeSet<>();\n  for(int i=0; i<n; i++) seen.add(in.nextInt());\n  StringJoiner output = new StringJoiner(" ");\n  for(int value : seen) output.add(String.valueOf(value));\n  System.out.println(output);':'  int health = in.nextInt(), damage = in.nextInt(), maxHealth = in.nextInt();\n  // TODO: enforce both bounds\n  int next = health - damage;\n  System.out.println(next + " " + (next == 0));';
+ return setup+body+'\n }\n}';
+}
+// Public metadata only. Grading inputs and expected outputs live in a server-only module.
+export const polyglotTasks=Object.entries(languages).flatMap(([language,label])=>problems.map(p=>({
+ ...p,id:`polyglot-${language}-${p.id}`,problem:p.id,language,label,evidenceKey:`polyglot-${p.id}`,suiteVersion:1,title:L(`${label} · ${p.title.tr}`,`${label} · ${p.title.en}`),starter:language==='python'?python[p.id]:language==='csharp'?csharp(p.id):java(p.id),source:sources[language]
+})));

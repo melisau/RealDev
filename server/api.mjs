@@ -8,6 +8,8 @@ import {executePiston,runtimes as pistonRuntimes} from '../sandbox/piston.mjs';
 import {exportAccount,eraseAccount} from './account.mjs';
 import {capabilities,reserveAI,summarize,evaluateExplanation,transcribe} from './ai.mjs';
 import {practicalTasks,publicPractice,projects,practiceProgress} from './practice.mjs';
+import {polyglotTasks} from '../sandbox/polyglot-tasks.mjs';
+import {gradePolyglot,polyglotEvidence} from './polyglot.mjs';
 const json=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 const validId=x=>typeof x==='string'&&/^[a-zA-Z0-9-]{1,80}$/.test(x);
@@ -91,6 +93,20 @@ export async function api(req,env){
   }
   if(p==='/api/code-runs'&&method==='GET')return json({records:await db.all('SELECT id, task_id, code, result, created_at FROM code_runs WHERE user_id = ? ORDER BY created_at DESC LIMIT 30',user.id)});
   if(p==='/api/piston/runtimes'&&method==='GET')return json({runtimes:await pistonRuntimes(env)});
+  if(p==='/api/polyglot-runs'&&method==='POST'){
+   const task=polyglotTasks.find(t=>t.id===body.taskId);
+   if(!task||!validId(body.id)||typeof body.code!=='string'||!body.code.trim()||body.code.length>12000)throw fail('invalid_code_run');
+   const prior=await db.one('SELECT user_id,task_id,code,result FROM code_runs WHERE id = ?',body.id);
+   if(prior&&prior.user_id!==user.id)throw fail('code_run_not_found',404);
+   if(prior&&(prior.task_id!==task.id||prior.code!==body.code))throw fail('code_run_conflict',409);
+   if(prior)return json({saved:true,verification:'server-verified',result:JSON.parse(prior.result).report});
+   const since=new Date(Date.now()-15*60*1000).toISOString();
+   const usage=await db.one("SELECT COUNT(*) AS count FROM code_runs WHERE user_id = ? AND task_id LIKE 'polyglot-%' AND created_at >= ?",user.id,since);
+   if(usage.count>=12)throw fail('polyglot_rate_limited',429);
+   const report=await gradePolyglot(env,task.id,body.code);
+   await db.write('INSERT INTO code_runs (id,user_id,task_id,code,result,created_at) VALUES (?,?,?,?,?,?)',body.id,user.id,task.id,body.code,JSON.stringify({verification:'server-verified',report}),new Date().toISOString());
+   return json({saved:true,verification:'server-verified',result:report});
+  }
   if(p==='/api/piston-runs'&&method==='POST'){
    if(!validId(body.id)||!['python','csharp','java'].includes(body.language)||typeof body.code!=='string'||body.code.length>12000||typeof (body.stdin||'')!=='string'||(body.stdin||'').length>8000)throw fail('invalid_code_run');
    const taskId='piston-'+body.language;const prior=await db.one('SELECT user_id,task_id,code,result FROM code_runs WHERE id = ?',body.id);if(prior&&prior.user_id!==user.id)throw fail('code_run_not_found',404);
@@ -116,13 +132,13 @@ export async function api(req,env){
    const account=await db.one('SELECT display_name, technologies, created_at, updated_at FROM accounts WHERE user_id = ?',user.id);
    const prefs=await profile(db,user.id);const records=(await db.all('SELECT * FROM attempts WHERE user_id = ? ORDER BY created_at, id',user.id)).map(unpack);
    const codeRecords=await db.all('SELECT task_id,result,created_at FROM code_runs WHERE user_id = ? ORDER BY created_at,id',user.id);
-   const codeEvidence=codeRecords.flatMap(row=>{const task=codeTasks.find(t=>t.id===row.task_id);if(!task?.area)return [];try{const report=JSON.parse(row.result).report;if(!report?.total)return [];return [{task_id:row.task_id,area:task.area,score:Math.round(report.passed/report.total*100),hinted:0,skipped:0,created_at:row.created_at}];}catch{return [];}});
+   const codeEvidence=codeRecords.flatMap(row=>{if(row.task_id.startsWith('polyglot-'))return polyglotEvidence(row);const task=codeTasks.find(t=>t.id===row.task_id);if(!task?.area)return [];try{const report=JSON.parse(row.result).report;if(!report?.total)return [];return [{task_id:row.task_id,area:task.area,score:Math.round(report.passed/report.total*100),hinted:0,skipped:0,created_at:row.created_at}];}catch{return [];}});
    const active=await db.one("SELECT id FROM runs WHERE user_id = ? AND kind = 'baseline' AND complete = 0 ORDER BY created_at DESC LIMIT 1",user.id);
    const notes=await db.all('SELECT id, task_id, body, resolved, created_at, updated_at FROM notes WHERE user_id = ? ORDER BY created_at DESC',user.id);
    const library=await db.all('SELECT task_id, attempt_id, created_at FROM saved_questions WHERE user_id = ? ORDER BY created_at DESC',user.id);
    const practiceRecords=await db.all('SELECT * FROM practice_submissions WHERE user_id = ? ORDER BY created_at,id',user.id);
    const practicalEvidence=practiceRecords.flatMap(row=>{const task=practicalTasks.find(t=>t.id===row.task_id);if(!task)return [];const result=JSON.parse(row.result);return [{task_id:task.id,area:task.area,score:result.verification==='server-verified'&&result.total?Math.round(result.passed/result.total*100):result.score||0,modality:task.modality,verification:result.verification,hinted:0,skipped:0,created_at:row.created_at}];});
-   for(const row of codeEvidence){const task=codeTasks.find(t=>t.id===row.task_id);row.modality=task?.modality||'code';row.verification='server-verified';}
+   for(const row of codeEvidence){const task=codeTasks.find(t=>t.id===row.task_id);row.modality=row.modality||task?.modality||'code';row.verification='server-verified';}
    const allEvidence=[...records,...codeEvidence,...practicalEvidence];
    return json({user:{email:user.email},account,profile:prefs,tasks:tasks.map(publicTask),areas,goals:goalLabels,version:VERSION,attempts:records,notes,library,evidence:evidence(allEvidence),route:route(prefs,allEvidence),projects:practiceProgress(practiceRecords),ai:capabilities(env),activeRun:active?await runData(db,user.id,active.id):null});
   }
