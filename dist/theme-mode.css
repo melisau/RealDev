@@ -283,3 +283,4 @@ h1, .brand { font-family: 'Major Mono Display', 'Plus Jakarta Sans', Arial, sans
   border-color: var(--line);
 }
 .brand { font-size: 15px; letter-spacing: -.75px; }
+:root .icon-button, :root .avatar-small { color: #ffffff; }
