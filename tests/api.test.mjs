@@ -41,3 +41,10 @@ test('notes persist with answers, are idempotent, editable and user-owned',async
  await a('notes',{id:note.id,resolved:true},'PUT');state=(await a('state')).body;assert.equal(state.notes[0].resolved,1);assert.equal(state.notes[0].body,'API ve endpoint farkı');
  await a('notes',{id:note.id,resolved:false},'PUT');assert.equal((await a('state')).body.notes[0].resolved,0);DB.close();
 });
+test('saved questions keep the wrong answer, survive reload and cannot cross accounts',async()=>{
+ const DB=localDb(),a=client(DB),b=client(DB,'user-b');await a('runs',{id:'library-run',kind:'practice',taskId:'react-1'});
+ const response=await a('answer',{runId:'library-run',taskId:'react-1',answer:1,explanation:'thought both increments apply',confidence:2,skipped:false});const id=response.body.attempt.id;
+ assert.equal(response.body.attempt.score,0);assert.equal((await b('library',{attemptId:id})).status,404);
+ assert.equal((await a('library',{attemptId:id})).status,200);await a('library',{attemptId:id});
+ const state=(await a('state')).body;assert.equal(state.library.length,1);assert.equal(state.library[0].attempt_id,id);assert.equal(state.attempts.find(x=>x.id===id).answer,1);assert.equal((await b('state')).body.library.length,0);DB.close();
+});

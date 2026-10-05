@@ -10,6 +10,7 @@ Bilingual (Turkish/English) developer practice app with account-backed assessmen
 - Evidence map distinguishes unmeasured, initial evidence, practice needed and two independent examples. Repeating one task does not increase distinct evidence.
 - Personal daily routes based on goals, available minutes, gaps and 1/3/7-day review intervals.
 - Persistent profile, answer history, question notes and resolved/open personal gap list.
+- Saved question library: revisit the original question, inspect a previous answer and retry. Notes start collapsed; explanation criteria appear only for a submitted explanation and remain collapsed until opened.
 - Turkish/English topic search, including data structures, API, React, Git and C#.
 - Responsive dark/light themes.
 

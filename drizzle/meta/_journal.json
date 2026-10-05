@@ -15,6 +15,13 @@
       "when": 1791199148387,
       "tag": "0001_loud_darkhawk",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1791199682282,
+      "tag": "0002_equal_satana",
+      "breakpoints": true
     }
   ]
 }

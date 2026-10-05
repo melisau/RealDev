@@ -33,11 +33,17 @@ export async function api(req,env){
    const prefs=await profile(db,user.id);const records=(await db.all('SELECT * FROM attempts WHERE user_id = ? ORDER BY created_at, id',user.id)).map(unpack);
    const active=await db.one("SELECT id FROM runs WHERE user_id = ? AND kind = 'baseline' AND complete = 0 ORDER BY created_at DESC LIMIT 1",user.id);
    const notes=await db.all('SELECT id, task_id, body, resolved, created_at, updated_at FROM notes WHERE user_id = ? ORDER BY created_at DESC',user.id);
-   return json({user:{email:user.email},profile:prefs,tasks:tasks.map(publicTask),areas,goals:goalLabels,version:VERSION,attempts:records,notes,evidence:evidence(records),route:route(prefs,records),activeRun:active?await runData(db,user.id,active.id):null});
+   const library=await db.all('SELECT task_id, attempt_id, created_at FROM saved_questions WHERE user_id = ? ORDER BY created_at DESC',user.id);
+   return json({user:{email:user.email},profile:prefs,tasks:tasks.map(publicTask),areas,goals:goalLabels,version:VERSION,attempts:records,notes,library,evidence:evidence(records),route:route(prefs,records),activeRun:active?await runData(db,user.id,active.id):null});
   }
   if(p==='/api/profile'&&method==='PUT'){
    if(!Array.isArray(body.goals)||!body.goals.length||body.goals.length>goals.length||body.goals.some(g=>!goals.includes(g))||![10,15,25].includes(body.dailyMinutes))throw fail('invalid_profile');
    await db.write('INSERT INTO profiles (user_id, goals, daily_minutes, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET goals=excluded.goals, daily_minutes=excluded.daily_minutes, updated_at=excluded.updated_at',user.id,JSON.stringify([...new Set(body.goals)]),body.dailyMinutes,new Date().toISOString());return json({saved:true});
+  }
+  if(p==='/api/library'&&method==='POST'){
+   if(!validId(body.attemptId))throw fail('invalid_attempt');
+   const attempt=await db.one('SELECT id, task_id FROM attempts WHERE id = ? AND user_id = ?',body.attemptId,user.id);if(!attempt)throw fail('attempt_not_found',404);
+   await db.write('INSERT INTO saved_questions (user_id,task_id,attempt_id,created_at) VALUES (?,?,?,?) ON CONFLICT(user_id,task_id) DO UPDATE SET attempt_id=excluded.attempt_id',user.id,attempt.task_id,attempt.id,new Date().toISOString());return json({saved:true});
   }
   if(p==='/api/notes'&&method==='POST'){
    const prior=await db.one('SELECT user_id FROM notes WHERE id = ?',body.id||'');if(prior&&prior.user_id!==user.id)throw fail('note_not_found',404);
