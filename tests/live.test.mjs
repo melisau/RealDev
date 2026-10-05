@@ -14,7 +14,8 @@ test('live feeds cache successful data and label stale fallback on failure',asyn
  const first=await newsFeed(db,fetcher);assert.equal(first.items.length,4);
  await newsFeed(db,fetcher);assert.equal(calls,4);
  await db.write("UPDATE source_cache SET fetched_at = '2000-01-01T00:00:00Z'");
- const stale=await newsFeed(db,async()=>{throw Error('offline');});assert.equal(stale.items.length,4);assert.ok(stale.items.every(x=>x.stale));assert.ok(stale.sources.every(x=>x.error==='offline'));
+ await db.write("UPDATE source_health SET attempted_at = '2000-01-01T00:00:00Z'");
+ const stale=await newsFeed(db,async()=>{throw Error('offline');});assert.equal(stale.items.length,0);assert.equal(stale.archived.length,4);assert.ok(stale.archived.every(x=>x.stale));assert.ok(stale.sources.every(x=>x.error==='offline'));
  DB.close();
 });
 test('news requests follow canonical redirects and reject feeds leaving their trusted host',async()=>{
@@ -28,7 +29,6 @@ test('GitHub validates repo paths, tolerates independent section failure and cac
  const mock=async (url,options)=>{count++;assert.equal(options.redirect,'follow');if(url.includes('/actions/'))return new Response('',{status:403});if(url.includes('/commits')||url.includes('/pulls'))return Response.json([]);if(url.includes('/languages'))return Response.json({JavaScript:100});return Response.json({private:false,full_name:'melisau/RealDev',html_url:'https://github.com/melisau/RealDev',default_branch:'main'});};
  const r=await githubRepo(db,'melisau/RealDev',mock);assert.equal(r.repository.name,'melisau/RealDev');assert.equal(r.errors[0].section,'actions');await githubRepo(db,'melisau/RealDev',mock);assert.equal(count,5);DB.close();
 });
-
 test('GitHub follows redirects only while the final API host remains trusted',async()=>{
  const DB=localDb(),db=database({DB});
  const result=await githubRepo(db,'melisau/RealDev',async(url,options)=>{

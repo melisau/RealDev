@@ -24,9 +24,26 @@ async function cache(db,key,ttl,load){
  try{const payload=await load();const at=new Date().toISOString();await db.write('INSERT INTO source_cache (key,payload,fetched_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET payload=excluded.payload,fetched_at=excluded.fetched_at',key,JSON.stringify(payload),at);return {...payload,fetchedAt:at,stale:false};}
  catch(error){if(prior)return {...JSON.parse(prior.payload),fetchedAt:prior.fetched_at,stale:true,error:String(error.message).slice(0,100)};return {error:String(error.message).slice(0,100),stale:true,fetchedAt:null};}
 }
-export async function newsFeed(db,fetcher=fetch){
- const results=await Promise.all(feeds.map(feed=>cache(db,'feed:'+feed.id,900000,async()=>{const r=await fetcher(feed.url,{headers:{Accept:'application/rss+xml, application/xml, text/xml','User-Agent':'RealDev/1.0'},signal:AbortSignal.timeout(10000),redirect:'follow'});if(!r.ok)throw Error('HTTP '+r.status);if(new URL(r.url||feed.url).hostname!==feed.host)throw Error('unexpected_feed_host');return {items:parseFeed(await boundedText(r),feed)};}).then(r=>({...r,id:feed.id,name:feed.name}))));
- return {sources:results.map(({items,...x})=>x),items:results.flatMap(r=>(r.items||[]).map(i=>({...i,stale:r.stale}))).sort((a,b)=>b.publishedAt.localeCompare(a.publishedAt)).slice(0,45)};
+export async function newsFeed(db,fetcher=fetch,force=false){
+ const results=await Promise.all(feeds.map(async feed=>{
+  const key='feed:'+feed.id,now=Date.now();const prior=await db.one('SELECT * FROM source_cache WHERE key = ?',key);const health=await db.one('SELECT * FROM source_health WHERE key = ?',key);
+  const recent=prior&&now-Date.parse(prior.fetched_at)<900000;const cooldown=health&&now-Date.parse(health.attempted_at)<60000;
+  let payload=prior?JSON.parse(prior.payload):{items:[]},at=prior?.fetched_at||null,error=health?.error||null,attemptedAt=health?.attempted_at||null;
+  if(!(recent&&!force)&&!cooldown){
+   const attempt=new Date().toISOString();attemptedAt=attempt;await db.write('INSERT INTO source_health (key,attempted_at,error) VALUES (?,?,NULL) ON CONFLICT(key) DO UPDATE SET attempted_at=excluded.attempted_at',key,attempt);
+   try{
+    const r=await fetcher(feed.url,{headers:{Accept:'application/rss+xml, application/xml, text/xml','User-Agent':'RealDev/1.0'},signal:AbortSignal.timeout(10000),redirect:'follow'});
+    if(!r.ok)throw Error('HTTP '+r.status);if(new URL(r.url||feed.url).hostname!==feed.host)throw Error('unexpected_feed_host');
+    payload={items:parseFeed(await boundedText(r),feed)};at=new Date().toISOString();error=null;
+    await db.write('INSERT INTO source_cache (key,payload,fetched_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET payload=excluded.payload,fetched_at=excluded.fetched_at',key,JSON.stringify(payload),at);
+   }catch(e){error=String(e.message).slice(0,100);}
+   await db.write('UPDATE source_health SET error = ? WHERE key = ?',error,key);
+  }
+  const expired=!at||now-Date.parse(at)>86400000;
+  return {...payload,id:feed.id,name:feed.name,error,fetchedAt:at,attemptedAt,stale:!!error||!!(!recent&&cooldown),expired,cooldown:!!cooldown};
+ }));
+ const items=results.flatMap(r=>(r.items||[]).map(i=>({...i,stale:r.stale,fetchedAt:r.fetchedAt,expired:r.expired}))).sort((a,b)=>b.publishedAt.localeCompare(a.publishedAt));
+ return {sources:results.map(({items,...x})=>x),items:items.filter(i=>!i.expired).slice(0,45),archived:items.filter(i=>i.expired).slice(0,45),maxStaleHours:24};
 }
 export const validateRepo=value=>typeof value==='string'&&/^[a-zA-Z0-9][a-zA-Z0-9-]{0,38}\/[a-zA-Z0-9_.-]{1,100}$/.test(value)&&!value.includes('..');
 export async function githubRepo(db,repo,fetcher=fetch){

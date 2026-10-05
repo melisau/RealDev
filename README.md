@@ -1,28 +1,30 @@
-# RealDev / Real Developer
+# RealDev
 
-Bilingual (Turkish/English) developer practice app with account-backed assessment, personal learning routes, notes and topic search.
+Turkish/English developer practice with persistent accounts, evidence-based assessment, topic search and personal learning routes.
 
-## Implemented
+## Learning and account features
 
-- Eight-task initial assessment and 19-task catalog across nine areas.
-- Choice answer keys and code-expression tests with expected/actual results.
-- Written explanations and optional browser dictation, confidence and hint tracking.
-- Evidence map distinguishes unmeasured, initial evidence, practice needed and two independent examples. Repeating one task does not increase distinct evidence.
-- Personal daily routes based on goals, available minutes, gaps and 1/3/7-day review intervals.
-- Persistent profile, answer history, question notes and resolved/open personal gap list.
-- Saved question library: revisit the original question, inspect a previous answer and retry. Notes start collapsed; explanation criteria appear only for a submitted explanation and remain collapsed until opened.
-- Turkish/English topic search, including data structures, API, React, Git and C#.
-- Responsive dark/light themes.
-- ChatGPT sign-in with first-use registration: display name, technologies, goals and daily time persist per user. The current deployment remains owner-private.
-- Four editable JavaScript/debug exercises and a free playground using QuickJS in a Web Worker; saved code history is account-scoped.
-- Specialty code tasks and interview/project practice for AI, data, mobile, frontend, API, .NET, DevOps and Unity. Only server-verified authored tasks add skill evidence; open-ended project responses are saved as notes and are not auto-graded.
-- Optional account-scoped Piston execution for free-form Python, C# and Java. These runs are persisted with bounded output and explicitly excluded from skill scoring.
-- Official live RSS feeds (OpenAI, GitHub, .NET and Kubernetes), cached 15 minutes with explicit stale/error status. Summaries are source excerpts, not generated claims.
-- Public GitHub repository selector with commits, pull requests and Actions runs, cached five minutes.
+- Eight-task initial scan, broad choice/error scenarios, safe expression tests, confidence and hint tracking.
+- Question notes, saved-question library, written explanations and answer/code history.
+- Three resumable projects (API service, search/offline sync, event ingestion/retrieval), each with implementation, debugging and transfer stages. Nine new executable tasks include edge cases and expected/actual output. Prerequisites are checked on the server; every submission is persisted under its owner.
+- Eight sourced technical code reviews across SQL, React, .NET, Kubernetes, Unity, AI, data and game physics.
+- Optional AI evaluation of written explanations using explicit rubric criteria and verbatim learner quotes. Scores are computed from the validated rubric and labeled **AI provisional**, separate from independently verified test evidence.
+- Evidence distinguishes task modalities. Five choice answers alone never establish depth; repeated tasks use their latest result. Stronger test support requires project, transfer and code/debug evidence. This is formative practice, not a professional certification.
+- Account JSON export includes profile, attempts, hints, notes, library, GitHub selection, code, practical submissions and AI usage counts. Deletion is atomic and scoped to the signed-in owner. Learning reset preserves the profile; account deletion removes all RealDev personal records. Typed confirmation is mandatory. Neither operation deletes the ChatGPT account or shared public-source cache.
+- Microphone recording or audio file upload can be transcribed on the server. Browser SpeechRecognition is not required. Explicit consent is required before audio or private explanations are sent to OpenAI. Audio is not saved in RealDev storage; transcripts remain editable before submission.
+- Responsive dark/light themes and Turkish/English UI.
+
+## Live news and GitHub
+
+Official OpenAI, GitHub, .NET and Kubernetes feeds use a 15-minute cache and a 60-second refresh cooldown. Failed refreshes show the last successful check and error. Unverified data older than 24 hours is excluded from the current list and available in an explicitly labeled archive.
+
+AI news summaries are generated **from the title and RSS excerpt**, not the full article. Each summary sentence includes a verbatim source quote; the server rejects invented quotations. Summaries are cached by source-text hash, language and model, so a changed excerpt invalidates its cache. Stale feed entries cannot receive a new AI summary. Quotes validate traceability, not semantic correctness; the original source remains available.
+
+Public GitHub integration reads commits, pull requests, Actions and languages. It grants no private repository access, pushes or workflow execution.
 
 ## Local development
 
-Requires Node.js 22.13+ (Node 24 recommended for the built-in SQLite preview adapter).
+Requires Node 22.13+; Node 24 is recommended for the built-in SQLite adapter.
 
 ```sh
 npm ci
@@ -31,39 +33,24 @@ npm run build
 npm run dev
 ```
 
-Open http://127.0.0.1:4317. Preview uses a fixed **local-only identity** and isolated SQLite file in `.local/preview.sqlite`. It binds to loopback. Never expose this development server publicly. The identity adapter is excluded from the production Worker.
+Preview defaults to `http://127.0.0.1:4317` with an isolated local identity and SQLite database. `REALDEV_PORT` selects another loopback port and a separate preview database. Never expose this development identity adapter publicly. It is excluded from the production Worker.
 
-To start the local Piston service on Docker Desktop, review `docker-compose.piston.yml` and run `./scripts/start-piston.ps1` in PowerShell. It binds only to `127.0.0.1:2000`, disables networking for code jobs and limits concurrent jobs, runtime, CPU, memory, output, processes, open files and file sizes. Piston requires a privileged Linux container for its Isolate/cgroup setup; Docker Desktop's Linux VM is the trust boundary. The script installs the Python, C# and Java packages that the Piston package index offers. Start `npm run dev` after Piston is ready. The local preview config points to `http://127.0.0.1:2000` by default; set `PISTON_URL` to override it.
+The preview loads ignored `.env.local` when present. Production uses Site runtime secrets. Required secret for AI: `OPENAI_API_KEY`; optional settings: `OPENAI_TEXT_MODEL` (default `gpt-4.1-mini`) and `AI_DAILY_LIMIT` (default 20 requests per user/day per text or audio category, including failed attempts). Transcription uses `gpt-4o-mini-transcribe`. API usage requires available OpenAI API credit, separate from a ChatGPT subscription. Missing credentials, exhausted credit, rate limits and invalid/ungrounded responses have explicit errors; no placeholder output is presented as AI-generated. Model responses use `store:false`; provider data handling is governed by its own policy.
 
-Production Piston execution requires an authenticated private HTTP tunnel binding named `piston` (mapped to `CUSTOMER_HTTP_PISTON`) or another private `PISTON_URL` service configuration. The Site UI reports unavailable runtimes when that service is not connected; the browser never contacts the runner directly.
+## Code execution
 
-```sh
-npm run db:generate   # after changing db/schema.ts
-npm run build        # dist/server/index.js Worker bundle
-```
+Authored JavaScript tasks run in bounded QuickJS with 16 MB heap, 256 KB stack and 350 ms execution budget, no host network, filesystem, DOM or account access. The server reruns submitted code against authored tests; client-provided grades are ignored. Passing test fixtures is evidence for the task contract, not exhaustive proof.
 
-## Architecture and security
+Optional Piston supports free-form Python, C# and Java. Run `scripts/start-piston.ps1` after reviewing `docker-compose.piston.yml`; it binds to localhost only. Production needs an authenticated private `piston` HTTP tunnel (`CUSTOMER_HTTP_PISTON`) or a private runner configuration. Piston runs are bounded, persisted and unscored. Local Docker availability is not evidence of a connected production runner.
 
-- `web/`: existing vanilla frontend; assessment.js owns new learning flows.
-- `server/catalog.mjs`: versioned bilingual tasks and official references.
-- `server/assessment.mjs`: deterministic scoring, restricted expression interpreter, evidence and routes.
-- `server/api.mjs`: identity, ownership, input checks, idempotent recording and notes.
-- `db/schema.ts`, `drizzle/`: schema and generated migrations.
-- `scripts/`: build, local preview and test-only SQLite adapter.
-- `tests/`: grading, route, storage, ownership, notes, retry and failure tests.
+## Architecture and publishing
 
-Production runs on the existing private Sites project. The hosting manifest declares logical D1 binding DB. Sites provisions storage and applies migrations before publishing. The oai-authenticated-user-id header is trusted **only behind the Sites authenticated dispatcher**, which owns sign-in and identity forwarding. Every user query is scoped to that ID. Service credentials without a user identity cannot access account APIs. Browser mutations require same-origin JSON. User IDs are never accepted from request bodies.
+- `web/`: vanilla UI; `assessment.js` owns scans/notes, `learning.js` owns account controls, projects, AI feedback and audio.
+- `server/`: authenticated API, account lifecycle, curated catalogs, evidence, live feeds and server-only AI adapter.
+- `sandbox/`: QuickJS, authored practical tasks and optional Piston client.
+- `db/schema.ts`, `drizzle/`: D1 schema and generated migrations.
+- `tests/`: ownership, atomic deletion, source freshness, project prerequisites, sandbox execution, quote validation, quotas and audio consent.
 
-The Worker bundles frontend assets. Dependencies, generated output, local databases and secrets are excluded from Git. Profile, attempts and notes live in D1. Browser storage is used by theme/language preferences and retained legacy prototype modules, not the new learning records.
+The existing Site remains owner-private. Sites provisions logical D1 binding `DB` and applies source migrations before deployment. Identity headers are trusted only behind the Sites authenticated dispatcher. Every personal query is owner-scoped; user IDs and grades from request bodies are never trusted. Mutations require same-origin requests. JSON and audio bodies are bounded while streaming. Service keys never reach browser assets, source control or exports.
 
-## Assessment boundaries
-
-This is formative practice, not certification or an overall employment ranking. Choice tasks use authored answer keys. Code tasks accept a restricted side-effect-free expression subset: numbers, n, comparisons, arithmetic and logical operators. The assessment expression interpreter never executes arbitrary host JavaScript. A separate practice workspace runs JavaScript inside a QuickJS WebAssembly engine in a disposable Web Worker: 16 MB QuickJS heap, 256 KB stack, 350 ms interrupt budget, five-second worker cutoff, bounded input/output, and no exposed host networking, filesystem, DOM or account APIs. Browser test reports are explicitly unverified and excluded from server assessment scoring. Passing tests demonstrates behavior on the displayed inputs, not all possible inputs.
-
-Written/spoken explanations are saved alongside explicit self-review criteria. They are **not AI-graded for technical accuracy**. Dictation depends on browser permission/support and may use the browser provider's recognition service. This app does not store audio.
-
-Coverage is formative. AI/data/mobile/game-oriented tasks and additional area-specific interview/project scenarios broaden practice, but this is not a certification: several specialty prompts remain choice-based, open responses are not technically graded, and test cases cannot establish general expertise. Piston code is run and recorded, but free-form results do not add skill evidence. Remaining work includes broader real project/debugging evaluations, technical grading of explanations, private GitHub OAuth, access policy, account export/deletion and richer IDE diagnostics. Public news/GitHub data can be temporarily unavailable or rate-limited; cached stale data is labeled. Legacy local prototype scores are not imported as verified evidence.
-
-## Publishing
-
-Use the existing Sites project, preserve its audience, and deploy the exact pushed SHA with its Worker archive and migrations. Source is mirrored to git@github.com:melisau/RealDev.git. GitHub hosting does not independently deploy the live site.
+Publish the exact pushed source SHA with its Worker archive. Source is mirrored to `melisau/RealDev`; GitHub does not independently deploy the Site. `.env*`, local databases, verification screenshots and generated bundles are ignored. The remaining production activation constraint is available API credit; unrestricted real-world IDE execution, private GitHub OAuth and native mobile packaging are separate future work.

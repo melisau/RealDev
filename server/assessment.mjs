@@ -35,10 +35,14 @@ export function evidence(attempts){
   const rows=attempts.filter(a=>a.area===area);
   const latest=new Map();for(const a of [...rows].sort((a,b)=>a.created_at.localeCompare(b.created_at)))latest.set(a.task_id,a);
   const distinct=[...latest.values()];
-  const independent=distinct.filter(a=>a.score===100&&!a.hinted&&!a.skipped);
+  const verified=distinct.filter(a=>a.verification!=='ai-provisional');
+  const independent=verified.filter(a=>a.score===100&&!a.hinted&&!a.skipped);
+  const modalities=[...new Set(independent.map(a=>a.modality||(tasks.find(t=>t.id===a.task_id)?.kind==='expression'?'code':'choice')))];
+  const provisional=distinct.filter(a=>a.verification==='ai-provisional').length;
+  const depth=modalities.includes('project')&&modalities.includes('transfer')&&modalities.some(m=>['code','debug'].includes(m));
   return {area,count:rows.length,distinct:distinct.length,independent:independent.length,
-   score:distinct.length?Math.round(distinct.reduce((s,a)=>s+a.score,0)/distinct.length):null,
-   status:!distinct.length?'unmeasured':independent.length>=5&&distinct.length>=5?'supported':independent.length?'initial':'practice',
+   score:verified.length?Math.round(verified.reduce((s,a)=>s+a.score,0)/verified.length):null,modalities,provisional,
+   status:!distinct.length?'unmeasured':independent.length>=5&&depth?'supported':independent.length?'initial':'practice',
    lastAt:rows.at(-1)?.created_at||null};
  });
 }

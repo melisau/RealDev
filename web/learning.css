@@ -1,0 +1,11 @@
+.rd-project{padding:18px 0;border-bottom:1px solid var(--line)}
+.rd-project:last-child{border-bottom:0}
+.rd-rubric-item{padding:12px 0;border-bottom:1px solid var(--line)}
+.rd blockquote{margin:12px 0;padding:8px 14px;border-left:3px solid var(--purple);white-space:pre-wrap;overflow-wrap:anywhere}
+.rd-speech{margin:16px 0}
+.rd input[type=file]{max-width:100%;margin:8px 0 14px}
+.rd-danger{margin-top:20px;border:1px solid var(--line);padding:16px}
+.rd-danger summary{font-weight:700}
+.rd .rd-table pre{white-space:pre-wrap;max-width:320px;overflow-wrap:anywhere}
+.rd-note-text{white-space:pre-wrap}
+@media(max-width:720px){.rd-grid{grid-template-columns:1fr}.rd .rd-table pre{max-width:220px}.rd textarea{max-width:100%}}
