@@ -22,7 +22,7 @@
     }
     if (icon) icon.textContent = theme === 'dark' ? '☼' : '◐';
     const themeColor = document.querySelector('meta[name="theme-color"]');
-    if (themeColor) themeColor.content = theme === 'dark' ? '#22262c' : '#f3f3ed';
+    if (themeColor) themeColor.content = theme === 'dark' ? '#1b2028' : '#f3f3ed';
   }
 
   applyTheme(theme);

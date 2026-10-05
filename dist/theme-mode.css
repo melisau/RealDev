@@ -142,3 +142,101 @@ h1, .brand { font-family: 'Major Mono Display', 'Plus Jakarta Sans', Arial, sans
 @media (max-width: 720px) {
   .theme-toggle { margin-left: 2px; }
 }
+
+/* Cyber Terminal palette: softened charcoal surfaces, readable borders, and restrained cyan accents. */
+:root {
+  --ink: #1f2328;
+  --muted: #5c6470;
+  --line: #8c959f;
+  --paper: #ffffff;
+  --canvas: #f6f8fa;
+  --purple: #6f42c1;
+  --purple-soft: #eee8f8;
+  --teal: #48d1cc;
+  --green-soft: #48d1cc;
+  --orange-soft: #fff0e5;
+  --accent-ink: #ffffff;
+  --shadow: 5px 5px 0 #8c959f;
+}
+:root body {
+  background-color: var(--canvas);
+  background-image: linear-gradient(#30363d10 1px, transparent 1px), linear-gradient(90deg, #30363d10 1px, transparent 1px);
+}
+:root .nav-item.active { color: var(--accent-ink); border-color: #1f2328; box-shadow: 2px 2px 0 #8c959f; }
+:root .primary-button, :root .hero-card .primary-button, :root .toast { color: var(--accent-ink); }
+:root .primary-button:hover, :root .hero-card .primary-button:hover { background: #8055d0; }
+:root .hero-card { background: #343941; border-color: #59616c; color: #f0f6fc; }
+:root .hero-card .primary-button { background: var(--purple); border-color: #1f2328; }
+:root .hero-card:after { border-color: #6f42c140; box-shadow: 0 0 0 25px #6f42c119, 0 0 0 53px #6f42c10e; }
+:root .task-row:hover, :root .practice-tile:hover, :root .concept-card:hover,
+:root .profile-card:hover, :root .choice:hover, :root .choice.selected,
+:root .goal-option:has(input:checked) { background: var(--purple-soft); }
+:root .result-box { background: #d8f5f3; border-color: #258f8a; color: #1f2328; }
+:root .concept-detail .analogy, :root .news-summary { background: var(--purple-soft); color: #292333; }
+:root .source-badge, :root .news-mini .source-badge { background: var(--teal); border-color: #287c79; color: #123533; }
+:root .live-dot { background: var(--teal); box-shadow: 0 0 0 4px #48d1cc35; }
+
+:root[data-theme="dark"] {
+  --ink: #f0f6fc;
+  --muted: #c1cad5;
+  --line: #6f7885;
+  --paper: #252b34;
+  --canvas: #1b2028;
+  --purple: #986eee;
+  --purple-soft: #342847;
+  --teal: #48d1cc;
+  --green: #48d1cc;
+  --green-soft: #48d1cc;
+  --orange-soft: #3a302b;
+  --accent-ink: #17131f;
+  --shadow: 5px 5px 0 #39414c;
+}
+:root[data-theme="dark"] body {
+  background-color: var(--canvas);
+  background-image: linear-gradient(#ffffff0b 1px, transparent 1px), linear-gradient(90deg, #ffffff0b 1px, transparent 1px);
+}
+:root[data-theme="dark"] .sidebar, :root[data-theme="dark"] .topbar { background: #252b34; border-color: var(--line); }
+:root[data-theme="dark"] .main-area { background: #1b2028e8; }
+:root[data-theme="dark"] .page-heading { border-color: var(--line); }
+:root[data-theme="dark"] .page-heading p, :root[data-theme="dark"] .welcome-row p,
+:root[data-theme="dark"] .task-copy small, :root[data-theme="dark"] .task-copy p,
+:root[data-theme="dark"] .skill-name, :root[data-theme="dark"] .skill-state,
+:root[data-theme="dark"] .concept-card p, :root[data-theme="dark"] .news-card > p,
+:root[data-theme="dark"] .news-mini p, :root[data-theme="dark"] .quiz-context,
+:root[data-theme="dark"] .concept-detail p, :root[data-theme="dark"] .modal p,
+:root[data-theme="dark"] .text-muted, :root[data-theme="dark"] .source-note { color: #c1cad5; }
+:root[data-theme="dark"] .nav-item.active { background: var(--purple); border-color: #c8b2fa; color: var(--accent-ink); }
+:root[data-theme="dark"] .icon-button, :root[data-theme="dark"] .avatar-small { background: var(--purple); border-color: #c8b2fa; color: var(--accent-ink); }
+:root[data-theme="dark"] .panel, :root[data-theme="dark"] .quiz-card,
+:root[data-theme="dark"] .feature-card, :root[data-theme="dark"] .news-mini,
+:root[data-theme="dark"] .news-card, :root[data-theme="dark"] .concept-card,
+:root[data-theme="dark"] .concept-detail, :root[data-theme="dark"] .practice-tile,
+:root[data-theme="dark"] .modal { background: var(--paper); border-color: var(--line); color: var(--ink); box-shadow: 5px 5px 0 #39414c; }
+:root[data-theme="dark"] .task-row, :root[data-theme="dark"] .choice,
+:root[data-theme="dark"] .answer-area, :root[data-theme="dark"] .modal select,
+:root[data-theme="dark"] .secondary-button, :root[data-theme="dark"] .mic-button { background: #303742; border-color: var(--line); color: var(--ink); }
+:root[data-theme="dark"] .task-row:hover, :root[data-theme="dark"] .practice-tile:hover,
+:root[data-theme="dark"] .concept-card:hover, :root[data-theme="dark"] .choice:hover,
+:root[data-theme="dark"] .choice.selected, :root[data-theme="dark"] .goal-option:has(input:checked) { background: #342847; border-color: var(--purple); color: #f0eaff; }
+:root[data-theme="dark"] .primary-button, :root[data-theme="dark"] .hero-card .primary-button,
+:root[data-theme="dark"] .toast, :root[data-theme="dark"] .goal-option:has(input:checked) { color: var(--accent-ink); }
+:root[data-theme="dark"] .hero-card { background: #252b34; border-color: var(--line); color: #f0f6fc; }
+:root[data-theme="dark"] .hero-card p { color: #c1cad5; }
+:root[data-theme="dark"] .hero-card .primary-button { background: var(--purple); }
+:root[data-theme="dark"] .tip-card { background: #26384a; border-color: #48d1cc; }
+:root[data-theme="dark"] .tip-card p { color: #e8f5f7; }
+:root[data-theme="dark"] .streak, :root[data-theme="dark"] .day-pill { background: #3a302b; color: #ffe0c8; border-color: #8a6a55; }
+:root[data-theme="dark"] .progress, :root[data-theme="dark"] .skill-track { background: #303742; border-color: var(--line); }
+:root[data-theme="dark"] .code-block { background: #20262f; border-color: #6f7885; }
+:root[data-theme="dark"] .result-box, :root[data-theme="dark"] .concept-detail .analogy,
+:root[data-theme="dark"] .news-summary, :root[data-theme="dark"] .profile-tags span { background: #342847; border-color: #7659a5; color: #f0eaff; }
+:root[data-theme="dark"] .result-box { background: #234341; border-color: #48d1cc; color: #e9fffd; }
+:root[data-theme="dark"] .result-box.warning { background: #3a302b; color: #ffe2c9; border-color: #8a6a55; }
+:root[data-theme="dark"] .source-note, :root[data-theme="dark"] .task-row,
+:root[data-theme="dark"] .answer-area { background: #303742; }
+:root[data-theme="dark"] .source-badge, :root[data-theme="dark"] .news-mini .source-badge { background: #48d1cc; border-color: #48d1cc; color: #123533; }
+:root[data-theme="dark"] .live-dot { background: #48d1cc; box-shadow: 0 0 0 4px #48d1cc35; }
+:root[data-theme="dark"] .goal-option { border-color: var(--line); color: #f0f6fc; }
+:root[data-theme="dark"] .answer-area::placeholder { color: #aab5c2; }
+:root[data-theme="dark"] .modal::backdrop { background: #1b2028bf; }
+:root[data-theme="dark"] .sidebar { box-shadow: 8px 0 0 #252b34; }
