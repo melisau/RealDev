@@ -13,7 +13,9 @@
     document.documentElement.dataset.theme = theme;
     const button = document.getElementById('themeToggle');
     const icon = document.getElementById('themeIcon');
-    const label = theme === 'dark' ? 'Açık temayı aç' : 'Koyu temayı aç';
+    const label = window.realdevLocale === 'en'
+      ? (theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme')
+      : (theme === 'dark' ? 'Açık temayı aç' : 'Koyu temayı aç');
     if (button) {
       button.setAttribute('aria-label', label);
       button.title = label;
