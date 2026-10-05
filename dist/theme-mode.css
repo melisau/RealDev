@@ -240,3 +240,32 @@ h1, .brand { font-family: 'Major Mono Display', 'Plus Jakarta Sans', Arial, sans
 :root[data-theme="dark"] .answer-area::placeholder { color: #aab5c2; }
 :root[data-theme="dark"] .modal::backdrop { background: #1b2028bf; }
 :root[data-theme="dark"] .sidebar { box-shadow: 8px 0 0 #252b34; }
+/* Keep structural strokes and hard shadows on the palette's charcoal-gray scale. */
+:root .sidebar, :root .topbar, :root .brand-mark, :root .nav-item,
+:root .side-divider, :root .avatar, :root .icon-button, :root .avatar-small,
+:root .hero-card, :root .primary-button, :root .secondary-button, :root .mic-button,
+:root .panel, :root .quiz-card, :root .feature-card, :root .news-mini,
+:root .news-card, :root .concept-card, :root .concept-detail, :root .practice-tile,
+:root .task-row, :root .task-icon, :root .progress, :root .skill-track,
+:root .code-block, :root .choice, :root .choice-letter, :root .result-box,
+:root .error-meta .chip, :root .answer-area, :root .source-note,
+:root .profile-tags span, :root .goal-option, :root .modal,
+:root .modal select, :root .toast { border-color: var(--line); }
+:root .nav-item.active { border-color: var(--line); box-shadow: 2px 2px 0 var(--line); }
+:root .hero-card { border-color: var(--line); }
+:root .hero-card .primary-button { border-color: var(--line); box-shadow: 3px 3px 0 var(--line); }
+:root .primary-button, :root .secondary-button, :root .mic-button,
+:root .streak, :root .day-pill, :root .tip-card, :root .panel,
+:root .quiz-card, :root .feature-card, :root .news-mini, :root .news-card,
+:root .concept-card, :root .concept-detail, :root .practice-tile,
+:root .modal, :root .toast { box-shadow: 3px 3px 0 var(--line); }
+:root .hero-card { box-shadow: 7px 7px 0 var(--purple); }
+:root .code-block { box-shadow: 4px 4px 0 var(--purple); }
+:root .task-row:hover, :root .practice-tile:hover, :root .concept-card:hover { box-shadow: 4px 4px 0 var(--line); }
+:root .choice:hover, :root .choice.selected, :root .goal-option:has(input:checked) { border-color: var(--purple); box-shadow: 2px 2px 0 var(--line); }
+:root[data-theme="dark"] .nav-item.active, :root[data-theme="dark"] .icon-button,
+:root[data-theme="dark"] .avatar-small { border-color: #c8b2fa; }
+:root[data-theme="dark"] .source-badge, :root[data-theme="dark"] .news-mini .source-badge,
+:root[data-theme="dark"] .live-dot { border-color: #48d1cc; }
+:root[data-theme="dark"] .hero-card { border-color: var(--line); }
+:root[data-theme="dark"] .sidebar { box-shadow: 8px 0 0 #252b34; }
