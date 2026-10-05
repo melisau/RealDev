@@ -24,6 +24,18 @@
     'Kod okuma': 'Code reading',
     'Kavram açıklama': 'Concept explanation',
     '4 kısa adım': '4 short steps',
+    '◉ Kod okuma': '◉ Code reading',
+    '↗ Kavram açıklama': '↗ Concept explanation',
+    '◷ 4 kısa adım': '◷ 4 short steps',
+    '4 dk': '4 min',
+    '5 dk': '5 min',
+    '3 dk': '3 min',
+    '◉ Kod okuma': '◉ Code reading',
+    '↗ Kavram açıklama': '↗ Concept explanation',
+    '◷ 4 kısa adım': '◷ 4 short steps',
+    '4 dk': '4 min',
+    '5 dk': '5 min',
+    '3 dk': '3 min',
     'Çalışmaya başla': 'Start practice',
     'Bugünkü rota': 'Today’s path',
     'Tüm beceriler →': 'All skills →',
@@ -39,6 +51,26 @@
     'KEŞİF AŞAMASI': 'DISCOVERY PHASE',
     'ölçülmedi': 'not assessed',
     'İlk kısa tarama ile başlangıç seviyesi oluşur.': 'Your baseline starts with a short skill check.',
+    'React · kod okuma': 'React · code reading',
+    'C# · .NET temelleri': 'C# · .NET fundamentals',
+    'Git · hata çözme': 'Git · error diagnosis',
+    'Unity · C#': 'Unity · C#',
+    'SQL · veri modeli · DDL': 'SQL · data model · DDL',
+    'CI/CD · AWS temelleri': 'CI/CD · AWS fundamentals',
+    'C# · oyun döngüsü · build': 'C# · game loop · build',
+    'kod açıklama · doğrulama': 'code explanation · verification',
+    'Bu ilk prototipte görev cevapları cihazında saklanır. Alanlar görevlerle zaman içinde keşfedilir; henüz değerlendirilmemiş beceriye seviye atamayız.': 'In this early prototype, exercise responses are stored on your device. Skills are explored through practice; we do not assign a level before assessment.',
+    'Kısa taramayı başlat': 'Start the skill check',
+    'KISA TARAMAYI BAŞLAT': 'START THE SKILL CHECK',
+    'React · kod okuma': 'React · code reading',
+    'C# · .NET temelleri': 'C# · .NET fundamentals',
+    'Git · hata çözme': 'Git · error diagnosis',
+    'Unity · C#': 'Unity · C#',
+    'SQL · veri modeli · DDL': 'SQL · data model · DDL',
+    'CI/CD · AWS temelleri': 'CI/CD · AWS fundamentals',
+    'C# · oyun döngüsü · build': 'C# · game loop · build',
+    'kod açıklama · doğrulama': 'code explanation · verification',
+    'Gelişim alanları': 'Skill areas',
     'Çalışma ipucu': 'Practice tip',
     'AI’ın ürettiği bir kodu kullanmadan önce kendine sor: Girdi ne? Çıktı ne? Hata olursa ilk hangi kanıta bakarım?': 'Before using AI-generated code, ask: What goes in? What comes out? If it fails, what evidence should I check first?',
     'KAYNAĞI BELLİ, GÜNCEL GELİŞMELER': 'LATEST UPDATES',
@@ -84,6 +116,25 @@
     'BECERİ TARAMASI': 'SKILL CHECK',
     'Bilgiyi doğrula': 'Check your understanding',
     'Beceri taraması': 'Skill check',
+    'Neleri gerçekten anladığını keşfet': 'Discover what you really understand',
+    'Kısa görevler kod okuma, hata teşhisi ve teknik anlatım pratiği sunar. “Bilmiyorum” demek de geçerli bir başlangıçtır.': 'Short exercises help you practice code reading, debugging, and technical explanation. “I don’t know” is a valid starting point.',
+    'Önce kendin dene, sonra açıklamayı ve kaynağı incele.': 'Try it yourself first, then review the explanation and source.',
+    'Tarama görevlerine başla': 'Start the skill-check exercises',
+    'TARAMA TAMAMLANDI': 'SKILL CHECK COMPLETE',
+    'İlk keşif turu bitti.': 'Your first discovery round is complete.',
+    'Bir tur daha yap': 'Try another round',
+    'Bugüne dön': 'Back to today',
+    'İyi yakaladın.': 'Good catch.',
+    'Burada tekrar düşünmeye değer.': 'This one is worth another look.',
+    'Cevabın ve açıklama kaydedildi.': 'Your answer and explanation are saved.',
+    'Emin değilsen “Şimdilik bilmiyorum” diyebilirsin.': 'If you are unsure, you can choose “I don’t know yet.”',
+    'Şimdilik bilmiyorum': 'I don’t know yet',
+    'Tamamla': 'Finish',
+    'Sonraki': 'Next',
+    'C# · çalışma zamanı': 'C# · runtime',
+    'React · kod okuma': 'React · code reading',
+    'Git · hata teşhisi': 'Git · error diagnosis',
+    'API · kavram': 'API · concepts',
     'Başla': 'Start',
     'Sayı: 0': 'Count: 0',
     'Her durumda git push --force çalıştırmak.': 'Always run git push --force.',
@@ -94,7 +145,10 @@
     'Uzak branch ileride görünüyor': 'The remote branch is ahead',
     'Güvenli teşhis': 'Safe diagnosis',
     'Şu an main branch’indesin. Ekip arkadaşın uzak branch’e commit gönderdi; sende henüz fetch edilmemiş. İlk ne yaparsın?': 'You are on the main branch. A teammate pushed a commit that you have not fetched yet. What do you do first?',
+    'Şu an': 'You are on',
+    'branch’indesin. Ekip arkadaşın uzak branch’e commit gönderdi; sende henüz fetch edilmemiş. İlk ne yaparsın?': 'branch. A teammate pushed a commit to the remote branch that you have not fetched. What would you do first?',
     'Sesli açıkla': 'Explain aloud',
+    '🎙 Sesli açıkla': '🎙 Explain aloud',
     'Önce şunu kontrol ederim… çünkü…': 'First, I would check this… because…',
     'Bunu başka bir geliştiriciye şöyle anlatırdım…': 'I would explain this to another developer like this…',
     'Yanıtımı kaydet →': 'Save my response →',
@@ -106,6 +160,43 @@
     'Güvenli bir teşhis yolu; önce git status/git fetch ile uzak farkı incele, sonra ekip akışına uygun merge veya rebase seç, test et ve pushla.': 'A safe diagnosis: inspect the remote changes with git status and git fetch, choose a team-approved merge or rebase, test, then push.',
     'Hata ayıklama sırası': 'Debugging checklist',
     'Mesajı gördüğünde kendine şu soruları sor:': 'When you see an error, ask yourself:',
+    'Şu an': 'You are on',
+    'branch’indesin. Ekip arkadaşın uzak branch’e commit gönderdi; sende henüz fetch edilmemiş. İlk ne yaparsın?': 'branch. A teammate pushed a commit to the remote branch that you have not fetched. What would you do first?',
+    '🎙 Sesli açıkla': '🎙 Explain aloud',
+    'YANITIMI KAYDET': 'SAVE MY RESPONSE',
+    'Hangi bilgi eksik?': 'What information is missing?',
+    'Branch durumu, son commit ve remote farkı.': 'Branch status, latest commit, and remote differences.',
+    'En risksiz kanıtı topla': 'Collect the safest evidence',
+    'git status, git branch -vv, git fetch.': 'git status, git branch -vv, git fetch.',
+    'Sonucu doğrula': 'Verify the result',
+    'Çözümden sonra test edip push durumuna bak.': 'After the fix, test and check the push status.',
+    'Kaynak standardı:': 'Source policy:',
+    'Öğretici adımlar resmi araç dokümantasyonuyla karşılaştırılır. Topluluk cevapları örnek olabilir; tek başına doğruluk kanıtı sayılmaz.': 'Learning steps are checked against official tool documentation. Community answers can provide examples, but are not proof of correctness on their own.',
+    'SONRAKI HATA KONULARI': 'UP NEXT: ERROR TOPICS',
+    'YAKINDA · .NET': 'COMING SOON · .NET',
+    'dotnet SDK bulunamadı': 'dotnet SDK not found',
+    'PATH ve yüklenen SDK sürümlerini incele.': 'Inspect PATH and the installed SDK versions.',
+    'YAKINDA · HTTP': 'COMING SOON · HTTP',
+    'Tarayıcı policy’sini ve response başlıklarını ayır.': 'Distinguish browser policy from response headers.',
+    'YAKINDA · UNITY': 'COMING SOON · UNITY',
+    'Android build başarısız': 'Android build failed',
+    'İlk gerçek error satırını ve build ortamını bul.': 'Find the first actual error line and inspect the build environment.',
+    'Hangi bilgi eksik?': 'What information is missing?',
+    'Branch durumu, son commit ve remote farkı.': 'Branch status, latest commit, and remote differences.',
+    'En risksiz kanıtı topla': 'Collect the safest evidence',
+    'Sonucu doğrula': 'Verify the result',
+    'Çözümden sonra test edip push durumuna bak.': 'After the fix, test and check the push status.',
+    'Kaynak standardı:': 'Source policy:',
+    'Öğretici adımlar resmi araç dokümantasyonuyla karşılaştırılır. Topluluk cevapları örnek olabilir; tek başına doğruluk kanıtı sayılmaz.': 'Learning steps are checked against official tool documentation. Community answers can provide examples, but are not proof of correctness on their own.',
+    'SONRAKI HATA KONULARI': 'UP NEXT: ERROR TOPICS',
+    'YAKINDA · .NET': 'COMING SOON · .NET',
+    'dotnet SDK bulunamadı': 'dotnet SDK not found',
+    'PATH ve yüklenen SDK sürümlerini incele.': 'Inspect PATH and the installed SDK versions.',
+    'YAKINDA · HTTP': 'COMING SOON · HTTP',
+    'Tarayıcı policy’sini ve response başlıklarını ayır.': 'Distinguish browser policy from response headers.',
+    'YAKINDA · UNITY': 'COMING SOON · UNITY',
+    'Android build başarısız': 'Android build failed',
+    'İlk gerçek error satırını ve build ortamını bul.': 'Find the first actual error line and inspect the build environment.',
     'Ne başarısız oldu?': 'What failed?',
     'Komut ve hata türünü mesajdan ayır.': 'Identify the command and error type in the message.',
     'Hangi kanıt eksik?': 'What evidence is missing?',
@@ -129,6 +220,8 @@
     'AI modelleri, geliştirici araçları ve altyapı gelişmeleri. Kaynağa git veya kısa özeti aç.': 'Updates on AI models, developer tools, and infrastructure. Open the source or read a short summary.',
     'Kontrol: 5 Ekim 2026': 'Checked: October 5, 2026',
     'Güvenilirlik kuralı: Bu akıştaki kartlar ilk sürüm için elle seçilmiş kaynaklı örneklerdir, canlı haber akışı değildir. Yayın tarihi kaynak sayfasından alınmıştır. Her kartta asıl kaynağa gidebilirsin.': 'Editorial note: These source-linked cards are curated examples, not a live news feed. Publication dates come from the source pages. Open the original source from each card.',
+    'Güvenilirlik kuralı:': 'Editorial note:',
+    'Bu akıştaki kartlar ilk sürüm için elle seçilmiş kaynaklı örneklerdir, canlı haber akışı değildir. Yayın tarihi kaynak sayfasından alınmıştır. Her kartta asıl kaynağa gidebilirsin.': 'These source-linked cards are curated examples, not a live news feed. Publication dates come from the source pages. Open the original source from each card.',
     'Kısa özet:': 'Summary:',
     'Özeti kapat': 'Hide summary',
     'Haberi özetle': 'Show summary',
@@ -143,6 +236,8 @@
     'Ekipte kodu nasıl güvenle teslim edersin?': 'How do you ship code safely with a team?',
     'Commit ve branch’ten GitHub Actions’a: kavramı oku, senaryoda uygula, sonra kendi repo akışına taşı.': 'From commits and branches to GitHub Actions: learn the idea, try the scenario, then apply it to your repository.',
     'Kaynak: Git’in resmi dokümantasyonu ve GitHub Docs/Changelog. Workflow davranışları değişebileceği için güncel sözdizimi kaynak sayfasından kontrol edilir.': 'Sources: official Git documentation and GitHub Docs/Changelog. Workflow behavior can change, so check the current syntax in the source.',
+    'Workflow’a gereken en az izinleri ver.': 'Grant workflows only the permissions they need.',
+    'Bu changelog kaydı, runner sürüm deprecations bilgisi için API ve GITHUB_TOKEN’a yeni salt okunur izin eklenmesini anlatıyor.': 'This changelog describes an API for runner deprecation information and a new read-only GITHUB_TOKEN permission.',
     'Branch ve commit': 'Branches and commits',
     'Değişiklikleri küçük, anlamlı parçalara ayır.': 'Split changes into small, meaningful commits.',
     'Pull request': 'Pull request',
@@ -164,6 +259,12 @@
     'Runner sürüm sonunu izleme ve vulnerability-alerts token izni': 'Runner deprecation tracking and a vulnerability-alerts token permission',
     'Bu changelog kaydı, runner sürüm deprecations bilgisi için API ve GITHUB_TOKEN’a yeni salt okunur izin eklenmesini anlatıyor.': 'This changelog describes an API for runner deprecation information and a new read-only GITHUB_TOKEN permission.',
     'GitHub Changelog kaynağı': 'GitHub Changelog source',
+    'Git’in resmi dokümantasyonu ve GitHub Docs/Changelog': 'official Git documentation and GitHub Docs/Changelog',
+    'Asıl kaynak:': 'Original source:',
+    'Kaynak:': 'Source:',
+    'Workflow’a gereken en az izinleri ver.': 'Grant workflows only the permissions they need.',
+    'Güvenilirlik kuralı:': 'Editorial note:',
+    'Bu akıştaki kartlar ilk sürüm için elle seçilmiş kaynaklı örneklerdir, canlı haber akışı değildir. Yayın tarihi kaynak sayfasından alınmıştır. Her kartta asıl kaynağa gidebilirsin.': 'These source-linked cards are curated examples, not a live news feed. Publication dates come from the source pages. Open the original source from each card.',
     'Geliştirici yolculuğu': 'Developer journey',
     'Profili kaydet': 'Save profile',
     'En az bir öğrenme hedefi seç.': 'Choose at least one learning goal.',
@@ -263,11 +364,11 @@
     while ((node = walker.nextNode())) {
       const trimmed = node.nodeValue.trim();
       if (!trimmed) continue;
-      let translated = dict[trimmed];
+      let translated = lookup(trimmed, dict);
       const progressMatch = trimmed.match(/^(\d+%) (rota|path)$/);
       if (!translated && progressMatch && dict[progressMatch[2]]) translated = `${progressMatch[1]} ${dict[progressMatch[2]]}`;
       if (!translated && trimmed.includes(' · ')) {
-        translated = trimmed.split(' · ').map(part => dict[part] || part).join(' · ');
+        translated = trimmed.split(' · ').map(part => lookup(part, dict) || part).join(' · ');
         if (translated === trimmed) translated = null;
       }
       if (!translated || translated === trimmed) continue;
@@ -280,10 +381,22 @@
       for (const element of elements) {
         for (const attr of ['aria-label', 'title', 'placeholder']) {
           const value = element.getAttribute?.(attr);
-          if (value && dict[value]) element.setAttribute(attr, dict[value]);
+          const translated = value && lookup(value, dict);
+          if (translated && translated !== value) element.setAttribute(attr, translated);
         }
       }
     }
+  }
+
+  function lookup(value, dict) {
+    if (dict[value]) return dict[value];
+    for (const prefix of ['Asıl kaynak:', 'Kaynak:']) {
+      if (value.startsWith(prefix)) {
+        const translatedPrefix = dict[prefix];
+        if (translatedPrefix) return translatedPrefix + value.slice(prefix.length);
+      }
+    }
+    return null;
   }
 
   function updateLanguageButton() {
