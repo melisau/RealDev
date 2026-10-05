@@ -1,5 +1,6 @@
 // Versioned tasks: changing a task's meaning requires a new id/version.
-export const VERSION = '2026-10-05.3';
+import { createSourceTasks } from './source-tasks.mjs';
+export const VERSION = '2026-10-05.4';
 const L = (tr,en) => ({tr,en});
 export const areas = {
  frontend:L('JavaScript / React','JavaScript / React'), dotnet:L('C# / .NET','C# / .NET'),
@@ -104,6 +105,7 @@ tasks.push(
  extra('game-script-order','game',L('Script yürütme sırasını teşhis et','Diagnose script execution order'),L('Bir component, diğerinin Awake içinde kurduğu referansa erken erişiyor. Ne yaparsın?','A component accesses a reference before another component sets it in Awake. What do you do?'),[L('Lifecycle sırasını log/breakpoint ile izleyip bağımlılığı açıkça kurmak.','Trace lifecycle with logs/breakpoints and establish the dependency explicitly.'),L('Her makinede aynı sırayı varsaymak.','Assume the same order on every machine.'),L('Null hatasını sessizce yutmak.','Silently swallow the null error.')],0,L('Belirsiz global callback sırasına güvenme; bağımlılığı açıkça kur ve doğrula.','Do not rely on implicit global callback order; establish and verify the dependency.'),'unityevents'),
  extra('game-allocation','game',L('Kare başına allocation bul','Find per-frame allocations'),L('Profiler’da GC Alloc yüksek. İlk daraltma adımı nedir?','GC Alloc is high in the profiler. What is a good first narrowing step?'),[L('CPU Profiler allocation call stack ile sıcak karede allocate eden kodu bulmak.','Use CPU Profiler allocation call stacks to find hot-frame allocations.'),L('Profiler olmadan tüm LINQ ifadelerini silmek.','Delete all LINQ without profiling.'),L('GC’yi her kare zorlamak.','Force GC every frame.')],0,L('Önce kaynağı ölç; doğrulanmış sıcak noktayı optimize edip yeniden ölç.','Measure the source first; optimize a verified hot path and measure again.'),'unitypool')
 );
+tasks.push(...createSourceTasks(VERSION));
 export const baselineIds=tasks.slice(0,8).map(t=>t.id);
 export const goals = ['fullstack','frontend','ai','data','devops','mobile','game'];
 export const goalLabels = {fullstack:L('Full stack','Full stack'),frontend:L('Frontend','Frontend'),ai:L('AI mühendisliği','AI engineering'),data:L('Veri ve veritabanı','Data and databases'),devops:L('DevOps','DevOps'),mobile:L('Mobil geliştirme','Mobile development'),game:L('Oyun geliştirme','Game development')};
