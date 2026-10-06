@@ -1,7 +1,19 @@
 $ErrorActionPreference = 'Stop'
 $compose = Join-Path (Split-Path $PSScriptRoot -Parent) 'docker-compose.piston.yml'
-docker compose -f $compose up -d
-if ($LASTEXITCODE -ne 0) { throw 'Docker Compose could not start Piston. Confirm Docker Desktop is running with the Linux container engine.' }
+$existingImage = docker inspect --format '{{.Config.Image}}' realdev-piston 2>$null
+if ($LASTEXITCODE -eq 0) {
+  $running = docker inspect --format '{{.State.Running}}' realdev-piston
+  $binding = docker port realdev-piston 2000/tcp 2>$null
+  $networkingDisabled = docker inspect --format '{{range .Config.Env}}{{println .}}{{end}}' realdev-piston | Select-String '^PISTON_DISABLE_NETWORKING=true$'
+  if ($existingImage -notmatch '^ghcr\.io/engineer-man/piston(?::[A-Za-z0-9._-]+|@sha256:[a-f0-9]{64})$') { throw "A container named realdev-piston exists with an unexpected image ($existingImage). It was left untouched." }
+  if ($running -ne 'true') { throw 'The existing realdev-piston container is stopped. Start it in Docker Desktop, then run this script again.' }
+  if ($binding -notmatch '^127\.0\.0\.1:2000$') { throw "The existing Piston container is not bound only to 127.0.0.1:2000 ($binding). It was left untouched." }
+  if (-not $networkingDisabled) { throw 'The existing Piston container can access the network. It was left untouched; use the project Compose configuration instead.' }
+  Write-Host 'Reusing the existing localhost-only realdev-piston container.'
+} else {
+  docker compose -f $compose up -d
+  if ($LASTEXITCODE -ne 0) { throw 'Docker Compose could not start Piston. Confirm Docker Desktop is running with the Linux container engine.' }
+}
 
 $base = 'http://127.0.0.1:2000/api/v2'
 $ready = $false
