@@ -1,6 +1,6 @@
 # RealDev learning content and attribution
 
-Last checked: 2026-10-05. The app’s concepts are original RealDev explanations grounded in linked documentation. New practice questions are independently authored; external question text has not been copied. Each published answer should link its technical source and be rechecked against the referenced version.
+Last checked: 2026-10-06. The app’s concepts are original RealDev explanations grounded in linked documentation. Practice questions, code, logs and expected outputs are independently authored; external question text has not been copied. Sources below inform technical contracts and answer review, not a copied answer key. Each published task links a technical source and should be rechecked against the referenced version. Executable tasks include independent server-side cases; open-ended code reviews use transparent criteria and are not represented as automatic proof of correctness.
 
 ## Sources in the app
 
@@ -23,6 +23,13 @@ Last checked: 2026-10-05. The app’s concepts are original RealDev explanations
 | [Data Engineering Zoomcamp](https://github.com/DataTalksClub/data-engineering-zoomcamp) | Optional course link | Free course; repository-wide redistribution license not verified. Link out; check individual file terms. |
 | [Android Compose samples](https://github.com/android/compose-samples) | Android examples and review practice | Apache 2.0; preserve license and notices. |
 | [Godot docs](https://docs.godotengine.org/en/stable/tutorials/index.html) | General game-development concepts | CC BY 3.0; attribute and indicate modifications. Godot APIs are not Unity APIs. |
+| [SQLite CREATE TABLE](https://www.sqlite.org/lang_createtable.html) | Original schema-migration task: constraints and unique keys | Official SQLite reference; task text and schema scenario are authored by RealDev. |
+| [SQLite ALTER TABLE](https://www.sqlite.org/lang_altertable.html) | Schema evolution and migration review | Official SQLite reference; task is original and does not reproduce documentation examples. |
+| [SQLite SELECT](https://www.sqlite.org/lang_select.html) | Original pagination incident and expected/actual debugging | Official SQLite reference; code and incident logs are authored by RealDev. |
+| [Python sqlite3](https://docs.python.org/3/library/sqlite3.html) | Python database API contracts and transaction behavior | Official Python documentation; task code and tests are original. |
+| [PostgreSQL DDL](https://www.postgresql.org/docs/current/ddl.html) | Production schema/migration review principles | Official PostgreSQL documentation; reviewed against the target database and version before release. |
+| [PostgreSQL LIMIT/OFFSET](https://www.postgresql.org/docs/17/queries-limit.html) | Stable ordering and page-boundary review | Official PostgreSQL documentation; pagination exercise is original. |
+| [AWS Builders’ Library: Making retries safe with idempotent APIs](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/) | API retry/idempotency review criteria | Official AWS engineering article; RealDev authors its own buggy example, prompts and tests. |
 
 ## Content record
 
