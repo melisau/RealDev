@@ -1,0 +1,38 @@
+.guest-mode .sidebar{display:none}
+.guest-mode .main-area{margin-left:0;width:100%}
+.guest-mode .topbar{padding-inline:clamp(18px,5vw,72px)}
+.guest-mode .mobile-menu,.guest-mode #profileOpenTop,.guest-mode #reminderButton{display:none}
+.guest-mode .breadcrumb{margin-right:auto}
+.guest-mode .content{max-width:1120px;padding-top:clamp(36px,7vw,84px)}
+.public-hero{border:2px solid var(--line);background:var(--paper);padding:clamp(28px,6vw,76px);box-shadow:8px 8px 0 var(--line);position:relative;overflow:hidden}
+.public-hero:after{content:"</>";position:absolute;right:clamp(20px,7vw,86px);bottom:-.2em;color:var(--purple);font:clamp(100px,18vw,240px)/1 'Share Tech Mono',monospace;opacity:.12;pointer-events:none}
+.public-hero h1{position:relative;z-index:1;max-width:760px;margin:18px 0;font:clamp(35px,6vw,70px)/1.12 'Major Mono Display',monospace;text-transform:lowercase}
+.public-hero>p{position:relative;z-index:1;max-width:650px;color:var(--muted);font-size:clamp(15px,1.7vw,19px);line-height:1.7}
+.public-hero-actions,.public-sample-actions{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:12px;margin-top:25px}
+.public-hero-actions .primary-button,.public-bottom .primary-button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 18px;text-decoration:none}
+.public-hero .secondary-button,.public-demo-card .secondary-button,.public-sample-actions .secondary-button{height:auto;min-height:44px;padding:10px 15px;border-radius:0;border:2px solid var(--line);background:var(--paper);color:var(--ink);font:13px 'Share Tech Mono',monospace}
+.public-note{position:relative;z-index:1;margin-top:22px;color:var(--muted);font-size:12px;line-height:1.6}
+.public-note a{color:var(--purple);font-weight:700}
+.public-section{margin-top:clamp(42px,7vw,78px)}
+.public-section>div:first-child h2,.public-bottom h2{font:clamp(25px,3vw,38px)/1.2 'Major Mono Display',monospace;text-transform:lowercase;margin:12px 0}
+.public-section>div:first-child>p,.public-bottom>p{max-width:700px;color:var(--muted);line-height:1.7}
+.public-feature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:20px;border:1px solid var(--line)}
+.public-feature-grid article{padding:22px;border-right:1px solid var(--line);background:var(--paper)}
+.public-feature-grid article:last-child{border:0}
+.public-feature-grid article>span{font:11px 'Share Tech Mono',monospace;color:var(--purple)}
+.public-feature-grid h3{font:19px 'Share Tech Mono',monospace;margin:18px 0 8px}
+.public-feature-grid p{color:var(--muted);font-size:13px;line-height:1.65;margin:0}
+.public-samples{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;padding:24px;border:1px solid var(--line);background:var(--surface,var(--paper))}
+.public-sample-actions{margin:0;justify-content:flex-end}
+.public-bottom{margin-top:clamp(42px,7vw,78px);padding:clamp(24px,4vw,42px);background:var(--purple);color:#fff;border:2px solid var(--line);box-shadow:6px 6px 0 var(--line)}
+.public-bottom>p{color:#f2edff}
+.public-bottom .primary-button{background:#fff;color:#292533;border:2px solid #292533}
+.public-demo-card{max-width:850px;margin:0 auto;border:2px solid var(--line);background:var(--paper);padding:clamp(20px,4vw,42px);box-shadow:7px 7px 0 var(--line)}
+.public-demo-card>h1{margin:16px 0;font:clamp(28px,4vw,44px)/1.2 'Major Mono Display',monospace;text-transform:lowercase}
+.public-demo-card>p{color:var(--muted);line-height:1.7}
+.public-demo-card .concept-card{text-align:left;color:var(--ink);font:inherit}
+.public-demo-card a.concept-card{display:block;color:var(--ink);text-decoration:none}
+.public-demo-card .concept-card h3{font-family:'Share Tech Mono',monospace}
+.public-demo-card .text-button{color:var(--purple)}
+.guest-mode .concept-detail{border-radius:0;border-color:var(--line)}
+@media(max-width:760px){.public-feature-grid{grid-template-columns:1fr}.public-feature-grid article{border-right:0;border-bottom:1px solid var(--line)}.public-feature-grid article:last-child{border-bottom:0}.public-samples{grid-template-columns:1fr}.public-sample-actions{justify-content:flex-start}.guest-mode .topbar{padding-inline:14px}.guest-mode .content{padding:30px 17px 44px}.public-hero{box-shadow:5px 5px 0 var(--line)}}
