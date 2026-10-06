@@ -5,6 +5,7 @@ import {loadEnvFile} from 'node:process';
 try{loadEnvFile('.env.local');}catch(error){if(error.code!=='ENOENT')throw error;}
 import {api} from '../server/api.mjs';
 import {localDb} from './local-db.mjs';
+import {pageForPath,renderPageDocument,robotsText,sitemapXml} from '../server/page-routes.mjs';
 const port=Number(process.env.REALDEV_PORT)||4317;if(!Number.isInteger(port)||port<1024||port>65535)throw Error('Invalid preview port');
 mkdirSync('.local',{recursive:true});const DB=localDb('.local/preview-'+port+'.sqlite');const host='http://127.0.0.1:'+port;
 const types={html:'text/html',js:'text/javascript',css:'text/css',svg:'image/svg+xml'};
@@ -17,7 +18,9 @@ createServer(async(req,res)=>{
    const request=new Request(url,{method:req.method,headers,body:['GET','HEAD'].includes(req.method)?undefined:Buffer.concat(chunks)});
    response=await api(request,{DB,VAPID_PUBLIC_KEY:process.env.VAPID_PUBLIC_KEY,VAPID_PRIVATE_KEY:process.env.VAPID_PRIVATE_KEY,REMINDER_DISPATCH_TOKEN:process.env.REMINDER_DISPATCH_TOKEN,REMINDER_SCHEDULE_ENABLED:process.env.REMINDER_SCHEDULE_ENABLED,OPENAI_API_KEY:process.env.OPENAI_API_KEY,OPENAI_TEXT_MODEL:process.env.OPENAI_TEXT_MODEL,PISTON_URL:process.env.PISTON_URL||'http://127.0.0.1:2000',PISTON_API_KEY:process.env.PISTON_API_KEY});
   }else if(url.pathname.startsWith('/sign')){response=Response.redirect(host,302);}
-  else{const base=resolve('web');const file=resolve(base,url.pathname==='/'?'index.html':'.'+url.pathname);if(!file.startsWith(base+sep)||!existsSync(file))response=new Response('Not found',{status:404});else response=new Response(readFileSync(file),{headers:{'content-type':(types[file.split('.').pop()]||'text/plain')+'; charset=utf-8','cache-control':'no-store'}});}
+  else if(url.pathname==='/robots.txt')response=new Response(robotsText(host),{headers:{'content-type':'text/plain; charset=utf-8','cache-control':'no-store'}});
+  else if(url.pathname==='/sitemap.xml')response=new Response(sitemapXml(host),{headers:{'content-type':'application/xml; charset=utf-8','cache-control':'no-store'}});
+  else{const page=pageForPath(url.pathname),base=resolve('web'),file=resolve(base,page?'index.html':url.pathname==='/'?'index.html':'.'+url.pathname);if(!file.startsWith(base+sep)||!existsSync(file))response=new Response('Not found',{status:404});else{const body=readFileSync(file,'utf8'),document=page?renderPageDocument(body,url.pathname,host,{allowIndexing:false}):null;response=new Response(document?.html??body,{headers:{'content-type':(types[file.split('.').pop()]||'text/plain')+'; charset=utf-8','cache-control':'no-store',...(document?{'x-robots-tag':document.robots}:{})}});}}
   res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));
  }catch(e){console.error(e);res.writeHead(500);res.end('Preview error');}
 }).listen(port,'127.0.0.1',()=>console.log('Local preview: '+host+' (isolated preview account)'));

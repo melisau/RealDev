@@ -47,6 +47,10 @@ The production connection is prepared with `scripts/piston-gateway.mjs`: loopbac
 
 Nine authored Python/C#/Java tasks now cover positive-only aggregation, stable deduplication debugging and game-health bounds transfer. Each language has all three tasks and each submission is run against five server-defined stdin/output cases in separate Piston executions. The server ignores client grades, checks compile/run exit conditions and saves verified results in account code history. Only current-suite, server-verified authored results enter the skill map. Equivalent tasks in different languages share one evidence family, preventing three language ports from becoming three independent mastery claims; the latest result is used. Free-form runs remain unscored. A failed or missing runner saves no result. Per-account authored submissions are capped at 12 per 15 minutes, in addition to gateway concurrency/rate limits. `scripts/verify-polyglot.mjs` checks both buggy starters and working fixtures using a real runner. The live runner activation constraint still applies.
 
+## Search visibility and routes
+
+The Site has distinct clean URLs for the workspace areas and public previews. Only the public landing page and two sample pages are indexable; account-specific work areas send `noindex, nofollow`. Each route receives its own title, description, Open Graph metadata and canonical URL. `/robots.txt` and `/sitemap.xml` are generated from the public routes. Legacy hash links continue to open the matching clean route.
+
 ## Architecture and publishing
 
 - `web/`: vanilla UI; `assessment.js` owns scans/notes, `learning.js` owns account controls, projects, AI feedback and audio.
@@ -55,6 +59,6 @@ Nine authored Python/C#/Java tasks now cover positive-only aggregation, stable d
 - `db/schema.ts`, `drizzle/`: D1 schema and generated migrations.
 - `tests/`: ownership, atomic deletion, source freshness, project prerequisites, sandbox execution, quote validation, quotas and audio consent.
 
-The existing Site remains owner-private. Sites provisions logical D1 binding `DB` and applies source migrations before deployment. Identity headers are trusted only behind the Sites authenticated dispatcher. Every personal query is owner-scoped; user IDs and grades from request bodies are never trusted. Mutations require same-origin requests. JSON and audio bodies are bounded while streaming. Service keys never reach browser assets, source control or exports.
+The published Site is public; anyone with its URL can open the public landing page and samples. Personal learning features require a verified account. Sites provisions logical D1 binding `DB` and applies source migrations before deployment. Identity headers are trusted only behind the Sites authenticated dispatcher. Every personal query is owner-scoped; user IDs and grades from request bodies are never trusted. Mutations require same-origin requests. JSON and audio bodies are bounded while streaming. Service keys never reach browser assets, source control or exports.
 
 Publish the exact pushed source SHA with its Worker archive. Source is mirrored to `melisau/RealDev`; GitHub does not independently deploy the Site. `.env*`, local databases, verification screenshots and generated bundles are ignored. Production activation still requires available API credit and a stable Piston host/registered private tunnel. Unrestricted real-world IDE execution, private GitHub OAuth and native mobile packaging are separate future work.
