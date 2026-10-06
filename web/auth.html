@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#f3f3ed">
   <title>RealDeveloper · Hesap girişi</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/styles.css?v=20261005-12">
+  <link rel="stylesheet" href="/styles.css?v=20261006-2">
   <link rel="stylesheet" href="/theme.css?v=20261005-12">
   <style>
     body{min-height:100vh;display:grid;place-items:center;background:var(--paper);color:var(--ink)}
@@ -26,15 +26,17 @@
     .auth-fields input{padding:13px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:16px Arial,sans-serif}
     .auth-fields button{margin-top:8px;min-height:48px}
     .auth-status{min-height:48px;font:14px Arial,sans-serif}
+    .resend-verification{margin-top:8px;min-height:42px;padding:8px 12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:14px 'Share Tech Mono',monospace;cursor:pointer}
+    .resend-verification[hidden]{display:none}
     .auth-back{color:var(--ink);font:14px 'Share Tech Mono',monospace}
     @media(max-width:680px){.auth-wrap{grid-template-columns:1fr}.auth-intro{min-height:auto;border-right:0;border-bottom:1px solid var(--line);gap:30px}.auth-intro h1{margin:20px 0 8px}}
   </style>
-  <script src="/auth.js?v=20261005-22" defer></script>
+  <script src="/auth.js?v=20261006-2" defer></script>
 </head>
 <body>
   <main class="auth-wrap">
     <section class="auth-intro"><a class="auth-brand" href="/#today">&lt;/&gt; real<span>developer</span></a><div><div class="eyebrow">DEVELOPER PRACTICE STUDIO</div><h1>kendi hesabınla devam et</h1><p>Öğrenme rotan, cevapların, notların ve kod çalışmaların hesabına kaydedilir.</p></div><a class="auth-back" href="/#today">← Çalışma alanına dön</a></section>
-    <section class="auth-form" aria-labelledby="authHeading"><div class="eyebrow">HESAP</div><h2 id="authHeading">Giriş yap veya kayıt ol</h2><button type="button" class="secondary-button" id="authLanguageToggle" aria-label="Switch language">EN</button><div class="auth-tabs" role="tablist"><button id="signInTab" role="tab" aria-selected="true" type="button">Giriş yap</button><button id="signUpTab" role="tab" aria-selected="false" type="button">Kayıt ol</button></div><form id="authForm" class="auth-fields"><label for="authEmail">E-posta</label><input id="authEmail" name="email" type="email" autocomplete="email" required maxlength="320"><label for="authPassword">Parola</label><input id="authPassword" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128"><button class="primary-button" id="authSubmit" type="submit">Giriş yap →</button></form><p id="authStatus" class="auth-status" role="status" aria-live="polite"></p></section>
+    <section class="auth-form" aria-labelledby="authHeading"><div class="eyebrow">HESAP</div><h2 id="authHeading">Giriş yap veya kayıt ol</h2><button type="button" class="secondary-button" id="authLanguageToggle" aria-label="Switch language">EN</button><div class="auth-tabs" role="tablist"><button id="signInTab" role="tab" aria-selected="true" type="button">Giriş yap</button><button id="signUpTab" role="tab" aria-selected="false" type="button">Kayıt ol</button></div><form id="authForm" class="auth-fields"><label for="authEmail">E-posta</label><input id="authEmail" name="email" type="email" autocomplete="email" required maxlength="320"><label for="authPassword">Parola</label><input id="authPassword" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128"><button class="primary-button" id="authSubmit" type="submit">Giriş yap →</button></form><p id="authStatus" class="auth-status" role="status" aria-live="polite"></p><button type="button" class="resend-verification" id="resendVerification" hidden>E-postayı tekrar gönder</button></section>
   </main>
 </body>
 </html>
