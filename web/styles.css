@@ -6,3 +6,6 @@
 .concept-search-label{display:block;font-size:11px;font-weight:600;margin:0 0 7px}.concept-search{width:min(100%,520px);height:39px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);outline-color:var(--purple)}.concept-search-count{margin:8px 0 14px;color:var(--muted);font-size:11px}.concept-card[hidden]{display:none}
 :root[data-theme="dark"] .concept-search{background:#30353d;color:#e8f3f5}
 @media(min-width:721px) and (max-width:860px){.content{padding:25px 20px}.topbar{padding:0 20px}.two-col{grid-template-columns:1fr}.github-grid{grid-template-columns:repeat(2,1fr)}}
+.concept-detail .concept-body{white-space:normal;line-height:1.8;color:var(--muted);font-size:13px}.concept-detail .concept-body br+br{display:block;content:"";margin-top:8px}
+.concept-detail .concept-body{white-space:normal;line-height:1.8;color:var(--muted);font-size:13px}.concept-detail .concept-body br+br{display:block;content:"";margin-top:8px}
+.public-demo-card .concept-body{white-space:normal;line-height:1.8;color:var(--muted);font-size:13px;margin:14px 0}

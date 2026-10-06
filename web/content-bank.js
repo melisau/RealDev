@@ -40,6 +40,52 @@
     {id:'mobile-state',area:'Mobile',type:'Android state',name:bi('UI state ile kalıcı veriyi ayır','Separate UI state from durable data'),desc:bi('Ekran yeniden yaratıldığında gereken geçici state’i uygun katmanda koru.','Preserve transient state in the right layer when a screen is recreated.'),body:bi('Yapılandırma değişikliği ekran bileşenini yeniden yaratabilir. Arama metni gibi geçici UI state’i uygun state holder/saved-state mekanizmasıyla geri yüklenebilir; kalıcı domain verisini her tuşta sunucuya yazmak gerekmez.','A configuration change can recreate a screen component. Transient UI state such as search text can be restored through an appropriate state holder or saved-state mechanism; durable domain data need not be written to the server on every keystroke.'),analogy:bi('Döndürme testi ve süreç ölümünü aynı olay saymadan uygulama beklentisine göre sınırları ölç.','Test rotation and process death according to the app’s requirements rather than treating them as identical events.'),source:'mobile'},
     {id:'game-object-pooling',area:'Game development',type:'Unity performance',name:bi('Object pooling ve lifecycle','Object pooling and lifecycle'),desc:bi('Havuzlama allocation azaltabilir; reset ve bellek maliyetini de ölç.','Pooling can reduce allocations; measure reset and memory costs too.'),body:bi('Sık create/destroy yapılan nesneleri tekrar kullanmak tahsis baskısını azaltabilir. Havuz boyutu, state reset’i, event abonelikleri ve kullanılmayan nesne belleği dikkatle yönetilmelidir. Unity Profiler ile gerçek darboğazı doğrula.','Reusing frequently created/destroyed objects may reduce allocation pressure. Manage pool size, state resets, event subscriptions and memory for inactive objects. Verify the real bottleneck with the Unity Profiler.'),analogy:bi('Havuza dönen bir mermi yeni kullanımda eski hedef veya coroutine bilgisini taşımamalı.','A projectile returned to a pool must not retain a stale target or coroutine for its next use.'),source:'unity'}
   ];
-  cards.push({id:'piston-production-host',area:'DevOps',type:bi('Dağıtım ve ağ','Deployment and networking'),name:bi('Piston: ücretsiz yerel deneme ve canlıya geçiş','Piston: free local practice and going live'),desc:bi('Şimdi bilgisayarında ücretsiz dene; 7/24 erişim daha sonra sunucu veya tünel ister.','Try it free on your PC now; 24/7 access later requires a server or tunnel.'),body:bi('Şimdilik sunucu veya domain satın almana gerek yok. Windows’ta Docker Desktop’ın Linux container motorunu başlat; proje klasöründe `scripts/start-piston.ps1` ile Piston’ı çalıştır, sonra `npm run dev` ile RealDev’in yerel önizlemesini aç. İkisi aynı bilgisayarda olunca önizleme Piston’a `127.0.0.1:2000` üzerinden erişebilir. Bilgisayar ve Docker açık olduğu sürece çalışır. Bu önizleme ayrı bir yerel hesap ve `.local/preview-4317.sqlite` veritabanı kullanır; denemeler canlı Site hesabına aktarılmaz.\n\nCanlı Site’da herkesin 7/24 kullanması gerektiğinde Piston ve güvenli geçit sürekli açık bir makinede çalışmalı ya da Site’a kayıtlı özel tünelle bağlanmalıdır. Domain yalnızca adres sağlar, sunucu sağlamaz; özel tünelde domain şart değildir. Piston’ın 2000 portunu herkese açma: yalnızca kimlik doğrulamalı geçidi HTTPS veya özel tünelle erişilebilir tut ve anahtarı sunucu sırrı olarak sakla.','You do not need to buy a server or domain now. On Windows, start Docker Desktop with its Linux container engine; in the project folder run `scripts/start-piston.ps1`, then open RealDev’s local preview with `npm run dev`. Since both run on the same computer, the preview can reach Piston at `127.0.0.1:2000`. It works while your computer and Docker are on. The preview uses a separate local identity and `.local/preview-4317.sqlite` database; practice runs do not sync to your live Site account.\n\nWhen everyone needs to use Piston on the live Site 24/7, Piston and its secure gateway must run on an always-on machine or connect to the Site through a registered private tunnel. A domain gives an address, not a server; a domain is not required for a private tunnel. Do not expose Piston’s port 2000 to everyone: make only the authenticated gateway reachable over HTTPS or a private tunnel, and keep its key in server-side secrets.'),analogy:bi('Ücretsiz denemede atölye ve çalışma masası aynı odada: localhost ikisini buluşturur. Canlı Site başka bir binadadır; 7/24 bağlantı için açık kalan bir makine veya tünel gerekir. Domain kapıdaki adres tabelasıdır.','For free practice, the workshop and desk are in the same room: localhost connects them. The live Site is in another building; 24/7 access needs an always-on machine or a tunnel. A domain is the sign at the door.'),source:'piston'});
+  cards.push({
+    id:'piston-production-host', area:'DevOps', type:bi('Dağıtım ve ağ','Deployment and networking'),
+    name:bi('Piston ile yerel kod çalıştırma ve canlıya geçiş','Run code locally with Piston and prepare for production'),
+    desc:bi('Piston’ın ne yaptığını, bilgisayarda nasıl deneneceğini ve canlı Site için ne gerektiğini öğren.','Learn what Piston does, how to try it on your computer, and what a live Site requires.'),
+    body:bi(`Bu rehber, RealDev Kod Alanı’nda Python, C# ve Java kodlarını çalıştırmak için Piston’ı açıklar. Piston, gönderdiğin kaynak kodu bir çalışma ortamında derleyip çalıştıran açık kaynaklı bir servistir. Docker Desktop, bu servisin kapsayıcısını kendi bilgisayarında başlatıp yönetir.
+
+YEREL DENEME — yalnızca kendi bilgisayarında
+Gerekenler: Windows bilgisayar, Docker Desktop (Linux container/WSL 2 desteği açık), Node.js ve Git.
+
+1. Docker Desktop’ı aç ve Docker Engine’in çalışır duruma gelmesini bekle. İlk kurulumda Docker imajı ve dil çalışma ortamları internetten indirilir; birkaç dakika sürebilir.
+2. PowerShell’de şu komutlarla RealDev deposunu indir, klasöre gir ve JavaScript bağımlılıklarını kur:
+   git clone https://github.com/melisau/RealDev.git
+   cd RealDev
+   npm ci
+3. Piston’ı başlat ve Python, C# ve Java çalışma ortamlarının kurulmasını bekle:
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\start-piston.ps1
+4. Aynı klasörde yerel RealDev uygulamasını başlat:
+   npm run dev
+5. Terminalde gösterilen yerel adresi (varsayılan http://127.0.0.1:4317) tarayıcıda aç. Kod Alanı’nda Python, C# veya Java seçip kodunu çalıştır.
+
+Piston yalnızca bu bilgisayardaki 127.0.0.1:2000 adresinde dinler; portu internete açma. Bilgisayar, Docker Desktop ve yerel RealDev süreci açıkken çalışır. Yerel önizleme ayrı bir deneme hesabı ve .local/preview-4317.sqlite veritabanı kullanır; sonuçlar canlı Site hesabına gönderilmez. Durdurup sonra devam etmek için aynı komutları yeniden çalıştırabilirsin; var olan yerel Piston kapsayıcısı tekrar kullanılır.
+
+CANLI SİTE — diğer kullanıcılar 7/24 erişecekse
+Canlı RealDev Site’ı bulutta çalışır; oradaki 127.0.0.1, ziyaretçinin bilgisayarını değil Site sunucusunu ifade eder. Bu nedenle bilgisayarındaki Piston canlı Site’a hizmet veremez. Herkese açık ve sürekli erişim için Piston ile kimlik doğrulamalı geçidi sürekli açık bir sunucuda çalıştırmak veya sunucuyu Site’a kayıtlı özel tünelle bağlamak gerekir. Piston’ın ham 2000 portunu internete açma; yalnızca güvenli geçit erişilebilir olmalı. Domain, hizmetin DNS adresini sağlar ama sunucu veya çalışma gücü sağlamaz; özel tünel kullanıldığında domain zorunlu değildir.`,
+    `This guide explains Piston, which runs Python, C# and Java code in RealDev’s Code Area. Piston is an open-source service that compiles and executes submitted source code in a runtime. Docker Desktop starts and manages its container on your computer.
+
+LOCAL PRACTICE — on your computer only
+Requirements: a Windows PC, Docker Desktop with Linux container/WSL 2 support, Node.js and Git.
+
+1. Open Docker Desktop and wait until the Docker Engine is running. On first setup, Docker downloads its image and language runtimes from the internet; this can take a few minutes.
+2. In PowerShell, download the RealDev repository, enter its folder and install JavaScript dependencies:
+   git clone https://github.com/melisau/RealDev.git
+   cd RealDev
+   npm ci
+3. Start Piston and wait for the Python, C# and Java runtimes to be installed:
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\start-piston.ps1
+4. In the same folder, start the local RealDev app:
+   npm run dev
+5. Open the local address shown in the terminal (default: http://127.0.0.1:4317). Choose Python, C# or Java in Code Area and run your code.
+
+Piston listens only at 127.0.0.1:2000 on this computer; do not expose that port to the internet. It works while the PC, Docker Desktop and local RealDev process are running. The local preview uses a separate practice identity and .local/preview-4317.sqlite database; results are not sent to a live Site account. To continue later, run the same commands again; the existing local Piston container is reused.
+
+LIVE SITE — when other users need 24/7 access
+The live RealDev Site runs in the cloud; its 127.0.0.1 means the Site server, not a visitor’s PC. Piston on your computer therefore cannot serve the live Site. For public, always-available access, run Piston and an authenticated gateway on an always-on server, or connect that server to the Site through a registered private tunnel. Never expose Piston’s raw port 2000 to the internet; only the secure gateway should be reachable. A domain provides a DNS address but no server or compute; a domain is optional when using a private tunnel.`),
+    analogy:bi('Yerel önizleme ve Piston aynı bilgisayarda çalışan iki süreçtir; localhost aralarındaki yerel bağlantıdır. Canlı Site başka bir sunucudadır ve bilgisayarındaki localhost’a ulaşamaz.','The local preview and Piston are two processes on one computer; localhost connects them locally. The live Site runs on another server and cannot reach your computer’s localhost.'),
+    source:'piston'
+  });
   window.realdevContentBank = { sources, cards, checkedAt:'2026-10-05' };
 })();
