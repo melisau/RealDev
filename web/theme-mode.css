@@ -300,3 +300,8 @@ h1, .brand { font-family: 'Major Mono Display', 'Plus Jakarta Sans', Arial, sans
   border-color: #9a626d;
   color: #ffe5e8;
 }
+/* Keep the account entry in the same palette and hard-edge style as the header controls. */
+:root #authLink { display: inline-flex; align-items: center; justify-content: center; min-height: 32px; padding: 0 11px; border: 2px solid var(--line); border-radius: 0; background: var(--purple); color: #fff; box-shadow: 2px 2px 0 var(--line); font: 12px 'Share Tech Mono', monospace; line-height: 1; text-decoration: none; white-space: nowrap; }
+:root #authLink:hover { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--line); }
+:root #authLink:focus-visible { outline: 2px solid var(--purple); outline-offset: 3px; }
+:root #authLink:active { transform: translate(2px, 2px); box-shadow: none; }
