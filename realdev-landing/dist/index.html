@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="tr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8fa">
+  <meta name="description" content="Build practical development skills with quizzes, coding challenges, and debugging exercises. Learn in English and Turkish with RealDev.">
+  <title>RealDev — Be a Real Developer</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="brand/theme.css">
+  <link rel="stylesheet" href="brand/theme-mode.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="theme.js"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
+  <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="arrow" viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></symbol>
+    <symbol id="code-mark" viewBox="0 0 48 36"><path d="m12 8-9 10 9 10m24-20 9 10-9 10M29 3 19 33"/></symbol>
+    <symbol id="check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m7.5 12 3 3 6-6"/></symbol>
+  </defs></svg>
+  <header class="header" id="top"><div class="header-inner wrap">
+    <a class="brand" href="#top" aria-label="RealDev home"><span class="brand-mark">&lt;/&gt;</span><span>realdeveloper</span></a>
+    <nav aria-label="Main navigation"><a href="#paths" data-i18n="paths">Learning paths</a><a href="#how" data-i18n="how">How it works</a></nav>
+    <div class="header-actions"><div class="language" role="group" aria-label="Language"><button data-lang="en" aria-pressed="false">EN</button><span>/</span><button data-lang="tr" aria-pressed="true">TR</button></div><button class="theme-toggle icon-button" id="themeToggle" type="button" aria-label="Koyu temayı aç"><span id="themeIcon" aria-hidden="true">◐</span></button><a class="button primary small" href="https://realdev.melisauyar5225.chatgpt.site/auth.html#/sign-in" data-i18n="signIn">Giriş / Kayıt</a></div>
+  </div></header>
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <h1 id="hero-title"><span data-i18n="headline1">Build skills.</span><span class="teal" data-i18n="headline2">Break things.</span><span data-i18n="headline3">Become a real<br>developer.</span></h1>
+        <p class="hero-description" data-i18n="heroDescription">Go beyond tutorials. Practice with quizzes, coding challenges, and debugging exercises that make it click.</p>
+        <div class="hero-buttons"><button class="button primary" data-start><span data-i18n="free">Start learning for free</span><svg class="icon"><use href="#arrow"/></svg></button><a class="button secondary" href="#paths" data-i18n="explore">Explore learning paths</a></div>
+        <p class="pace" data-i18n="pace">Learn in English or Turkish. At your own pace.</p>
+      </div>
+      <div class="preview-area">
+        <div class="practice-panel" id="practice">
+          <div class="tabs" role="tablist" aria-label="Learning activity"><button role="tab" id="tab-quiz" aria-controls="activity" aria-selected="true" data-tab="quiz" data-i18n="quiz">Quiz</button><button role="tab" id="tab-code" aria-controls="activity" aria-selected="false" tabindex="-1" data-tab="code" data-i18n="code">Code</button><button role="tab" id="tab-debug" aria-controls="activity" aria-selected="false" tabindex="-1" data-tab="debug" data-i18n="debug">Debug</button></div>
+          <div class="activity" role="tabpanel" id="activity" aria-labelledby="tab-quiz"></div>
+          <div class="panel-note"><svg class="icon"><use href="#check"/></svg><span data-i18n="panelNote">Small challenges. Real understanding.</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="activities" aria-label="Ways to learn"><div class="wrap activity-grid">
+      <div><span class="number">01</span><h2 data-i18n="quizzes">Quizzes</h2><p data-i18n="quizDesc">Test your understanding with focused questions.</p></div>
+      <div><span class="number">02</span><h2 data-i18n="challenges">Coding challenges</h2><p data-i18n="codeDesc">Write real code and solve practical problems.</p></div>
+      <div><span class="number">03</span><h2 data-i18n="debugging">Debugging exercises</h2><p data-i18n="debugDesc">Find and fix issues like a real developer.</p></div>
+      <div><span class="number">04</span><h2 data-i18n="explanations">Clear explanations</h2><p data-i18n="explainDesc">Get simple, concise explanations that actually make sense.</p></div>
+    </div></section>
+    <section class="paths-section wrap" id="paths" aria-labelledby="paths-heading">
+      <div class="section-heading"><h2 id="paths-heading" data-i18n="nextChallenge">Find your next challenge.</h2><p data-i18n="pathIntro">Start with the fundamentals.<br>Build toward the work you want to do.</p></div>
+      <div class="path-list">
+        <article class="path-row"><span class="path-number">01 /</span><div><h3 data-i18n="foundations">Programming foundations</h3><p data-i18n="foundationDesc">Variables, logic, functions, and problem solving.</p></div><span class="path-topics">JavaScript · Python · C#</span><button class="button secondary" data-path="foundations"><span data-i18n="explorePath">Explore path</span><svg class="icon"><use href="#arrow"/></svg></button></article>
+        <article class="path-row"><span class="path-number">02 /</span><div><h3 data-i18n="web">Web development</h3><p data-i18n="webDesc">Build interfaces. Connect APIs. Understand the web.</p></div><span class="path-topics">HTML · CSS · React</span><button class="button secondary" data-path="web"><span data-i18n="explorePath">Explore path</span><svg class="icon"><use href="#arrow"/></svg></button></article>
+        <article class="path-row"><span class="path-number">03 /</span><div><h3 data-i18n="interview">Debugging & interview practice</h3><p data-i18n="interviewDesc">Trace the bug. Explain your thinking. Solve with confidence.</p></div><span class="path-topics" data-i18n="debugTopics">Debugging · Algorithms · Git</span><button class="button secondary" data-path="debugging"><span data-i18n="explorePath">Explore path</span><svg class="icon"><use href="#arrow"/></svg></button></article>
+      </div>
+    </section>
+    <section class="how-section wrap" id="how" aria-labelledby="how-heading"><h2 id="how-heading" data-i18n="makeStick">Learn it. Try it. Make it stick.</h2><div class="steps">
+      <div><span>01</span><h3 data-i18n="choose">Choose your path</h3><p data-i18n="chooseDesc">Pick a skill you want to strengthen.</p></div>
+      <div><span>02</span><h3 data-i18n="practice">Practice, don’t just watch</h3><p data-i18n="practiceDesc">Work through a quiz, a challenge, or a bug.</p></div>
+      <div><span>03</span><h3 data-i18n="why">Understand the why</h3><p data-i18n="whyDesc">Get clear explanations. Try again with confidence.</p></div>
+    </div></section>
+    <section class="closing" aria-labelledby="closing-title"><div class="wrap"><h2 id="closing-title"><span data-i18n="chapter">Your next chapter</span><span class="teal" data-i18n="oneChallenge">starts with one challenge.</span></h2><p data-i18n="closingDesc">You don’t need to know everything.<br>You just need a place to start.</p><button class="button primary" data-start><span data-i18n="free">Start learning for free</span><svg class="icon"><use href="#arrow"/></svg></button><p class="pace" data-i18n="closingPace">English & Turkish · Learn at your own pace</p></div></section>
+  </main>
+  <footer class="wrap"><div class="footer-main"><div><a class="brand" href="#top"><span class="brand-mark">&lt;/&gt;</span><span>realdeveloper</span></a><p class="tagline">Be a Real Developer.</p></div><nav aria-label="Footer navigation"><a href="#paths" data-i18n="paths">Learning paths</a><a href="#how" data-i18n="how">How it works</a><a href="#top"><span data-i18n="backTop">Back to top</span><svg class="icon up"><use href="#arrow"/></svg></a></nav></div><div class="footer-bottom"><span>© 2026 RealDev</span><span data-i18n="curious">Built for curious minds.</span></div></footer>
+  <dialog id="path-dialog" aria-labelledby="dialog-title"><button class="close-dialog" aria-label="Close dialog"><svg class="icon" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button><p class="dialog-label" data-i18n="pathPreview">Learning path preview</p><h2 id="dialog-title"></h2><p id="dialog-desc"></p><ol id="dialog-lessons"></ol><p class="demo-disclaimer" data-i18n="demoDisclaimer">Try a sample activity. This preview doesn’t create an account.</p><button class="button primary" id="try-path"><span data-i18n="trySample">Try a sample challenge</span><svg class="icon"><use href="#arrow"/></svg></button></dialog>
+</body>
+</html>

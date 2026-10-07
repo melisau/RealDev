@@ -1,0 +1,123 @@
+:root { color-scheme: light; --ink: #45484e; --line: #62656b; --shadow: 5px 5px 0 #777a80; --purple: #a991ff; --purple-soft: #ede7ff; --green-soft: #a991ff; --orange-soft: #eee9ff; --accent-ink: #2b1d55; }
+.theme-toggle { flex: 0 0 auto; display: grid; place-items: center; font-size: 17px; }
+.language-toggle { font: 12px "Share Tech Mono", "Plus Jakarta Sans", Arial, sans-serif; }
+h1, .brand { font-family: "Major Mono Display", "Plus Jakarta Sans", Arial, sans-serif; }
+.nav-item, .side-label, .eyebrow, .primary-button, .hero-overline, .today-date, .task-time, .quiz-step, .concept-type, .news-card-top, .news-actions, .practice-tile > span, .day-pill, .source-badge, .modal-eyebrow, .field-label, .sidebar-foot { font-family: "Share Tech Mono", "Plus Jakarta Sans", Arial, sans-serif; }
+.nav-item.active { color: var(--accent-ink); }
+.primary-button, .hero-card .primary-button, .toast { color: var(--accent-ink); }
+.primary-button:hover, .hero-card .primary-button:hover { background: rgb(207, 194, 255); }
+.hero-card { box-shadow: 7px 7px 0 var(--purple); }
+.hero-card::after { border-color: rgba(169, 145, 255, 0.25); box-shadow: rgba(169, 145, 255, 0.098) 0px 0px 0px 25px, rgba(169, 145, 255, 0.055) 0px 0px 0px 53px; }
+.task-row:hover, .practice-tile:hover, .concept-card:hover { background: rgb(237, 231, 255); }
+.profile-card:hover, .choice:hover, .choice.selected, .goal-option:has(input:checked) { background: rgb(237, 231, 255); }
+.result-box { background: rgb(237, 231, 255); color: rgb(43, 29, 85); }
+.concept-detail .analogy, .news-summary { background: rgb(237, 231, 255); color: rgb(23, 56, 61); }
+.toast { background: var(--purple); }
+.result-box.warning { background: rgb(255, 241, 230); border-color: rgb(240, 207, 178); color: rgb(112, 67, 31); }
+:root[data-theme="dark"] { color-scheme: dark; --ink: #e8f3f5; --muted: #afbdc1; --line: #535860; --paper: #2b3037; --canvas: #22262c; --purple: #a991ff; --purple-soft: #2c2354; --green: #70dfb4; --green-soft: #a991ff; --orange-soft: #382c26; --blue-soft: #202e54; --shadow: 5px 5px 0 #343941; }
+:root[data-theme="dark"] body { background-color: var(--canvas); background-image: linear-gradient(rgba(255, 255, 255, 0.047) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.047) 1px, transparent 1px); color: var(--ink); }
+:root[data-theme="dark"] .sidebar, :root[data-theme="dark"] .topbar { background: rgb(48, 53, 61); border-color: var(--line); }
+:root[data-theme="dark"] .main-area { background: rgba(34, 38, 44, 0.91); }
+:root[data-theme="dark"] .brand-light, :root[data-theme="dark"] .side-label, :root[data-theme="dark"] .eyebrow, :root[data-theme="dark"] .hero-overline, :root[data-theme="dark"] .today-date, :root[data-theme="dark"] .task-time, :root[data-theme="dark"] .quiz-step, :root[data-theme="dark"] .concept-type, :root[data-theme="dark"] .news-card-top, :root[data-theme="dark"] .practice-tile > span, :root[data-theme="dark"] .day-pill, :root[data-theme="dark"] .source-badge { color: rgb(193, 208, 212); }
+:root[data-theme="dark"] .page-heading { border-color: var(--line); }
+:root[data-theme="dark"] .page-heading p, :root[data-theme="dark"] .welcome-row p, :root[data-theme="dark"] .task-copy small, :root[data-theme="dark"] .task-copy small, :root[data-theme="dark"] .task-copy p, :root[data-theme="dark"] .skill-name, :root[data-theme="dark"] .skill-state, :root[data-theme="dark"] .concept-card p, :root[data-theme="dark"] .news-card > p, :root[data-theme="dark"] .news-mini p, :root[data-theme="dark"] .quiz-context, :root[data-theme="dark"] .concept-detail p, :root[data-theme="dark"] .modal p, :root[data-theme="dark"] .text-muted, :root[data-theme="dark"] .source-note { color: rgb(175, 189, 193); }
+:root[data-theme="dark"] .nav-item { color: rgb(226, 236, 238); }
+:root[data-theme="dark"] .nav-item:hover { background: rgb(56, 62, 70); border-color: var(--line); color: rgb(255, 255, 255); }
+:root[data-theme="dark"] .nav-item.active { background: var(--purple); border-color: rgb(213, 202, 255); color: var(--accent-ink); }
+:root[data-theme="dark"] .icon-button, :root[data-theme="dark"] .avatar-small { background: var(--purple); border-color: rgb(213, 202, 255); color: var(--accent-ink); }
+:root[data-theme="dark"] .panel, :root[data-theme="dark"] .quiz-card, :root[data-theme="dark"] .feature-card, :root[data-theme="dark"] .news-mini, :root[data-theme="dark"] .news-card, :root[data-theme="dark"] .concept-card, :root[data-theme="dark"] .concept-detail, :root[data-theme="dark"] .practice-tile, :root[data-theme="dark"] .modal { background: var(--paper); border-color: var(--line); color: var(--ink); box-shadow: rgb(52, 57, 65) 5px 5px 0px; }
+:root[data-theme="dark"] .task-row, :root[data-theme="dark"] .choice, :root[data-theme="dark"] .answer-area, :root[data-theme="dark"] .modal select, :root[data-theme="dark"] .secondary-button, :root[data-theme="dark"] .mic-button { background: rgb(54, 60, 68); border-color: var(--line); color: var(--ink); }
+:root[data-theme="dark"] .task-row:hover, :root[data-theme="dark"] .practice-tile:hover, :root[data-theme="dark"] .concept-card:hover, :root[data-theme="dark"] .choice:hover, :root[data-theme="dark"] .choice.selected, :root[data-theme="dark"] .goal-option:has(input:checked) { background: rgb(44, 35, 84); border-color: var(--purple); color: rgb(241, 236, 255); }
+:root[data-theme="dark"] .primary-button, :root[data-theme="dark"] .hero-card .primary-button, :root[data-theme="dark"] .toast, :root[data-theme="dark"] .goal-option:has(input:checked) { color: var(--accent-ink); }
+:root[data-theme="dark"] .hero-card { background: rgb(51, 56, 64); border-color: rgb(100, 105, 112); color: rgb(241, 242, 244); }
+:root[data-theme="dark"] .hero-card p { color: rgb(197, 210, 213); }
+:root[data-theme="dark"] .hero-card .primary-button { background: var(--purple); }
+:root[data-theme="dark"] .tip-card { background: rgb(23, 44, 74); border-color: rgb(82, 100, 106); }
+:root[data-theme="dark"] .tip-card p { color: rgb(228, 239, 255); }
+:root[data-theme="dark"] .streak, :root[data-theme="dark"] .day-pill { background: rgb(56, 44, 38); color: rgb(255, 224, 200); border-color: rgb(138, 99, 75); }
+:root[data-theme="dark"] .progress, :root[data-theme="dark"] .skill-track { background: rgb(65, 71, 79); border-color: var(--line); }
+:root[data-theme="dark"] .code-block { background: rgb(54, 60, 68); border-color: rgb(104, 111, 120); }
+:root[data-theme="dark"] .result-box, :root[data-theme="dark"] .concept-detail .analogy, :root[data-theme="dark"] .news-summary, :root[data-theme="dark"] .profile-tags span { background: rgb(44, 35, 84); border-color: rgb(101, 84, 160); color: rgb(237, 232, 255); }
+:root[data-theme="dark"] .result-box.warning { background: rgb(57, 43, 32); color: rgb(255, 226, 201); border-color: rgb(118, 87, 61); }
+:root[data-theme="dark"] .source-note { background: rgb(54, 60, 68); border-color: var(--line); }
+:root[data-theme="dark"] .news-mini .source-badge, :root[data-theme="dark"] .source-badge { background: rgb(44, 35, 84); border-color: rgb(101, 84, 160); color: rgb(237, 232, 255); }
+:root[data-theme="dark"] .profile-tags span { color: rgb(237, 232, 255); }
+:root[data-theme="dark"] .goal-option { border-color: var(--line); color: rgb(220, 232, 235); }
+:root[data-theme="dark"] .answer-area::placeholder { color: rgb(129, 145, 150); }
+:root[data-theme="dark"] .modal::backdrop { background: rgba(52, 57, 65, 0.72); }
+:root[data-theme="dark"] .toast { background: var(--purple); }
+:root[data-theme="dark"] .topbar .breadcrumb strong { color: var(--ink); }
+:root[data-theme="dark"] .mobile-menu { color: var(--ink); }
+:root[data-theme="dark"] .sidebar { box-shadow: rgb(48, 53, 61) 8px 0px 0px; }
+@media (max-width: 720px) {
+  .theme-toggle { margin-left: 2px; }
+}
+:root { --ink: #1f2328; --muted: #5c6470; --line: #8c959f; --paper: #ffffff; --canvas: #f6f8fa; --purple: #6f42c1; --purple-soft: #eee8f8; --teal: #48d1cc; --green-soft: #48d1cc; --orange-soft: #fff0e5; --accent-ink: #ffffff; --shadow: 5px 5px 0 #8c959f; }
+:root body { background-color: var(--canvas); background-image: linear-gradient(rgba(48, 54, 61, 0.063) 1px, transparent 1px), linear-gradient(90deg, rgba(48, 54, 61, 0.063) 1px, transparent 1px); }
+:root .nav-item.active { color: var(--accent-ink); border-color: rgb(31, 35, 40); box-shadow: rgb(140, 149, 159) 2px 2px 0px; }
+:root .primary-button, :root .hero-card .primary-button, :root .toast { color: var(--accent-ink); }
+:root .primary-button:hover, :root .hero-card .primary-button:hover { background: rgb(128, 85, 208); }
+:root .hero-card { background: rgb(52, 57, 65); border-color: rgb(89, 97, 108); color: rgb(240, 246, 252); }
+:root .hero-card .primary-button { background: var(--purple); border-color: rgb(31, 35, 40); }
+:root .hero-card::after { border-color: rgba(111, 66, 193, 0.25); box-shadow: rgba(111, 66, 193, 0.098) 0px 0px 0px 25px, rgba(111, 66, 193, 0.055) 0px 0px 0px 53px; }
+:root .task-row:hover, :root .practice-tile:hover, :root .concept-card:hover, :root .profile-card:hover, :root .choice:hover, :root .choice.selected, :root .goal-option:has(input:checked) { background: var(--purple-soft); }
+:root .result-box { background: rgb(216, 245, 243); border-color: rgb(37, 143, 138); color: rgb(31, 35, 40); }
+:root .concept-detail .analogy, :root .news-summary { background: var(--purple-soft); color: rgb(41, 35, 51); }
+:root .source-badge, :root .news-mini .source-badge { background: var(--teal); border-color: rgb(40, 124, 121); color: rgb(18, 53, 51); }
+:root .live-dot { background: var(--teal); box-shadow: rgba(72, 209, 204, 0.208) 0px 0px 0px 4px; }
+:root[data-theme="dark"] { --ink: #f0f6fc; --muted: #c1cad5; --line: #6f7885; --paper: #252b34; --canvas: #1b2028; --purple: #986eee; --purple-soft: #342847; --teal: #48d1cc; --green: #48d1cc; --green-soft: #48d1cc; --orange-soft: #3a302b; --accent-ink: #17131f; --shadow: 5px 5px 0 #39414c; }
+:root[data-theme="dark"] body { background-color: var(--canvas); background-image: linear-gradient(rgba(255, 255, 255, 0.043) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.043) 1px, transparent 1px); }
+:root[data-theme="dark"] .sidebar, :root[data-theme="dark"] .topbar { background: rgb(37, 43, 52); border-color: var(--line); }
+:root[data-theme="dark"] .main-area { background: rgba(27, 32, 40, 0.91); }
+:root[data-theme="dark"] .page-heading { border-color: var(--line); }
+:root[data-theme="dark"] .page-heading p, :root[data-theme="dark"] .welcome-row p, :root[data-theme="dark"] .task-copy small, :root[data-theme="dark"] .task-copy p, :root[data-theme="dark"] .skill-name, :root[data-theme="dark"] .skill-state, :root[data-theme="dark"] .concept-card p, :root[data-theme="dark"] .news-card > p, :root[data-theme="dark"] .news-mini p, :root[data-theme="dark"] .quiz-context, :root[data-theme="dark"] .concept-detail p, :root[data-theme="dark"] .modal p, :root[data-theme="dark"] .text-muted, :root[data-theme="dark"] .source-note { color: rgb(193, 202, 213); }
+:root[data-theme="dark"] .nav-item.active { background: var(--purple); border-color: rgb(200, 178, 250); color: var(--accent-ink); }
+:root[data-theme="dark"] .icon-button, :root[data-theme="dark"] .avatar-small { background: var(--purple); border-color: rgb(200, 178, 250); color: var(--accent-ink); }
+:root[data-theme="dark"] .panel, :root[data-theme="dark"] .quiz-card, :root[data-theme="dark"] .feature-card, :root[data-theme="dark"] .news-mini, :root[data-theme="dark"] .news-card, :root[data-theme="dark"] .concept-card, :root[data-theme="dark"] .concept-detail, :root[data-theme="dark"] .practice-tile, :root[data-theme="dark"] .modal { background: var(--paper); border-color: var(--line); color: var(--ink); box-shadow: rgb(57, 65, 76) 5px 5px 0px; }
+:root[data-theme="dark"] .task-row, :root[data-theme="dark"] .choice, :root[data-theme="dark"] .answer-area, :root[data-theme="dark"] .modal select, :root[data-theme="dark"] .secondary-button, :root[data-theme="dark"] .mic-button { background: rgb(48, 55, 66); border-color: var(--line); color: var(--ink); }
+:root[data-theme="dark"] .task-row:hover, :root[data-theme="dark"] .practice-tile:hover, :root[data-theme="dark"] .concept-card:hover, :root[data-theme="dark"] .choice:hover, :root[data-theme="dark"] .choice.selected, :root[data-theme="dark"] .goal-option:has(input:checked) { background: rgb(52, 40, 71); border-color: var(--purple); color: rgb(240, 234, 255); }
+:root[data-theme="dark"] .primary-button, :root[data-theme="dark"] .hero-card .primary-button, :root[data-theme="dark"] .toast, :root[data-theme="dark"] .goal-option:has(input:checked) { color: var(--accent-ink); }
+:root[data-theme="dark"] .hero-card { background: rgb(37, 43, 52); border-color: var(--line); color: rgb(240, 246, 252); }
+:root[data-theme="dark"] .hero-card p { color: rgb(193, 202, 213); }
+:root[data-theme="dark"] .hero-card .primary-button { background: var(--purple); }
+:root[data-theme="dark"] .tip-card { background: rgb(38, 56, 74); border-color: rgb(72, 209, 204); }
+:root[data-theme="dark"] .tip-card p { color: rgb(232, 245, 247); }
+:root[data-theme="dark"] .streak, :root[data-theme="dark"] .day-pill { background: rgb(58, 48, 43); color: rgb(255, 224, 200); border-color: rgb(138, 106, 85); }
+:root[data-theme="dark"] .progress, :root[data-theme="dark"] .skill-track { background: rgb(48, 55, 66); border-color: var(--line); }
+:root[data-theme="dark"] .code-block { background: rgb(32, 38, 47); border-color: rgb(111, 120, 133); }
+:root[data-theme="dark"] .result-box, :root[data-theme="dark"] .concept-detail .analogy, :root[data-theme="dark"] .news-summary, :root[data-theme="dark"] .profile-tags span { background: rgb(52, 40, 71); border-color: rgb(118, 89, 165); color: rgb(240, 234, 255); }
+:root[data-theme="dark"] .result-box { background: rgb(35, 67, 65); border-color: rgb(72, 209, 204); color: rgb(233, 255, 253); }
+:root[data-theme="dark"] .result-box.warning { background: rgb(58, 48, 43); color: rgb(255, 226, 201); border-color: rgb(138, 106, 85); }
+:root[data-theme="dark"] .source-note, :root[data-theme="dark"] .task-row, :root[data-theme="dark"] .answer-area { background: rgb(48, 55, 66); }
+:root[data-theme="dark"] .source-badge, :root[data-theme="dark"] .news-mini .source-badge { background: rgb(72, 209, 204); border-color: rgb(72, 209, 204); color: rgb(18, 53, 51); }
+:root[data-theme="dark"] .live-dot { background: rgb(72, 209, 204); box-shadow: rgba(72, 209, 204, 0.208) 0px 0px 0px 4px; }
+:root[data-theme="dark"] .goal-option { border-color: var(--line); color: rgb(240, 246, 252); }
+:root[data-theme="dark"] .answer-area::placeholder { color: rgb(170, 181, 194); }
+:root[data-theme="dark"] .modal::backdrop { background: rgba(27, 32, 40, 0.75); }
+:root[data-theme="dark"] .sidebar { box-shadow: rgb(37, 43, 52) 8px 0px 0px; }
+:root .sidebar, :root .topbar, :root .brand-mark, :root .nav-item, :root .side-divider, :root .avatar, :root .icon-button, :root .avatar-small, :root .hero-card, :root .primary-button, :root .secondary-button, :root .mic-button, :root .panel, :root .quiz-card, :root .feature-card, :root .news-mini, :root .news-card, :root .concept-card, :root .concept-detail, :root .practice-tile, :root .task-row, :root .task-icon, :root .progress, :root .skill-track, :root .code-block, :root .choice, :root .choice-letter, :root .result-box, :root .error-meta .chip, :root .answer-area, :root .source-note, :root .profile-tags span, :root .goal-option, :root .modal, :root .modal select, :root .toast { border-color: var(--line); }
+:root .nav-item.active { border-color: var(--line); box-shadow: 2px 2px 0 var(--line); }
+:root .hero-card { border-color: var(--line); }
+:root .hero-card .primary-button { border-color: var(--line); box-shadow: 3px 3px 0 var(--line); }
+:root .primary-button, :root .secondary-button, :root .mic-button, :root .streak, :root .day-pill, :root .tip-card, :root .panel, :root .quiz-card, :root .feature-card, :root .news-mini, :root .news-card, :root .concept-card, :root .concept-detail, :root .practice-tile, :root .modal, :root .toast { box-shadow: 3px 3px 0 var(--line); }
+:root .hero-card { box-shadow: 7px 7px 0 var(--purple); }
+:root .code-block { box-shadow: 4px 4px 0 var(--purple); }
+:root .task-row:hover, :root .practice-tile:hover, :root .concept-card:hover { box-shadow: 4px 4px 0 var(--line); }
+:root .choice:hover, :root .choice.selected, :root .goal-option:has(input:checked) { border-color: var(--purple); box-shadow: 2px 2px 0 var(--line); }
+:root[data-theme="dark"] .nav-item.active, :root[data-theme="dark"] .icon-button, :root[data-theme="dark"] .avatar-small { border-color: rgb(200, 178, 250); }
+:root[data-theme="dark"] .source-badge, :root[data-theme="dark"] .news-mini .source-badge, :root[data-theme="dark"] .live-dot { border-color: rgb(72, 209, 204); }
+:root[data-theme="dark"] .hero-card { border-color: var(--line); }
+:root[data-theme="dark"] .sidebar { box-shadow: rgb(37, 43, 52) 8px 0px 0px; }
+:root .nav-item.active .nav-icon, :root[data-theme="dark"] .nav-item.active .nav-icon { color: rgb(255, 255, 255); }
+:root .brand-mark { width: 42px; height: 42px; flex: 0 0 42px; font-size: 16px; letter-spacing: -1px; color: rgb(255, 255, 255); background: var(--purple); border-color: var(--line); }
+.brand { font-size: 15px; letter-spacing: -0.75px; }
+:root .icon-button, :root .avatar-small { color: rgb(255, 255, 255); }
+:root:not([data-theme="dark"]) .hero-overline { color: rgb(255, 255, 255); }
+:root[data-theme="dark"] .text-button, :root[data-theme="dark"] .subtle-link, :root[data-theme="dark"] .news-actions button, :root[data-theme="dark"] .news-actions a { color: rgb(200, 178, 250); }
+:root[data-theme="dark"] .subtle-link { font-weight: 700; }
+:root[data-theme="dark"] .error-meta .chip { background: rgb(48, 55, 66); border-color: rgb(111, 120, 133); color: rgb(231, 237, 245); }
+:root[data-theme="dark"] .error-meta .chip.red { background: rgb(88, 53, 59); border-color: rgb(154, 98, 109); color: rgb(255, 229, 232); }
+:root #authLink { display: inline-flex; align-items: center; justify-content: center; min-height: 32px; padding: 0px 11px; border: 2px solid var(--line); border-radius: 0px; background: var(--purple); color: rgb(255, 255, 255); box-shadow: 2px 2px 0 var(--line); font: 12px / 1 "Share Tech Mono", monospace; text-decoration: none; white-space: nowrap; }
+:root #authLink:hover { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--line); }
+:root #authLink:focus-visible { outline: 2px solid var(--purple); outline-offset: 3px; }
+:root #authLink:active { transform: translate(2px, 2px); box-shadow: none; }
