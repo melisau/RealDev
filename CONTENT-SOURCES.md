@@ -87,3 +87,11 @@ The new rows intentionally remain formative multiple-choice evidence, including 
 Eight new automated tests cover bilingual completeness, 52/13-area coverage, source-policy metadata and rejected URLs, answer-key exclusion, grading, progression, versioned persistence and account isolation. Selected JavaScript and generic SQL examples are independently executed; metric answers are checked against counts. SQLite fixtures do not independently certify PostgreSQL-specific behavior. No claim is made that every Unity/.NET/Android example has been executed against that runtime, or that choice answers certify project expertise.
 
 .NET API references use the [dotnet-api-docs CC BY 4.0 license](https://github.com/dotnet/dotnet-api-docs/blob/main/LICENSE); prose guides use the dotnet/docs license. The task metadata selects the appropriate repository link.
+
+## Diagnostic and interview expansion · 2026-10-08
+
+`server/error-bank.mjs` adds 24 independently authored bilingual diagnostics (192 assessment questions total, including 56 diagnostics). Each repair distinguishes meaning, evidence, safe action and verification. Reference/license metadata follows the existing registry.
+
+`server/interview-bank.mjs` adds six timeboxed take-home briefs and eight technical interview questions. `server/interview-tracks.mjs` adds four 75-minute role tracks, bringing the total to seven. These are RealDev-original practice scenarios, not copied employer interview archives. Technical links support facts; no redistribution rights are assumed for linked documentation. Microsoft/Amazon hiring guides informed the practice structure, not an assertion that an employer asks these exact questions.
+
+Take-home implementations run in the learner’s own environment. Saved written reports are unevaluated drafts or optional AI-provisional feedback; they do not establish independent project execution or expertise.

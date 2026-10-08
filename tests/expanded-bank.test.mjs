@@ -13,7 +13,7 @@ const find=slug=>added.find(q=>q.id==='expanded-'+slug+'-20261008');
 
 test('52 original bilingual questions cover all 13 areas without changing the baseline',()=>{
  assert.equal(added.length,52);
- assert.equal(tasks.length,168);
+ assert.equal(tasks.length,192);
  assert.equal(new Set(tasks.map(q=>q.id)).size,tasks.length);
  assert.deepEqual(baselineIds,tasks.slice(0,8).map(q=>q.id));
  for(const area of Object.keys(areas))assert.equal(added.filter(q=>q.area===area).length,4,area);

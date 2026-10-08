@@ -1,6 +1,6 @@
 # Deeper original practical exercises
 
-Six new bilingual coding tasks add three two-stage projects, bringing advanced practice to 18 independently tested stages. The 168-question assessment remains a separate catalog; these tasks are not counted as more multiple-choice questions.
+Six new bilingual coding tasks add three two-stage projects, bringing advanced practice to 18 independently tested stages. The 192-question assessment remains a separate catalog; these tasks are not counted as more multiple-choice questions.
 
 - .NET: optimistic version checks and idempotent purchase replay after a lost response.
 - Unity: stale callbacks across enable/disable cycles and reward replay across a simulated restart.
