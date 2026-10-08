@@ -4,7 +4,7 @@ Turkish/English developer practice with persistent accounts, evidence-based asse
 
 ## Learning and account features
 
-- Eight-task initial scan, broad choice/error scenarios, safe expression tests, confidence and hint tracking.
+- Eight-task initial scan and 116 bilingual assessment questions across 13 areas, including 39 new original sourced scenarios (8 October 2026). Topic tags are searchable; answers retain the individual question version. Choice results alone do not certify expertise. See [project status and remaining work](PROJECT-STATUS.md).
 - Question notes, saved-question library, written explanations and answer/code history.
 - Four resumable projects (API service, search/offline sync, event ingestion/retrieval, and a versioned API/data service), each with implementation, debugging and transfer stages. Twelve executable Python/C# tasks use five independent cases each; the new SQLite tasks cover repeatable schema migrations, owner-scoped keyset pagination, idempotent batch ingestion, rollback and log-based debugging. Prerequisites are checked on the server; every submission is persisted under its owner.
 - Eleven sourced technical code reviews across API retries, SQL migrations, pagination incidents, React, .NET, Kubernetes, Unity, AI, data and game physics. Open-ended review responses use explicit self-review criteria and are not presented as automatically verified correctness.
@@ -62,4 +62,3 @@ The Site has distinct clean URLs for the workspace areas and public previews. On
 The published Site is public; anyone with its URL can open the public landing page and samples. Personal learning features require a verified account. Sites provisions logical D1 binding `DB` and applies source migrations before deployment. Identity headers are trusted only behind the Sites authenticated dispatcher. Every personal query is owner-scoped; user IDs and grades from request bodies are never trusted. Mutations require same-origin requests. JSON and audio bodies are bounded while streaming. Service keys never reach browser assets, source control or exports.
 
 Publish the exact pushed source SHA with its Worker archive. Source is mirrored to `melisau/RealDev`; GitHub does not independently deploy the Site. `.env*`, local databases, verification screenshots and generated bundles are ignored. Production activation still requires available API credit and a stable Piston host/registered private tunnel. Unrestricted real-world IDE execution, private GitHub OAuth and native mobile packaging are separate future work.
-

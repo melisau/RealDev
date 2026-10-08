@@ -226,7 +226,7 @@ export async function api(req,env){
     noteStatements=[noteQuery(user.id,body.note,task.id)];
    }
    await db.batch([
-    ['INSERT OR IGNORE INTO attempts (id,user_id,run_id,task_id,version,area,answer_json,explanation,confidence,hinted,skipped,score,feedback_json,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',id,user.id,run.id,task.id,VERSION,task.area,JSON.stringify(body.answer??null),body.explanation.trim(),body.confidence,hinted,body.skipped?1:0,feedback.score,JSON.stringify(feedback),new Date().toISOString()],
+    ['INSERT OR IGNORE INTO attempts (id,user_id,run_id,task_id,version,area,answer_json,explanation,confidence,hinted,skipped,score,feedback_json,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',id,user.id,run.id,task.id,task.version,task.area,JSON.stringify(body.answer??null),body.explanation.trim(),body.confidence,hinted,body.skipped?1:0,feedback.score,JSON.stringify(feedback),new Date().toISOString()],
     ['UPDATE runs SET complete = 1 WHERE id = ? AND user_id = ? AND (SELECT COUNT(*) FROM attempts WHERE run_id = ?) = ?',run.id,user.id,run.id,run.taskIds.length],...noteStatements
    ]);
    const fresh=await runData(db,user.id,run.id);return json({attempt:fresh.attempts.find(a=>a.task_id===task.id),run:fresh});

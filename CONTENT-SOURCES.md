@@ -39,3 +39,10 @@ Use stable categories such as concept, flashcard, multiple-choice, debugging, co
 
 When reusing material, follow its actual terms: preserve MIT/Apache notices where applicable; attribute CC BY material and mark changes; keep CC BY-SA adaptations under the required share-alike terms. This registry is a practical content record, not a blanket license grant for linked assets or external media.
 
+## Original bank expansion — 8 October 2026
+
+`server/bank-tasks.mjs` adds 39 original bilingual scenarios, three per area. It stores topic, author-assigned difficulty, format, source URL and review date per question. These are new RealDev scenarios referencing technical behavior, not imported or translated source quizzes. Existing question IDs remain unchanged. Sources include MDN/React, Microsoft .NET, Git, PostgreSQL, Unity 6, Kubernetes, Docker, npm, Python, scikit-learn, OpenAI, Apache Airflow/Beam/Avro, Android and Godot. Every exact reference is linked in the corresponding answer feedback.
+
+No DevOps Exercises, SQLBolt, Medium, Stack Overflow, Unity Learn quiz or course question text was imported. Access without charge does not imply permission to redistribute. Source licenses are still relevant for any future quotation, translation, copied code or imported dataset; this update grants no rights over third-party assets. The new bank contains no such imported material.
+
+The new rows intentionally remain formative multiple-choice evidence, including code reading and diagnosis. They are not independently executed learner solutions. Content quality tests, executable reference checks for selected JavaScript/SQL scenarios and account-isolation integration tests accompany this expansion. A human editorial review and learner-based difficulty calibration remain future work.
