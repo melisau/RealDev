@@ -1,0 +1,71 @@
+/* Keep the workspace header usable when the sidebar leaves little horizontal room. */
+@media (max-width: 1100px) {
+  .topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    min-height: 64px;
+    gap: 10px;
+    padding-block: 12px;
+  }
+  .topbar .breadcrumb {
+    min-width: 0;
+    margin: 0;
+    line-height: 1.5;
+  }
+  .topbar .breadcrumb strong { min-width: 0; overflow-wrap: anywhere; }
+  .topbar .top-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    min-width: 0;
+    width: 100%;
+    gap: 8px;
+  }
+  .topbar #authLink { margin-left: auto; }
+}
+
+@media (max-width: 720px) {
+  .topbar, .guest-mode .topbar {
+    grid-template-columns: 44px minmax(0, 1fr);
+    column-gap: 10px;
+    row-gap: 8px;
+    padding: 10px 14px 12px;
+  }
+  .topbar .mobile-menu {
+    grid-column: 1;
+    grid-row: 1;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--line);
+  }
+  .topbar .breadcrumb { grid-column: 2; grid-row: 1; }
+  .topbar .breadcrumb > span { display: none; }
+  .guest-mode .topbar .breadcrumb { grid-column: 1 / -1; }
+  .topbar .top-actions { grid-column: 1 / -1; gap: 6px; }
+  .topbar .icon-button, .topbar .avatar-small {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+  }
+  :root .topbar #authLink {
+    flex: 1 1 80px;
+    min-width: 0;
+    max-width: 240px;
+    height: auto;
+    min-height: 44px;
+    padding: 8px;
+    line-height: 1.35;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+  .topbar .today-date { display: none; }
+  .topbar button:focus-visible {
+    outline: 2px solid var(--purple);
+    outline-offset: 2px;
+  }
+}
