@@ -1,3 +1,4 @@
+import {saveStudy,studyCalendar} from './study.mjs';
 import {database} from './db.mjs';
 import {verifyFirebaseSession} from './firebase-auth.mjs';
 import {tasks,areas,baselineIds,goals,goalLabels,VERSION,publicTask} from './catalog.mjs';
@@ -51,6 +52,8 @@ export async function api(req,env){
   }
   let body={};if(method!=='GET'){const text=new TextDecoder().decode(await boundedBody(req,144000));if(text.length>36000)throw fail('request_too_large',413);try{body=JSON.parse(text);}catch{throw fail('invalid_json');}if(!body||typeof body!=='object'||Array.isArray(body))throw fail('invalid_json');}
   const p=url.pathname;
+  if(p==='/api/study'&&method==='POST')return json(await saveStudy(db,user.id,body));
+  if(p==='/api/study'&&method==='GET')return json(await studyCalendar(db,user.id,{month:url.searchParams.get('month'),timezone:url.searchParams.get('timezone')||'UTC'}));
   if(p==='/api/advanced'&&method==='GET'){
    const records=await db.all("SELECT id,task_id,code,result,created_at FROM code_runs WHERE user_id=? AND task_id LIKE 'advanced-%' ORDER BY created_at,id",user.id);
    const sessions=await db.all('SELECT track,started_at,answers,updated_at FROM interview_sessions WHERE user_id=?',user.id);

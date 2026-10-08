@@ -21,6 +21,8 @@ test('localhost preview gets a disposable preview identity and skips Firebase si
  assert.equal(app.context.window.realdevCurrentUser.emailVerified,true);
  assert.equal(app.context.window.realdevCurrentUser.uid,'local-preview-user');
  await app.context.window.realdevSessionReady;
+ await app.context.window.realdevAuthReady;
+ assert.equal(app.context.window.realdevCurrentUser.uid,'local-preview-user');
  await app.ready();
  assert.equal(app.fetches,0);
  assert.equal(app.redirected,'');

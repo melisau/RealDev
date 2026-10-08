@@ -428,6 +428,7 @@
     window.realdevAuthLocale?.(locale);
     if (!window.realdevAuthenticated) window.realdevRender?.();
     updateLanguageButton();
+    window.dispatchEvent(new CustomEvent('realdev-locale-change',{detail:{locale}}));
     try { localStorage.setItem('realdev-language', locale); } catch (_) {}
   }
 

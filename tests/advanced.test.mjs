@@ -2,8 +2,8 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {api} from '../server/api.mjs';import {localDb} from '../scripts/local-db.mjs';
 import {advancedTasks,interviewTracks} from '../server/advanced.mjs';import {advancedSuites,advancedEvidence} from '../server/advanced-grading.mjs';
 function client(DB,user='a',extra={}){return async(path,body,method='POST')=>{const r=await api(new Request('https://realdev.test/api/'+path,{method:body===undefined?'GET':method,headers:{'oai-authenticated-user-id':user,Origin:'https://realdev.test','Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)}),{DB,...extra});return {status:r.status,body:await r.json()};};}
-test('advanced curriculum has twelve bilingual contracts with independent suites and 75-minute interviews',()=>{
- assert.equal(advancedTasks.length,12);for(const task of advancedTasks){assert.equal(advancedSuites[task.id].length,5);assert.ok(task.prompt.tr&&task.prompt.en&&task.starter);assert.equal(task.tests,undefined);assert.ok(task.source?.url);}
+test('advanced curriculum has eighteen bilingual contracts with independent suites and 75-minute interviews',()=>{
+ assert.equal(advancedTasks.length,18);for(const task of advancedTasks){assert.equal(advancedSuites[task.id].length,5);assert.ok(task.prompt.tr&&task.prompt.en&&task.starter);assert.equal(task.tests,undefined);assert.ok(task.source?.url);}
  assert.deepEqual(advancedTasks.filter(t=>t.project==='data-service').map(t=>t.id),['advanced-api-migration','advanced-api-pagination','advanced-event-transfer']);
  assert.deepEqual(advancedTasks.filter(t=>t.project==='data-service').map(t=>t.modality),['project','debug','transfer']);
  for(const track of interviewTracks){assert.equal(track.steps.length,6);assert.equal(track.steps.reduce((sum,s)=>sum+s.minutes,0),75);}
@@ -28,4 +28,3 @@ test('interview drafts resume across reloads and cannot cross users or enter ver
  assert.equal((await a('state')).body.evidence.every(e=>e.independent===0),true);assert.equal((await a('account/export')).body.data.interview_sessions.length,1);
  await a('account/erase',{scope:'learning',confirmation:'RESET LEARNING'});assert.equal((await a('advanced')).body.sessions.length,0);DB.close();
 });
-

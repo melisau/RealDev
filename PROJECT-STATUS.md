@@ -2,13 +2,15 @@
 Kontrol: 8 Ekim 2026. Bu kayıt içerik/kod incelemesi ve testleri ayırır; bağımsız güvenlik denetimi veya uzmanlık sertifikasyonu değildir.
 
 ## Bu sürümde
+- Hesaba bağlı aktif çalışma süresi ve /calendar takvimi: günlük/aylık süreler, renk skalası, saat dilimi, arka plan/boşta duraklama, dışa aktarma ve silme.
+- Üç yeni uygulama projesinde altı özgün görev: .NET sürüm/idempotency, Unity geç yanıt/ödül ledger, SQLite atomik checkout/ödeme olayı. Yerel Piston’da referanslar 5/5, başlangıçlar 0/5 test geçti.
 - Giriş ekranında Firebase e-postasıyla şifre kurtarma: e-posta formu, Türkçe/İngilizce mesajlar, tekrar gönderim beklemesi ve girişe dönüş. Gerçek posta kutusuna teslimat ayrıca doğrulanmalı.
 - Ana tarama kataloğunda 168 soru: 134 seçenekli senaryo, 32 hata teşhisi ve 2 güvenli ifade görevi. Ayrı kod/proje katalogları bu toplama dahil değildir.
 - Son eklenen 52 özgün sorunun her biri Türkçe/İngilizce metin, dört seçenek, açıklama, ipucu, konu, başlangıç/orta seviye etiketi, biçim ve kontrol tarihli birincil teknik kaynak içerir.
 - Yeni sorular mevcut konu araması, kişisel rota, cevap geçmişi, notlar ve kütüphane akışlarını kullanır. Konu etiketleri de aranır.
 - Eski soru kimlikleri ve ilk sekiz soruluk tarama korunur. Yeni yanıtlar kendi soru sürümüyle kaydedilir.
 - Cevap anahtarı ve açıklama genel soru payload'ına gönderilmez; değerlendirme sunucuda yapılır.
-- Ayrı kataloglarda 9 Python/C#/Java görevi, 12 ileri proje görevi, 11 kod incelemesi ve 3 mülakat rotası bulunur. Sayılar farklı katalogları ifade eder; hepsini bağımsız uzmanlık kanıtı olarak toplamak doğru değildir.
+- Ayrı kataloglarda 9 Python/C#/Java görevi, 18 ileri proje görevi, 11 kod incelemesi ve 3 mülakat rotası bulunur. Sayılar farklı katalogları ifade eder; hepsini bağımsız uzmanlık kanıtı olarak toplamak doğru değildir.
 
 ## Soru dağılımı
 | Alan | Önce | Şimdi |

@@ -1,7 +1,9 @@
+import {depthSuites} from './depth-suites.mjs';
 import {advancedTasks} from './advanced.mjs';
 import {executePistonCases} from '../sandbox/piston.mjs';
 const pair=(input,expected)=>({input,expected});
 export const advancedSuites={
+ ...depthSuites,
  'advanced-api-validation':[
  pair([{op:'create',owner:'alice',name:'book'},{op:'list'}],[{status:201,id:1},{status:200,items:[{id:1,owner:'alice',name:'book'}]}]),
  pair([{op:'create',owner:'a',name:''},{op:'create',owner:'a',name:42},{op:'list'}],[{status:400},{status:400},{status:200,items:[]}]),
@@ -61,4 +63,3 @@ export function advancedEvidence(row){
  if(saved.verification!=='server-verified'||r?.verification!=='server-verified'||r.runner!=='piston'||r.taskId!==task.id||r.suiteVersion!==task.suiteVersion||r.language!==task.language||r.total!==advancedSuites[task.id].length||!Number.isInteger(r.passed)||r.passed<0||r.passed>r.total)return [];
  return [{task_id:task.id,area:task.area,score:Math.round(r.passed/r.total*100),modality:task.modality,language:task.language,verification:'server-verified',hinted:0,skipped:0,created_at:row.created_at}];
 }
-

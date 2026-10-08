@@ -50,6 +50,13 @@
       "when": 1791218564247,
       "tag": "0006_lethal_hammerhead",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1791473383966,
+      "tag": "0007_faithful_mentallo",
+      "breakpoints": true
     }
   ]
 }
