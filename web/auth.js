@@ -1,11 +1,11 @@
 (function(){
- const rawFetch=window.fetch.bind(window);const localPreview=location.protocol==='http:'&&['127.0.0.1','localhost'].includes(location.hostname)&&location.port==='4317';let client=null;let activeMode='sign-in';let resolveSessionReady;const previewUser=localPreview?{uid:'local-preview-user',email:'preview@local.test',emailVerified:true,localPreview:true}:null;window.realdevLocalPreview=localPreview;window.realdevCurrentUser=previewUser;window.realdevSessionReady=new Promise(resolve=>{resolveSessionReady=resolve;if(localPreview)resolve(previewUser);});
+ const rawFetch=window.fetch.bind(window);const localPreview=location.protocol==='http:'&&['127.0.0.1','localhost'].includes(location.hostname)&&location.port==='4317';let client=null;let activeMode='sign-in';let authBusy=false;let resetRetryAfter=0;let resetNotice=null;let resolveSessionReady;const previewUser=localPreview?{uid:'local-preview-user',email:'preview@local.test',emailVerified:true,localPreview:true}:null;window.realdevLocalPreview=localPreview;window.realdevCurrentUser=previewUser;window.realdevSessionReady=new Promise(resolve=>{resolveSessionReady=resolve;if(localPreview)resolve(previewUser);});
  const status=()=>document.getElementById('authStatus');
  const currentLanguage=()=>window.realdevLocale||localStorage.getItem('realdev-language')||'tr';
  const text=(tr,en)=>currentLanguage()==='en'?en:tr;
  function renderAuthLink(){const link=document.getElementById('authLink');if(!link)return;const signedIn=localPreview||Boolean(client?.currentUser);link.hidden=false;link.textContent=localPreview?text('Yerel deneme','Local preview'):signedIn?text('Çıkış yap','Sign out'):text('Giriş / Kayıt','Sign in / Create account');link.href=localPreview?'/#today':signedIn?'#sign-out':'/auth.html#/sign-in';link.setAttribute('aria-label',link.textContent);link.dataset.signedIn=String(signedIn);}
  function bindAuthLink(){const link=document.getElementById('authLink');if(link&&!link.dataset.logoutBound){link.dataset.logoutBound='true';link.addEventListener('click',async event=>{if(!client?.currentUser)return;event.preventDefault();if(link.dataset.signingOut==='true')return;link.dataset.signingOut='true';link.setAttribute('aria-disabled','true');link.textContent=text('Çıkış yapılıyor…','Signing out…');try{await client.signOut();location.assign('/#today');}catch{delete link.dataset.signingOut;link.removeAttribute('aria-disabled');renderAuthLink();}});}client.onAuthStateChanged(user=>{window.realdevCurrentUser=user?.emailVerified?user:null;renderAuthLink();resolveSessionReady(window.realdevCurrentUser);window.realdevAuthStateChanged?.(window.realdevCurrentUser);window.dispatchEvent(new CustomEvent('realdev-auth-state',{detail:{user:window.realdevCurrentUser}}));});renderAuthLink();}
- const applyLanguage=locale=>{document.documentElement.lang=locale;if(location.pathname.endsWith('/auth.html'))document.title=locale==='en'?'RealDeveloper · Sign in':'RealDeveloper · Hesap girişi';const en=locale==='en';const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value;};set('authHeading',en?'Sign in or create an account':'Giriş yap veya kayıt ol');set('authLanguageToggle',en?'TR':'EN');set('authSubmit',activeMode==='sign-in'?(en?'Sign in →':'Giriş yap →'):(en?'Create account →':'Hesap oluştur →'));set('signInTab',en?'Sign in':'Giriş yap');set('signUpTab',en?'Create account':'Kayıt ol');set('resendVerification',en?'Resend verification email':'Doğrulama e-postasını tekrar gönder');renderAuthLink();const heading=document.querySelector('.auth-intro h1');if(heading)heading.textContent=en?'continue with your account':'kendi hesabınla devam et';const intro=document.querySelector('.auth-intro p');if(intro)intro.textContent=en?'Your learning route, answers, notes and code practice are saved to your account.':'Öğrenme rotan, cevapların, notların ve kod çalışmaların hesabına kaydedilir.';const back=document.querySelector('.auth-back');if(back)back.textContent=en?'← Back to workspace':'← Çalışma alanına dön';const eyebrow=document.querySelector('.auth-form .eyebrow');if(eyebrow)eyebrow.textContent=en?'ACCOUNT':'HESAP';const email=document.querySelector('label[for=authEmail]');if(email)email.textContent=en?'Email':'E-posta';const password=document.querySelector('label[for=authPassword]');if(password)password.textContent=en?'Password':'Parola';};
+ const applyLanguage=locale=>{document.documentElement.lang=locale;if(location.pathname.endsWith('/auth.html'))document.title=activeMode==='reset-password'?(locale==='en'?'RealDeveloper · Reset password':'RealDeveloper · Şifre sıfırlama'):(locale==='en'?'RealDeveloper · Sign in':'RealDeveloper · Hesap girişi');const en=locale==='en';const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value;};set('authHeading',activeMode==='reset-password'?(en?'Reset your password':'Şifreni sıfırla'):(en?'Sign in or create an account':'Giriş yap veya kayıt ol'));set('authLanguageToggle',en?'TR':'EN');set('authSubmit',activeMode==='reset-password'?(en?'Send reset link →':'Sıfırlama bağlantısı gönder →'):activeMode==='sign-in'?(en?'Sign in →':'Giriş yap →'):(en?'Create account →':'Hesap oluştur →'));set('signInTab',en?'Sign in':'Giriş yap');set('signUpTab',en?'Create account':'Kayıt ol');set('resendVerification',en?'Resend verification email':'Doğrulama e-postasını tekrar gönder');set('forgotPassword',en?'Forgot password?':'Şifremi unuttum');set('backToSignIn',en?'← Back to sign in':'← Girişe dön');set('resetDescription',en?'Enter the email address you use for your account. Choose a new password through the secure link in the email.':'Hesabında kullandığın e-posta adresini yaz. Yeni parolanı e-postadaki güvenli bağlantıdan belirleyebilirsin.');set('resetWait',en?'Wait one minute before requesting another link.':'Yeni istek için bir dakika bekle.');if(activeMode==='reset-password'&&resetNotice)status().textContent=text(...resetNotice);renderAuthLink();const heading=document.querySelector('.auth-intro h1');if(heading)heading.textContent=en?'continue with your account':'kendi hesabınla devam et';const intro=document.querySelector('.auth-intro p');if(intro)intro.textContent=en?'Your learning route, answers, notes and code practice are saved to your account.':'Öğrenme rotan, cevapların, notların ve kod çalışmaların hesabına kaydedilir.';const back=document.querySelector('.auth-back');if(back)back.textContent=en?'← Back to workspace':'← Çalışma alanına dön';const eyebrow=document.querySelector('.auth-form .eyebrow');if(eyebrow)eyebrow.textContent=en?'ACCOUNT':'HESAP';const email=document.querySelector('label[for=authEmail]');if(email)email.textContent=en?'Email':'E-posta';const password=document.querySelector('label[for=authPassword]');if(password)password.textContent=en?'Password':'Parola';};
  window.realdevAuthLocale=applyLanguage;
  const configPromise=(localPreview?Promise.resolve({configured:true,localPreview:true}):rawFetch('/api/auth/config',{headers:{Accept:'application/json'}}).then(r=>r.json())).then(async config=>{
   if(!config.configured)return config;
@@ -24,7 +24,60 @@
   if(token){const headers=new Headers(input instanceof Request?input.headers:undefined);new Headers(init.headers).forEach((value,key)=>headers.set(key,value));headers.set('Authorization','Bearer '+token);init={...init,headers};}
   return rawFetch(input,init);
  };
- function setMode(mode){activeMode=mode;const signIn=mode==='sign-in';document.getElementById('signInTab').setAttribute('aria-selected',String(signIn));document.getElementById('signUpTab').setAttribute('aria-selected',String(!signIn));document.getElementById('resendVerification').hidden=true;applyLanguage(currentLanguage());status().textContent='';document.getElementById('authPassword').autocomplete=signIn?'current-password':'new-password';}
+ function setMode(mode){
+  if(authBusy)return;
+  activeMode=mode;resetNotice=null;
+  const reset=mode==='reset-password',signIn=mode==='sign-in';
+  document.getElementById('signInTab').setAttribute('aria-selected',String(signIn));
+  document.getElementById('signUpTab').setAttribute('aria-selected',String(mode==='sign-up'));
+  document.getElementById('resendVerification').hidden=true;
+  const password=document.getElementById('authPassword');password.value='';password.hidden=reset;password.disabled=reset;password.required=!reset;password.autocomplete=signIn?'current-password':'new-password';
+  document.getElementById('authPasswordLabel').hidden=reset;
+  document.getElementById('resetDescription').hidden=!reset;
+  document.getElementById('forgotPassword').hidden=!signIn;
+  document.getElementById('backToSignIn').hidden=!reset;
+  document.getElementById('resetWait').hidden=!reset||Date.now()>=resetRetryAfter;
+  document.getElementById('authSubmit').disabled=reset&&Date.now()<resetRetryAfter;
+  applyLanguage(currentLanguage());status().textContent='';
+ }
+ function showResetNotice(pair){resetNotice=pair;status().textContent=text(...pair);}
+ function resetMessage(error){
+  const code=error?.code;
+  if(code==='auth/invalid-email'||code==='auth/missing-email')return ['Geçerli bir e-posta adresi yaz.','Enter a valid email address.'];
+  if(code==='auth/too-many-requests')return ['Çok fazla istek yapıldı. Bir süre bekleyip tekrar dene.','Too many requests. Wait a while and try again.'];
+  if(code==='auth/network-request-failed')return ['Bağlantı kurulamadı. İnternetini kontrol edip tekrar dene.','Could not connect. Check your internet connection and try again.'];
+  return ['Sıfırlama isteği tamamlanamadı. Daha sonra tekrar dene.','The reset request could not be completed. Try again later.'];
+ }
+ async function sendReset(form){
+  if(authBusy||Date.now()<resetRetryAfter)return;
+  const field=document.getElementById('authEmail');field.value=field.value.trim();
+  if(!form.reportValidity())return;
+  authBusy=true;
+  const controls=['authSubmit','authEmail','signInTab','signUpTab','backToSignIn'];
+  controls.forEach(id=>{document.getElementById(id).disabled=true;});
+  form.setAttribute('aria-busy','true');
+  showResetNotice(['Sıfırlama isteği gönderiliyor…','Sending the reset request…']);
+  let accepted=false;
+  try{
+   client.languageCode=currentLanguage();
+   await client.sendPasswordResetEmail(field.value,{url:location.origin+'/auth.html#/sign-in',handleCodeInApp:false});
+   accepted=true;
+  }catch(error){
+   // Use the same result for unknown accounts, including projects without enumeration protection.
+   if(error?.code==='auth/user-not-found')accepted=true;
+   else showResetNotice(resetMessage(error));
+  }finally{
+   if(accepted){
+    showResetNotice(['Bu adresle bir hesap varsa şifre sıfırlama bağlantısı gönderilecektir. Gelen kutunu ve spam klasörünü kontrol et.','If an account uses this address, a password reset link will be sent. Check your inbox and spam folder.']);
+    resetRetryAfter=Date.now()+60000;
+    document.getElementById('resetWait').hidden=false;
+    setTimeout(()=>{document.getElementById('resetWait').hidden=true;if(activeMode==='reset-password'&&!authBusy)document.getElementById('authSubmit').disabled=false;},60000);
+   }
+   authBusy=false;
+   controls.forEach(id=>{document.getElementById(id).disabled=id==='authSubmit'&&Date.now()<resetRetryAfter;});
+   form.removeAttribute('aria-busy');
+  }
+ }
  function authErrorText(error,wasCreated=false){const code=error?.code||'';const messages={
   'auth/invalid-email':['E-posta adresinin biçimini kontrol et.','Check the email address format.'],
   'auth/weak-password':['Parola en az 8 karakter olmalı.','Password must be at least 8 characters.'],
@@ -39,12 +92,14 @@
  function setupForm(){
   const form=document.getElementById('authForm');if(!form)return;
   applyLanguage(localStorage.getItem('realdev-language')||'tr');
-  if(location.hash.includes('sign-up'))setMode('sign-up');
+  if(location.hash.includes('reset-password'))setMode('reset-password');else if(location.hash.includes('sign-up'))setMode('sign-up');
+  document.getElementById('forgotPassword').addEventListener('click',()=>{setMode('reset-password');document.getElementById('authEmail').focus();});
+  document.getElementById('backToSignIn').addEventListener('click',()=>setMode('sign-in'));
   document.getElementById('signInTab').addEventListener('click',()=>setMode('sign-in'));document.getElementById('signUpTab').addEventListener('click',()=>setMode('sign-up'));
   const resend=document.getElementById('resendVerification');
   const showResend=()=>{resend.hidden=false;applyLanguage(currentLanguage());};
   resend.addEventListener('click',async()=>{const email=document.getElementById('authEmail').value.trim();const password=document.getElementById('authPassword').value;if(!email||!password){status().textContent=text('Yukarıya e-posta adresini ve parolanı gir. Bunlar Firebase’e gönderilir; bu sitede saklanmaz.','Enter your email and password above. They are sent to Firebase and are not stored by this site.');return;}resend.disabled=true;status().textContent=text('Doğrulama e-postası gönderiliyor…','Sending verification email…');let createdUser=false;try{const result=await client.signInWithEmailAndPassword(email,password);if(result.user.emailVerified){await client.signOut();resend.hidden=true;status().textContent=text('E-posta zaten doğrulanmış. Şimdi giriş yapabilirsin.','Email is already verified. You can sign in now.');return;}await result.user.sendEmailVerification();await client.signOut();status().textContent=text(`Doğrulama bağlantısı ${email} adresine gönderildi. Gelen kutusu ve spam klasörünü kontrol et.`,`A verification link was sent to ${email}. Check your inbox and spam folder.`);}catch(error){if(client.currentUser&&!client.currentUser.emailVerified)await client.signOut().catch(()=>{});status().textContent=authErrorText(error,createdUser);}finally{resend.disabled=false;}});
-  form.addEventListener('submit',async e=>{e.preventDefault();const button=document.getElementById('authSubmit');const email=document.getElementById('authEmail').value.trim();const password=document.getElementById('authPassword').value;const mode=activeMode;let accountCreated=false;button.disabled=true;resend.hidden=true;status().textContent=text('İşleniyor…','Working…');
+  form.addEventListener('submit',async e=>{e.preventDefault();if(activeMode==='reset-password'){await sendReset(form);return;}const button=document.getElementById('authSubmit');const email=document.getElementById('authEmail').value.trim();const password=document.getElementById('authPassword').value;const mode=activeMode;let accountCreated=false;button.disabled=true;resend.hidden=true;status().textContent=text('İşleniyor…','Working…');
    try{const result=mode==='sign-up'?await client.createUserWithEmailAndPassword(email,password):await client.signInWithEmailAndPassword(email,password);if(mode==='sign-up'){accountCreated=true;await result.user.sendEmailVerification();await client.signOut();status().textContent=text(`Hesabın oluşturuldu. Doğrulama bağlantısı ${email} adresine gönderildi. Gelen kutusu ve spam klasörünü kontrol et.`,`Your account was created. A verification link was sent to ${email}. Check your inbox and spam folder.`);return;}if(!result.user.emailVerified){await client.signOut();status().textContent=text('Bu hesap henüz doğrulanmamış. Firebase Console’dan elle eklenen hesaplara otomatik e-posta gitmez; doğrulama bağlantısını almak için aşağıya tıkla.','This account is not verified yet. Accounts added manually in Firebase Console do not get an automatic email; use the button below to request a verification link.');showResend();return;}status().textContent=text('Giriş başarılı. Çalışma alanın açılıyor…','Signed in. Opening your workspace…');location.assign('/#today');}
    catch(error){if(client.currentUser&&!client.currentUser.emailVerified)await client.signOut().catch(()=>{});status().textContent=authErrorText(error,accountCreated);if(accountCreated)showResend();}
    finally{button.disabled=false;}
@@ -53,6 +108,6 @@
  document.addEventListener('DOMContentLoaded',async()=>{
   if(localPreview&&location.pathname.endsWith('/auth.html')){location.replace('/#today');return;}
   applyLanguage(localStorage.getItem('realdev-language')||'tr');document.getElementById('authLanguageToggle')?.addEventListener('click',()=>{const next=currentLanguage()==='tr'?'en':'tr';localStorage.setItem('realdev-language',next);applyLanguage(next);});const link=document.getElementById('authLink');if(link)link.hidden=false;
-  if(location.pathname.endsWith('/auth.html')){const config=await configPromise;if(!config.configured){document.querySelectorAll('#authForm input,#authForm button,#signInTab,#signUpTab').forEach(el=>el.disabled=true);status().textContent=text('Kayıt ve giriş henüz bağlanmadı. Firebase proje ayarları gerekiyor; parolan bu sitede saklanmaz.','Sign-in is not connected yet. Firebase project settings are required first. This site never stores your password.');}}
+  if(location.pathname.endsWith('/auth.html')){const config=await configPromise;if(!config.configured){document.querySelectorAll('#authForm input,#authForm button,#signInTab,#signUpTab,#forgotPassword,#backToSignIn').forEach(el=>el.disabled=true);status().textContent=text('Kayıt ve giriş henüz bağlanmadı. Firebase proje ayarları gerekiyor; parolan bu sitede saklanmaz.','Sign-in is not connected yet. Firebase project settings are required first. This site never stores your password.');}}
  });
 })();

@@ -9,6 +9,8 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css?v=20261006-2">
   <link rel="stylesheet" href="/theme.css?v=20261005-12">
+  <link rel="stylesheet" href="/theme-mode.css?v=20261006-1">
+  <script src="/theme-mode.js?v=20261005-12"></script>
   <style>
     body{min-height:100vh;display:grid;place-items:center;background:var(--paper);color:var(--ink)}
     .auth-wrap{width:min(980px,94vw);display:grid;grid-template-columns:1fr 1fr;border:2px solid var(--line);box-shadow:8px 8px 0 var(--line);background:var(--paper)}
@@ -28,15 +30,24 @@
     .auth-status{min-height:48px;font:14px Arial,sans-serif}
     .resend-verification{margin-top:8px;min-height:42px;padding:8px 12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:14px 'Share Tech Mono',monospace;cursor:pointer}
     .resend-verification[hidden]{display:none}
+    .auth-wrap [hidden]{display:none!important}
+    .auth-wrap{margin:24px auto;max-width:calc(100vw - 24px)}
+    .auth-form,.auth-intro{min-width:0}
+    .auth-form h2{line-height:1.35;overflow-wrap:anywhere}
+    .auth-help{color:var(--muted);font-size:14px}
+    .auth-link-button{min-height:44px;padding:8px 0;background:transparent;border:0;color:var(--ink);text-align:left;text-decoration:underline;text-underline-offset:4px;font:14px 'Share Tech Mono',monospace}
+    .auth-form button:disabled{cursor:wait;opacity:.65}.auth-form .primary-button{background:#6f42c1!important;color:#fff!important}.auth-form #authSubmit:disabled{opacity:1;background:#776394!important}
+    .auth-form :is(button,input):focus-visible{outline:3px solid var(--purple);outline-offset:3px}
+    .auth-status{overflow-wrap:anywhere}
     .auth-back{color:var(--ink);font:14px 'Share Tech Mono',monospace}
     @media(max-width:680px){.auth-wrap{grid-template-columns:1fr}.auth-intro{min-height:auto;border-right:0;border-bottom:1px solid var(--line);gap:30px}.auth-intro h1{margin:20px 0 8px}}
   </style>
-  <script src="/auth.js?v=20261006-3" defer></script>
+  <script src="/auth.js?v=20261008-reset-1" defer></script>
 </head>
 <body>
   <main class="auth-wrap">
     <section class="auth-intro"><a class="auth-brand" href="/#today">&lt;/&gt; real<span>developer</span></a><div><div class="eyebrow">DEVELOPER PRACTICE STUDIO</div><h1>kendi hesabınla devam et</h1><p>Öğrenme rotan, cevapların, notların ve kod çalışmaların hesabına kaydedilir.</p></div><a class="auth-back" href="/#today">← Çalışma alanına dön</a></section>
-    <section class="auth-form" aria-labelledby="authHeading"><div class="eyebrow">HESAP</div><h2 id="authHeading">Giriş yap veya kayıt ol</h2><button type="button" class="secondary-button" id="authLanguageToggle" aria-label="Switch language">EN</button><div class="auth-tabs" role="tablist"><button id="signInTab" role="tab" aria-selected="true" type="button">Giriş yap</button><button id="signUpTab" role="tab" aria-selected="false" type="button">Kayıt ol</button></div><form id="authForm" class="auth-fields"><label for="authEmail">E-posta</label><input id="authEmail" name="email" type="email" autocomplete="email" required maxlength="320"><label for="authPassword">Parola</label><input id="authPassword" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128"><button class="primary-button" id="authSubmit" type="submit">Giriş yap →</button></form><p id="authStatus" class="auth-status" role="status" aria-live="polite"></p><button type="button" class="resend-verification" id="resendVerification" hidden>E-postayı tekrar gönder</button></section>
+    <section class="auth-form" aria-labelledby="authHeading"><div class="eyebrow">HESAP</div><h2 id="authHeading">Giriş yap veya kayıt ol</h2><button type="button" class="secondary-button" id="authLanguageToggle" aria-label="Switch language">EN</button><div class="auth-tabs" role="tablist"><button id="signInTab" role="tab" aria-selected="true" type="button">Giriş yap</button><button id="signUpTab" role="tab" aria-selected="false" type="button">Kayıt ol</button></div><p id="resetDescription" class="auth-help" hidden>Hesabında kullandığın e-posta adresini yaz. Yeni parolanı e-postadaki güvenli bağlantıdan belirleyebilirsin.</p><form id="authForm" class="auth-fields"><label for="authEmail">E-posta</label><input id="authEmail" name="email" type="email" autocomplete="email" required maxlength="320"><label id="authPasswordLabel" for="authPassword">Parola</label><input id="authPassword" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128"><button class="primary-button" id="authSubmit" type="submit">Giriş yap →</button></form><button type="button" class="auth-link-button" id="forgotPassword">Şifremi unuttum</button><button type="button" class="auth-link-button" id="backToSignIn" hidden>← Girişe dön</button><p id="authStatus" class="auth-status" role="status" aria-live="polite"></p><p id="resetWait" class="auth-help" hidden>Yeni istek için bir dakika bekle.</p><button type="button" class="resend-verification" id="resendVerification" hidden>E-postayı tekrar gönder</button></section>
   </main>
 </body>
 </html>
