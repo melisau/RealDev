@@ -1,6 +1,6 @@
 # RealDev learning content and attribution
 
-Last checked: 2026-10-06. The app’s concepts are original RealDev explanations grounded in linked documentation. Practice questions, code, logs and expected outputs are independently authored; external question text has not been copied. Sources below inform technical contracts and answer review, not a copied answer key. Each published task links a technical source and should be rechecked against the referenced version. Executable tasks include independent server-side cases; open-ended code reviews use transparent criteria and are not represented as automatic proof of correctness.
+Last checked: 2026-10-08. The app’s concepts are original RealDev explanations grounded in linked documentation. Practice questions, code, logs and expected outputs are independently authored; external question text has not been copied. Sources below inform technical contracts and answer review, not a copied answer key. Each published task links a technical source and should be rechecked against the referenced version. Executable tasks include independent server-side cases; open-ended code reviews use transparent criteria and are not represented as automatic proof of correctness.
 
 ## Sources in the app
 
@@ -46,3 +46,44 @@ When reusing material, follow its actual terms: preserve MIT/Apache notices wher
 No DevOps Exercises, SQLBolt, Medium, Stack Overflow, Unity Learn quiz or course question text was imported. Access without charge does not imply permission to redistribute. Source licenses are still relevant for any future quotation, translation, copied code or imported dataset; this update grants no rights over third-party assets. The new bank contains no such imported material.
 
 The new rows intentionally remain formative multiple-choice evidence, including code reading and diagnosis. They are not independently executed learner solutions. Content quality tests, executable reference checks for selected JavaScript/SQL scenarios and account-isolation integration tests accompany this expansion. A human editorial review and learner-based difficulty calibration remain future work.
+
+
+## Second original expansion — 52 questions, 8 October 2026
+
+`server/expanded-bank.mjs` adds four independently authored questions to each of 13 areas, increasing the main assessment catalog from 116 to 168. There are 36 multiple-choice scenarios/code-reading questions and 16 diagnostic questions in this batch; diagnostics also use answer choices. Code, distractors, explanations and translations are original. Existing IDs, historical versions and the initial scan are preserved.
+
+`server/content-policy.mjs` records the technical-reference policy. Each new task carries a direct technical URL, reference/license review dates, reference license and URL, named source contributors and an explicit distinction between reference licensing and RealDev authorship. These declarations are editorial records, not an automatic plagiarism checker or a legal guarantee. The registry does not license RealDev content under third-party licenses.
+
+### Verified reference terms for this batch
+
+| Primary reference | Reference license / terms | Actual use here |
+| --- | --- | --- |
+| MDN Web Docs · Mozilla Contributors | [CC-BY-SA-2.5-or-later (documentation; exceptions apply)](https://developer.mozilla.org/en-US/docs/MDN/Writing_guidelines/Attrib_copyright_license) | Original scenarios; technical reference only. |
+| React documentation contributors | [CC-BY-4.0 (documentation)](https://github.com/reactjs/react.dev/blob/main/LICENSE-DOCS.md) | Original scenarios; technical reference only. |
+| Microsoft .NET documentation contributors | [CC-BY-4.0 (dotnet/docs; check page-specific terms)](https://github.com/dotnet/docs/blob/main/LICENSE) | Original scenarios; technical reference only. |
+| Git project · manual reference | [GPL-2.0 (Git project; reference only)](https://github.com/git/git/blob/master/COPYING) | Original scenarios; technical reference only. |
+| PostgreSQL Global Development Group | [PostgreSQL License](https://www.postgresql.org/about/licence/) | Original scenarios; technical reference only. |
+| Unity 6 documentation · reference only | [No redistribution permission assumed](https://unity.com/legal/terms-of-service) | Original scenarios; technical reference only. |
+| Kubernetes documentation contributors | [CC-BY-4.0 (website documentation)](https://github.com/kubernetes/website/blob/main/LICENSE) | Original scenarios; technical reference only. |
+| Docker documentation contributors | [Apache-2.0 (docs repository; exceptions apply)](https://github.com/docker/docs/blob/main/LICENSE) | Original scenarios; technical reference only. |
+| Python Software Foundation · documentation | [PSF License Version 2; examples have separate terms](https://docs.python.org/3/license.html) | Original scenarios; technical reference only. |
+| scikit-learn contributors | [BSD-3-Clause (repository; exceptions apply)](https://github.com/scikit-learn/scikit-learn/blob/main/COPYING) | Original scenarios; technical reference only. |
+| Apache Arrow contributors | [Apache-2.0; third-party notices apply](https://github.com/apache/arrow/blob/main/LICENSE.txt) | Original scenarios; technical reference only. |
+| Apache Kafka contributors | [Apache-2.0; third-party notices apply](https://github.com/apache/kafka/blob/trunk/LICENSE) | Original scenarios; technical reference only. |
+| Apache Airflow contributors | [Apache-2.0; third-party notices apply](https://github.com/apache/airflow/blob/main/LICENSE) | Original scenarios; technical reference only. |
+| Google · Android Developers | [CC-BY-4.0 where stated; code samples Apache-2.0; exceptions apply](https://developers.google.com/terms/site-policies) | Original scenarios; technical reference only. |
+| Godot documentation contributors | [CC-BY-3.0 (documentation)](https://github.com/godotengine/godot-docs/blob/master/LICENSE.txt) | Original scenarios; technical reference only. |
+
+### Reuse rules
+
+1. Free access is not a redistribution license. A repository license must be checked for the specific document/file and its exceptions; a library license does not automatically cover its website, logos, media or third-party articles.
+2. For this batch we read factual technical behavior and link the primary documentation. We do not reproduce or translate external question wording, distractors, explanations or code examples. Original authorship does not excuse a disguised close paraphrase; future editorial review must check that too.
+3. If a future import, quotation or adaptation is proposed, record the exact source revision and permissions before publishing. Preserve required attribution/notices, identify changes, and satisfy ShareAlike if applicable. This batch imports no question dataset and makes no claim to license third-party content.
+4. Unity documentation is reference-only: no blanket redistribution right is assumed. MDN adaptations would require its attribution and ShareAlike terms. Stack Overflow, Medium, SQLBolt and restricted DevOps exercise sets are not bulk-import sources here.
+5. Technical source review is dated, not a guarantee of perpetual currency. Recheck version-specific behavior before changing a question; do not silently rewrite historical attempt meaning. Human editorial review and a way to report incorrect questions remain release-quality improvements.
+
+### Verification limits
+
+Eight new automated tests cover bilingual completeness, 52/13-area coverage, source-policy metadata and rejected URLs, answer-key exclusion, grading, progression, versioned persistence and account isolation. Selected JavaScript and generic SQL examples are independently executed; metric answers are checked against counts. SQLite fixtures do not independently certify PostgreSQL-specific behavior. No claim is made that every Unity/.NET/Android example has been executed against that runtime, or that choice answers certify project expertise.
+
+.NET API references use the [dotnet-api-docs CC BY 4.0 license](https://github.com/dotnet/dotnet-api-docs/blob/main/LICENSE); prose guides use the dotnet/docs license. The task metadata selects the appropriate repository link.

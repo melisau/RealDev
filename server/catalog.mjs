@@ -1,6 +1,7 @@
 // Versioned tasks: changing a task's meaning requires a new id/version.
 import {createSourceTasks} from './source-tasks.mjs';
 import {createBankTasks} from './bank-tasks.mjs';
+import {createExpandedTasks} from './expanded-bank.mjs';
 export const VERSION = '2026-10-05.4';
 const L = (tr,en) => ({tr,en});
 export const areas = {
@@ -107,7 +108,7 @@ tasks.push(
  extra('game-allocation','game',L('Kare başına allocation bul','Find per-frame allocations'),L('Profiler’da GC Alloc yüksek. İlk daraltma adımı nedir?','GC Alloc is high in the profiler. What is a good first narrowing step?'),[L('CPU Profiler allocation call stack ile sıcak karede allocate eden kodu bulmak.','Use CPU Profiler allocation call stacks to find hot-frame allocations.'),L('Profiler olmadan tüm LINQ ifadelerini silmek.','Delete all LINQ without profiling.'),L('GC’yi her kare zorlamak.','Force GC every frame.')],0,L('Önce kaynağı ölç; doğrulanmış sıcak noktayı optimize edip yeniden ölç.','Measure the source first; optimize a verified hot path and measure again.'),'unitypool')
 );
 export const baselineIds=tasks.slice(0,8).map(t=>t.id);
-tasks.push(...createSourceTasks(VERSION), ...createBankTasks());
+tasks.push(...createSourceTasks(VERSION), ...createBankTasks(), ...createExpandedTasks());
 export const goals = ['fullstack','frontend','ai','data','devops','mobile','game'];
 export const goalLabels = {fullstack:L('Full stack','Full stack'),frontend:L('Frontend','Frontend'),ai:L('AI mühendisliği','AI engineering'),data:L('Veri ve veritabanı','Data and databases'),devops:L('DevOps','DevOps'),mobile:L('Mobil geliştirme','Mobile development'),game:L('Oyun geliştirme','Game development')};
 export function publicTask(t){const {answer,explain,checks,rule,hint,...visible}=t;return visible;}
