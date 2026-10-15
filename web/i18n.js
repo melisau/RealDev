@@ -414,6 +414,7 @@
     locale = nextLocale;
     window.realdevLocale = locale;
     document.documentElement.lang = locale;
+    if(location.pathname==='/'){
     const title = document.querySelector('title');
     if (title) title.textContent = locale === 'tr' ? 'RealDeveloper · Yazılımcı pratik ve gelişim alanı' : 'RealDeveloper · Developer skills practice';
     const description = document.querySelector('meta[name="description"]');
@@ -424,6 +425,7 @@
     const ogDescription = document.querySelector('meta[property="og:description"]');
     if (ogTitle) ogTitle.content = locale === 'tr' ? 'RealDeveloper · Yazılımcı pratik ve gelişim alanı' : 'RealDeveloper · Developer skills practice';
     if (ogDescription) ogDescription.content = description?.content || '';
+    }
     translate(document.body);
     window.realdevAuthLocale?.(locale);
     if (!window.realdevAuthenticated) window.realdevRender?.();

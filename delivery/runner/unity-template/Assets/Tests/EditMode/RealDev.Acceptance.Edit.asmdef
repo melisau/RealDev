@@ -1,0 +1,1 @@
+{"name":"RealDev.Acceptance.Edit","references":["RealDev.Learner"],"optionalUnityReferences":["TestAssemblies"],"includePlatforms":["Editor"]}

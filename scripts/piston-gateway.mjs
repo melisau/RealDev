@@ -20,7 +20,7 @@ function validatedJob(value){
  return {language:value.language,version:value.version,files:[{name:file,content:files[0].content}],stdin:value.stdin||'',compile_timeout:10000,compile_cpu_time:10000,run_timeout:3000,run_cpu_time:3000,compile_memory_limit:268435456,run_memory_limit:value.language==='java'?268435456:67108864};
 }
 
-export function createPistonGateway({token,upstream='http://127.0.0.1:2000',fetchImpl=fetch,requestsPerMinute=60}={}){
+export function createPistonGateway({token,upstream='http://127.0.0.1:2000',fetchImpl=fetch,requestsPerMinute=60,projectUpstream=null}={}){
  if(typeof token!=='string'||token.length<32||/[\r\n]/.test(token))throw Error('PISTON_API_KEY must be a secret of at least 32 characters');
  const target=new URL(upstream);
  if(target.protocol!=='http:'||!['127.0.0.1','[::1]'].includes(target.hostname)||target.username||target.password||target.pathname!=='/'||target.search||target.hash)throw Error('Piston upstream must use a loopback HTTP origin');
@@ -31,6 +31,13 @@ export function createPistonGateway({token,upstream='http://127.0.0.1:2000',fetc
   const actual=createHash('sha256').update(req.headers.authorization||'').digest();
   if(!timingSafeEqual(expected,actual)){send(401,{error:'unauthorized'});req.resume();return;}
   const route=req.url,method=req.method;
+  if(projectUpstream&&((method==='GET'&&(/^\/api\/v2\/project-jobs\/[a-f0-9]{32,64}$/.test(route)||route==='/api/v2/project-capabilities'))||(method==='POST'&&route==='/api/v2/project-jobs'))){
+   try{const projectBase=new URL(projectUpstream);if(projectBase.protocol!=='http:'||!['127.0.0.1','[::1]'].includes(projectBase.hostname)||projectBase.username||projectBase.password||projectBase.pathname!=='/'||projectBase.search||projectBase.hash)throw Error();
+    const body=method==='POST'?await readBounded(req,262144):undefined;
+    const response=await fetchImpl(new URL(route,projectBase),{method,body,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},redirect:'manual',signal:AbortSignal.timeout(15000)});
+    const raw=await readBounded(response.body,48000,502);send(response.status,raw.toString('utf8'));
+   }catch{send(503,{error:'project_runner_unavailable'});}return;
+  }
   if(!((route==='/api/v2/runtimes'&&method==='GET')||(route==='/api/v2/execute'&&method==='POST'))){send(404,{error:'not_found'});req.resume();return;}
   const now=Date.now();if(now-windowStart>=60000){windowStart=now;count=0;}
   if(count>=requestsPerMinute){send(429,{error:'rate_limited'},{'Retry-After':'60'});req.resume();return;}
@@ -57,7 +64,7 @@ export function createPistonGateway({token,upstream='http://127.0.0.1:2000',fetc
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
  const port=Number(process.env.PISTON_GATEWAY_PORT||2001);
  if(!Number.isInteger(port)||port<1024||port>65535)throw Error('Invalid gateway port');
- const server=createPistonGateway({token:process.env.PISTON_API_KEY,requestsPerMinute:Number(process.env.PISTON_REQUESTS_PER_MINUTE||60)});
+ const server=createPistonGateway({token:process.env.PISTON_API_KEY,requestsPerMinute:Number(process.env.PISTON_REQUESTS_PER_MINUTE||60),projectUpstream:process.env.PROJECT_RUNNER_URL||'http://127.0.0.1:2002'});
  server.listen(port,'127.0.0.1',()=>console.log(`Authenticated Piston gateway: http://127.0.0.1:${port}`));
  for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>server.close(()=>process.exit(0)));
 }

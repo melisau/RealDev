@@ -4,7 +4,10 @@ Turkish/English developer practice with persistent accounts, evidence-based asse
 
 ## Learning and account features
 
-- Eight-task initial scan and 168 bilingual assessment questions across 13 areas, including the latest 52 original sourced scenarios (8 October 2026). Topic tags are searchable; answers retain the individual question version. Choice results alone do not certify expertise. See [project status and remaining work](PROJECT-STATUS.md).
+- Template-based Python API/.NET/Unity project source submission with versioned acceptance reports, separate from written AI feedback. See [project delivery setup and verified scope](PROJECT-DELIVERY.md).
+- Guided first use, role explanations, account-local review observations and 24 public bilingual concept articles. See [first-use design and evaluation plan](FIRST-USE.md).
+
+- Eight-task initial scan and 192 bilingual assessment questions across 13 areas, including the latest 52 original sourced scenarios (8 October 2026). Topic tags are searchable; answers retain the individual question version. Choice results alone do not certify expertise. See [project status and remaining work](PROJECT-STATUS.md).
 - Question notes, saved-question library, written explanations and answer/code history.
 - Four resumable projects (API service, search/offline sync, event ingestion/retrieval, and a versioned API/data service), each with implementation, debugging and transfer stages. Twelve executable Python/C# tasks use five independent cases each; the new SQLite tasks cover repeatable schema migrations, owner-scoped keyset pagination, idempotent batch ingestion, rollback and log-based debugging. Prerequisites are checked on the server; every submission is persisted under its owner.
 - Eleven sourced technical code reviews across API retries, SQL migrations, pagination incidents, React, .NET, Kubernetes, Unity, AI, data and game physics. Open-ended review responses use explicit self-review criteria and are not presented as automatically verified correctness.

@@ -1,4 +1,6 @@
+import {learningPages,learningDocument} from './public-learning.mjs';
 const pathEntries = [
+  ...learningPages,
   ['/', 'today', 'RealDeveloper · Developer practice workspace', 'Practice coding, debugging and technical explanations. Explore public samples, then sign in to save your personal learning path.', true],
   ['/demo/questions', 'demoQuiz', 'Sample developer questions · RealDeveloper', 'Try sample programming, debugging and software engineering questions in a temporary, unsaved preview.', true],
   ['/demo/concepts', 'demoConcepts', 'Software concept glossary · RealDeveloper', 'Browse ten sourced software engineering concept cards with references to original documentation.', true],
@@ -23,7 +25,7 @@ const pathEntries = [
   ['/account', 'account', 'Account and data · RealDeveloper', 'Manage your RealDeveloper profile, learning data and account settings.', false],
 ];
 export const pageRoutes=Object.freeze(Object.fromEntries(pathEntries.map(([path,view,title,description,indexable])=>[path,{path,view,title,description,indexable}])));
-export const viewPaths=Object.freeze(Object.fromEntries(pathEntries.filter(([path])=>path!=='/').map(([path,view])=>[view,path])));
+export const viewPaths=Object.freeze(Object.fromEntries(pathEntries.filter(([path,view])=>path!=='/'&&view!=='publicLearn').map(([path,view])=>[view,path])));
 export const indexablePaths=Object.freeze(pathEntries.filter(([, , , , indexable])=>indexable).map(([path])=>path));
 const publicFallbackHtml=Object.freeze({
  '/':'<section class="public-hero"><div class="eyebrow">REALDEVELOPER · DEVELOPER PRACTICE STUDIO</div><h1>Kullandığın kodu açıklayarak gerçek becerini geliştir.</h1><p>Yazılımcılar için uygulamalı çalışma alanı: kodu oku, gerçekçi hataları teşhis et, teknik kavramları açıkla ve kanıta dayalı bir öğrenme rotası oluştur.</p><p><a href="/demo/questions">Örnek yazılım sorularını dene</a> · <a href="/demo/concepts">Kaynaklı kavram örneklerini incele</a></p><p>Örnekleri hesap açmadan görüntüle. Kişisel cevaplar, notlar ve ilerleme için giriş yap.</p></section>',
@@ -37,6 +39,7 @@ function upsertMeta(html,pattern,tag){return pattern.test(html)?html.replace(pat
 export function renderPageDocument(html,pathname,origin,{allowIndexing=true}={}){
  const page=pageForPath(pathname);if(!page)return null;
  const canonical=new URL(page.path,origin).href,robots=page.indexable&&allowIndexing?'index, follow':'noindex, nofollow';
+ if(page.view==='publicLearn')return {html:learningDocument(page.path,origin,allowIndexing),page,canonical,robots};
  let output=html.replace(/<title>[^<]*<\/title>/i,'<title>'+htmlEscape(page.title)+'</title>');
  output=upsertMeta(output,/<meta\s+name="description"\s+content="[^"]*"\s*\/?\s*>/i,'<meta name="description" content="'+htmlEscape(page.description)+'">');
  output=upsertMeta(output,/<meta\s+name="robots"\s+content="[^"]*"\s*\/?\s*>/i,'<meta name="robots" content="'+robots+'">');

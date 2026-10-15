@@ -6,7 +6,10 @@
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",
     "db:generate": "drizzle-kit generate",
-    "dev": "node scripts/dev.mjs"
+    "dev": "node scripts/dev.mjs",
+    "project:pack": "node scripts/project-pack.mjs",
+    "project:unpack": "node scripts/project-pack.mjs",
+    "dev:projects": "node scripts/project-preview.mjs"
   },
   "devDependencies": {
     "acorn": "8.15.0",

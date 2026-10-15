@@ -1,3 +1,15 @@
+## 15 Ekim 2026 güncellemesi
+
+- Şablonlu Python HTTP/SQLite ve .NET HTTP/SQLite proje teslimleri: ayrı test kapsayıcısı, sekiz kabul testi, kaynak hash/sürüm kontrolü, kalıcı teslim geçmişi ve hesap izolasyonu. Gerçek referanslar 8/8; eksik şablonlar 0/8.
+- Python ve .NET proje test servisi kimlik doğrulamalı geçici HTTPS tüneliyle canlı Site ortamına bağlandı. Yetkisiz istek 401; yetkili kapasite kontrolünde iki ortam hazır. Bu bilgisayar/Docker/runner/tünel açıkken çalışır; 7/24 hizmet değildir.
+- Unity için dört EditMode/dört PlayMode testi gerçek yerel Editor ile doğrulandı. Canlı öğrenci kodu için lisanslı izole Unity imajı henüz bağlı değil. Yerel referans çalışması canlı doğrulama diye sunulmaz.
+- Giriş ve ilk profil kaydından sonra hedef sayfaya dönüş düzeltildi. Kayıt/doğrulama/şifre kurtarma akışlarına sağlayıcı sözleşmesi testleri eklendi; gerçek e-posta teslimatı ayrıca kabul kontrolü gerektirir.
+- Başlangıç niyeti ve rol açıklamaları, sonraki adım yönlendirmesi, ipucusuz tekrar gözlemleri eklendi. Kullanıcı çalışması planı FIRST-USE.md içinde; nüfus üzerinde etkinlik kanıtlandığı iddia edilmez.
+- /learn ve /en/learn altında toplam 24 kaynaklı özgün makale, ayrı kanonik adresler, dil alternatifleri ve sitemap. Özel sayfalar noindex; veriler sunucu kimlik/hesap denetimiyle korunur.
+- Canlı hatırlatıcı servis gönderimi ve veritabanından durum okuması 200 döndü; mevcut bulut görevi kapalı. Etkinleştirilmeden günlük teslimat aktif gösterilmez.
+
+Ayrıntılar: [PROJECT-DELIVERY.md](PROJECT-DELIVERY.md), [FIRST-USE.md](FIRST-USE.md), [REMINDERS.md](REMINDERS.md). Aşağıdaki 8 Ekim envanteri tarihsel durumdur; proje teslimi ve rota eksiklerinin güncel kapsamı yukarıdadır.
+
 # RealDev: doğrulanmış durum ve öncelikler
 Kontrol: 8 Ekim 2026. Bu kayıt içerik/kod incelemesi ve testleri ayırır; bağımsız güvenlik denetimi veya uzmanlık sertifikasyonu değildir.
 

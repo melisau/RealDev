@@ -1,0 +1,9 @@
+# Operator supplies a dedicated activated/cached Unity 2022.3.50f1 image.
+# Do not embed Unity account credentials or reuse a personal workstation's home directory.
+ARG UNITY_BASE_IMAGE
+FROM ${UNITY_BASE_IMAGE}
+COPY unity-template /trusted/unity-project
+COPY start-unity.sh /trusted/start-unity.sh
+RUN chmod -R a+rX /trusted && chmod 555 /trusted/start-unity.sh
+USER 10001:10001
+ENTRYPOINT ["/bin/sh","/trusted/start-unity.sh"]

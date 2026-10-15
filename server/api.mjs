@@ -1,3 +1,5 @@
+import {learningProgress} from './learning-progress.mjs';
+import {deliveryRoutes,projectDeliveryEvidence} from './delivery.mjs';
 import {saveStudy,studyCalendar} from './study.mjs';
 import {database} from './db.mjs';
 import {verifyFirebaseSession} from './firebase-auth.mjs';
@@ -20,7 +22,7 @@ const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 const validId=x=>typeof x==='string'&&/^[a-zA-Z0-9-]{1,80}$/.test(x);
 async function boundedBody(req,max){const reader=req.body?.getReader();if(!reader)return new Uint8Array();const chunks=[];let total=0;while(true){const {value,done}=await reader.read();if(done)break;total+=value.length;if(total>max){await reader.cancel();throw fail('request_too_large',413);}chunks.push(value);}const bytes=new Uint8Array(total);let offset=0;for(const part of chunks){bytes.set(part,offset);offset+=part.length;}return bytes;}
 async function identity(req,env){const authorization=req.headers.get('authorization')||'';if(authorization){const match=/^Bearer ([^ ]+)$/i.exec(authorization);if(!match)throw fail('sign_in_required',401);if(!env.FIREBASE_PROJECT_ID||!env.FIREBASE_API_KEY)throw fail('auth_not_configured',503);try{return await verifyFirebaseSession(match[1],env);}catch(error){if(error?.message==='auth_provider_unavailable')throw fail('auth_provider_unavailable',503);throw fail('sign_in_required',401);}}const id=req.headers.get('oai-authenticated-user-id');if(!id)throw fail('sign_in_required',401);return {id,email:req.headers.get('oai-authenticated-user-email')||''};}
-const defaultProfile={goals:['fullstack','game'],dailyMinutes:15};
+const defaultProfile={goals:['fullstack'],dailyMinutes:15};
 function noteQuery(user,note,taskId){
  if(!note||!validId(note.id)||typeof note.text!=='string'||!note.text.trim()||note.text.length>3000||!tasks.some(t=>t.id===taskId))throw fail('invalid_note');
  const now=new Date().toISOString();
@@ -50,8 +52,8 @@ export async function api(req,env){
    }
    if(!(req.headers.get('content-type')||'').startsWith('application/json'))throw fail('json_required',415);
   }
-  let body={};if(method!=='GET'){const text=new TextDecoder().decode(await boundedBody(req,144000));if(text.length>36000)throw fail('request_too_large',413);try{body=JSON.parse(text);}catch{throw fail('invalid_json');}if(!body||typeof body!=='object'||Array.isArray(body))throw fail('invalid_json');}
-  const p=url.pathname;
+  let body={};if(method!=='GET'){const text=new TextDecoder().decode(await boundedBody(req,url.pathname==='/api/deliveries'?262144:144000));if(text.length>(url.pathname==='/api/deliveries'?262144:36000))throw fail('request_too_large',413);try{body=JSON.parse(text);}catch{throw fail('invalid_json');}if(!body||typeof body!=='object'||Array.isArray(body))throw fail('invalid_json');}
+  const p=url.pathname;const delivery=await deliveryRoutes({path:p,method,body,db,user,env});if(delivery)return delivery;
   if(p==='/api/study'&&method==='POST')return json(await saveStudy(db,user.id,body));
   if(p==='/api/study'&&method==='GET')return json(await studyCalendar(db,user.id,{month:url.searchParams.get('month'),timezone:url.searchParams.get('timezone')||'UTC'}));
   if(p==='/api/advanced'&&method==='GET'){
@@ -177,8 +179,10 @@ export async function api(req,env){
    const practiceRecords=await db.all('SELECT * FROM practice_submissions WHERE user_id = ? ORDER BY created_at,id',user.id);
    const practicalEvidence=practiceRecords.flatMap(row=>{const task=practicalTasks.find(t=>t.id===row.task_id);if(!task)return [];const result=JSON.parse(row.result);if(result.verification==='draft')return [];return [{task_id:task.id,area:task.area,score:result.verification==='server-verified'&&result.total?Math.round(result.passed/result.total*100):result.score||0,modality:task.modality,verification:result.verification,hinted:0,skipped:0,created_at:row.created_at}];});
    for(const row of codeEvidence){const task=codeTasks.find(t=>t.id===row.task_id);row.modality=row.modality||task?.modality||'code';row.verification='server-verified';}
-   const allEvidence=[...records,...codeEvidence,...practicalEvidence];
-   return json({user:{email:user.email},account,profile:prefs,tasks:tasks.map(publicTask),areas,goals:goalLabels,version:VERSION,attempts:records,notes,library,evidence:evidence(allEvidence),route:route(prefs,allEvidence),projects:practiceProgress(practiceRecords),ai:capabilities(env),activeRun:active?await runData(db,user.id,active.id):null});
+   const deliveryRecords=await db.all('SELECT * FROM project_submissions WHERE user_id=? ORDER BY created_at,id',user.id);
+   const allEvidence=[...records,...codeEvidence,...practicalEvidence,...projectDeliveryEvidence(deliveryRecords)];
+   const completedBaseline=await db.one("SELECT id FROM runs WHERE user_id=? AND kind='baseline' AND complete=1 LIMIT 1",user.id);
+   return json({learningProgress:learningProgress({account,profile:prefs,baselineComplete:!!completedBaseline,attempts:records,codeEvidence:[...codeEvidence,...projectDeliveryEvidence(deliveryRecords)]}),user:{email:user.email},account,profile:prefs,tasks:tasks.map(publicTask),areas,goals:goalLabels,version:VERSION,attempts:records,notes,library,evidence:evidence(allEvidence),route:route(prefs,allEvidence),projects:practiceProgress(practiceRecords),ai:capabilities(env),activeRun:active?await runData(db,user.id,active.id):null});
   }
   if(p==='/api/profile'&&method==='PUT'){
    if(!Array.isArray(body.goals)||!body.goals.length||body.goals.length>goals.length||body.goals.some(g=>!goals.includes(g))||![10,15,25].includes(body.dailyMinutes))throw fail('invalid_profile');

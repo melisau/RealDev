@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 const source=readFileSync(new URL('../web/auth.js',import.meta.url),'utf8');
-async function boot({hash='',resetImpl=async()=>{},configured=true}={}){
+async function boot({hash='',search='',resetImpl=async()=>{},signInImpl=async()=>{throw Error('Unexpected sign in');},signUpImpl=async()=>{throw Error('Unexpected signup');},configured=true}={}){
  const nodes=new Map(),callbacks=new Map(),storage=new Map(),timers=[],calls=[];
  let now=100000,redirect='';
  for(const id of ['authForm','authHeading','authLanguageToggle','authSubmit','signInTab','signUpTab','resendVerification','authEmail','authPassword','authPasswordLabel','forgotPassword','backToSignIn','resetDescription','authStatus','resetWait']){
@@ -19,13 +19,14 @@ async function boot({hash='',resetImpl=async()=>{},configured=true}={}){
  }
  const client={currentUser:null,languageCode:null,setPersistence:async()=>{},onAuthStateChanged:cb=>cb(null),
   sendPasswordResetEmail:async(...args)=>{calls.push({args,language:client.languageCode});return resetImpl(...args);},
-  signInWithEmailAndPassword:async()=>{throw Error('Reset must not sign in');},createUserWithEmailAndPassword:async()=>{throw Error('Reset must not create users');},signOut:async()=>{}
+  signInWithEmailAndPassword:signInImpl,createUserWithEmailAndPassword:signUpImpl,signOut:async()=>{client.currentUser=null;}
  };
  const auth=()=>client;auth.Auth={Persistence:{SESSION:'session'}};
  const document={documentElement:{},title:'',getElementById:id=>nodes.get(id)||null,querySelector:()=>null,querySelectorAll:()=>[...nodes.values()].filter(n=>['authEmail','authPassword','authSubmit','signInTab','signUpTab','forgotPassword','backToSignIn'].includes(n.id)),
   addEventListener:(name,cb)=>callbacks.set(name,cb),createElement:()=>({}),head:{appendChild:el=>queueMicrotask(()=>el.onload?.())}};
- const location={protocol:'https:',hostname:'realdev.example',port:'',pathname:'/auth.html',origin:'https://realdev.example',href:'https://realdev.example/auth.html',hash,assign:url=>redirect=url,replace:url=>redirect=url};
+ const location={protocol:'https:',hostname:'realdev.example',port:'',pathname:'/auth.html',origin:'https://realdev.example',href:'https://realdev.example/auth.html',hash,search,assign:url=>redirect=url,replace:url=>redirect=url};
  const window={fetch:async()=>Response.json({configured,apiKey:'test-public-key',projectId:'test-project'}),firebase:{initializeApp:()=>({auth}),auth},dispatchEvent(){}};
+ runInNewContext(readFileSync(new URL('../web/auth-redirect.js',import.meta.url),'utf8'),{window,location,URL,URLSearchParams});
  runInNewContext(source,{window,document,location,localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,v)=>storage.set(key,v)},URL,Response,Headers,Promise,CustomEvent:class{},Date:class extends Date{static now(){return now;}},setTimeout:cb=>timers.push(cb)});
  await window.realdevAuthReady;await callbacks.get('DOMContentLoaded')();
  return {nodes,calls,window,client,document,storage,get redirect(){return redirect;},advance(){now+=60000;timers.splice(0).forEach(cb=>cb());}};
@@ -120,4 +121,18 @@ test('unavailable Firebase disables recovery instead of pretending to send an em
  const a=await boot({configured:false});
  assert.equal(a.nodes.get('forgotPassword').disabled,true);
  assert.equal(a.calls.length,0);
+});
+
+test('verified sign-in returns to the requested private page and unsafe destinations are rejected',async()=>{
+ for(const [search,expected] of [['?returnTo=%2Finterview','/interview'],['?returnTo=https%3A%2F%2Fevil.test','/today'],['?returnTo=%2F%2Fevil.test','/today'],['?returnTo=%2Fauth.html','/today']]){
+  const a=await boot({search,signInImpl:async()=>({user:{emailVerified:true}})});a.nodes.get('authEmail').value='dev@example.com';a.nodes.get('authPassword').value='local-test-password';await a.nodes.get('authForm').emit('submit');assert.equal(a.redirect,expected);
+ }
+});
+test('signup requests verification then signs out, without opening private practice',async()=>{
+ let emails=0;const a=await boot({hash:'#/sign-up',signUpImpl:async()=>({user:{emailVerified:false,sendEmailVerification:async()=>{emails++;}}})});
+ a.nodes.get('authEmail').value='dev@example.com';a.nodes.get('authPassword').value='local-test-password';await a.nodes.get('authForm').emit('submit');assert.equal(emails,1);assert.equal(a.redirect,'');assert.match(a.nodes.get('authStatus').textContent,/Hesabın oluşturuldu/);assert.equal(a.client.currentUser,null);
+});
+test('unverified sign-in offers resend and reports delivery failure without claiming success',async()=>{
+ const user={emailVerified:false,sendEmailVerification:async()=>{throw {code:'auth/network-request-failed'};}};
+ const a=await boot({signInImpl:async()=>({user})});a.nodes.get('authEmail').value='dev@example.com';a.nodes.get('authPassword').value='local-test-password';await a.nodes.get('authForm').emit('submit');assert.equal(a.redirect,'');assert.equal(a.nodes.get('resendVerification').hidden,false);await a.nodes.get('resendVerification').emit('click');assert.match(a.nodes.get('authStatus').textContent,/Bağlantı kurulamadı/);assert.equal(a.nodes.get('resendVerification').disabled,false);
 });

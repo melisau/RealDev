@@ -1,0 +1,3 @@
+import {randomBytes} from 'node:crypto';import {spawn} from 'node:child_process';import {createProjectGateway} from '../delivery/gateway.mjs';
+const token=randomBytes(32).toString('hex'),server=createProjectGateway({token});
+server.listen(2002,'127.0.0.1',()=>{console.log('Private project runner: http://127.0.0.1:2002 (token kept in process memory)');const child=spawn(process.execPath,['scripts/dev.mjs'],{stdio:'inherit',windowsHide:true,env:{...process.env,PROJECT_RUNNER_URL:'http://127.0.0.1:2002',PROJECT_RUNNER_API_KEY:token}});child.on('exit',()=>server.close());for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>{child.kill();server.close();});});

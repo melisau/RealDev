@@ -1,0 +1,9 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:0d99ebf1ccad15037b5c98c9fe8979d6b8dbac23812feae2277a0b277b5c5ffa
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 DOTNET_NOLOGO=1 NUGET_PACKAGES=/packages DOTNET_CLI_HOME=/tmp/dotnet HOME=/tmp/dotnet
+WORKDIR /trusted
+COPY App.csproj .
+RUN dotnet restore App.csproj --packages /packages && mkdir /seed && cp -r obj /seed/obj && mkdir -p /seed/home/.dotnet && find /tmp/dotnet/.dotnet -maxdepth 1 -type f -exec cp '{}' /seed/home/.dotnet/ ';' && chmod -R a+rX /seed /packages
+COPY start-dotnet.sh /trusted/start.sh
+RUN chmod 555 /trusted/start.sh
+USER 10001:10001
+ENTRYPOINT ["/bin/sh","/trusted/start.sh"]
