@@ -104,6 +104,9 @@
    catch(error){if(client.currentUser&&!client.currentUser.emailVerified)await client.signOut().catch(()=>{});status().textContent=authErrorText(error,accountCreated);if(accountCreated)showResend();}
    finally{button.disabled=false;}
   });
+  for(const id of ['signInTab','signUpTab','authEmail','authSubmit','forgotPassword','backToSignIn','resendVerification'])document.getElementById(id).disabled=false;
+  document.getElementById('authPassword').disabled=activeMode==='reset-password';
+  status().textContent='';
  }
  document.addEventListener('DOMContentLoaded',async()=>{
   if(localPreview&&location.pathname.endsWith('/auth.html')){location.replace('/#today');return;}
