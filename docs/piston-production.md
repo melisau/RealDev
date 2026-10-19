@@ -2,7 +2,9 @@
 
 ## Current activation status
 
-The local Piston Docker service supports Python, C# and Java and binds to `127.0.0.1:2000` only. Real execution smoke tests pass in all three languages. The live Site has no runner URL or registered private tunnel. It remains disconnected until an always-on host or a registered Sites tunnel is supplied. This repository does not provision a paid server, register a tunnel, or change the Site audience.
+The local Piston Docker service supports Python, C# and Java and binds to `127.0.0.1:2000` only. Local execution smoke tests have passed in all three languages. As of 2026-10-19 the live Site points at a temporary HTTPS tunnel to the owner's computer; that route is currently unreachable and the local Docker engine is not running. This is not an always-on deployment. A dedicated always-on host and stable authenticated gateway, or a registered Sites tunnel to such a host, are still required. This repository does not provision a paid server, register a tunnel, or change the Site audience.
+
+For a low-traffic pilot, a Linux x86-64 VM with 2 vCPUs and 4 GB RAM is an initial sizing recommendation, not a capacity guarantee. Install Docker and enable cgroup v2, then measure compilation memory and concurrent runs before increasing traffic. Compare an Intel/AMD Hetzner CX23 and a DigitalOcean Basic Droplet of the same size using their current pricing and availability pages. Do not substitute an ARM instance without verifying every installed language package. Piston's privileged container belongs on a separate disposable runner VM with no application database or unrelated credentials. Domain registration alone does not supply this machine.
 
 ## Runner boundary
 

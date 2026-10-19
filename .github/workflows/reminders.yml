@@ -2,6 +2,9 @@ name: Daily reminder dispatcher
 
 on:
   workflow_dispatch:
+  schedule:
+    # UTC; minute 17 avoids the busiest top-of-hour scheduling period.
+    - cron: '17 * * * *'
 
 permissions:
   contents: read
