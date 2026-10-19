@@ -22,6 +22,12 @@ const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 const validId=x=>typeof x==='string'&&/^[a-zA-Z0-9-]{1,80}$/.test(x);
 async function boundedBody(req,max){const reader=req.body?.getReader();if(!reader)return new Uint8Array();const chunks=[];let total=0;while(true){const {value,done}=await reader.read();if(done)break;total+=value.length;if(total>max){await reader.cancel();throw fail('request_too_large',413);}chunks.push(value);}const bytes=new Uint8Array(total);let offset=0;for(const part of chunks){bytes.set(part,offset);offset+=part.length;}return bytes;}
 async function identity(req,env){const authorization=req.headers.get('authorization')||'';if(authorization){const match=/^Bearer ([^ ]+)$/i.exec(authorization);if(!match)throw fail('sign_in_required',401);if(!env.FIREBASE_PROJECT_ID||!env.FIREBASE_API_KEY)throw fail('auth_not_configured',503);try{return await verifyFirebaseSession(match[1],env);}catch(error){if(error?.message==='auth_provider_unavailable')throw fail('auth_provider_unavailable',503);throw fail('sign_in_required',401);}}const id=req.headers.get('oai-authenticated-user-id');if(!id)throw fail('sign_in_required',401);return {id,email:req.headers.get('oai-authenticated-user-email')||''};}
+// Per-account execution quotas over a sliding 15-minute window; idempotent replays are answered before this check.
+const QUOTA_WINDOW_MS=15*60000,GITHUB_REPO_CHANGES_PER_DAY=20;
+async function enforceQuota(db,sql,args,limit,error){const row=await db.one(sql,...args,new Date(Date.now()-QUOTA_WINDOW_MS).toISOString());if(row.count>=limit)throw fail(error,429);}
+const codeQuota=(db,user)=>enforceQuota(db,"SELECT COUNT(*) AS count FROM code_runs WHERE user_id=? AND task_id NOT LIKE 'advanced-%' AND task_id NOT LIKE 'polyglot-%' AND task_id NOT LIKE 'piston-%' AND created_at>=?",[user],30,'code_rate_limited');
+const pistonQuota=(db,user)=>enforceQuota(db,"SELECT COUNT(*) AS count FROM code_runs WHERE user_id=? AND task_id LIKE 'piston-%' AND created_at>=?",[user],12,'piston_rate_limited');
+const practiceQuota=(db,user)=>enforceQuota(db,"SELECT COUNT(*) AS count FROM practice_submissions WHERE user_id=? AND task_id NOT LIKE 'explanation-%' AND created_at>=?",[user],30,'practice_rate_limited');
 const defaultProfile={goals:['fullstack'],dailyMinutes:15};
 function noteQuery(user,note,taskId){
  if(!note||!validId(note.id)||typeof note.text!=='string'||!note.text.trim()||note.text.length>3000||!tasks.some(t=>t.id===taskId))throw fail('invalid_note');
@@ -116,6 +122,7 @@ export async function api(req,env){
    const task=practicalTasks.find(t=>t.id===body.taskId);if(!task||!validId(body.id)||typeof body.code!=='string'||body.code.length>12000||typeof body.explanation!=='string'||body.explanation.length>6000)throw fail('invalid_practice');
    if(body.mode!==undefined&&body.mode!=='draft')throw fail('invalid_practice');if(body.mode==='draft'&&(task.modality!=='review'||!body.explanation.trim()))throw fail('invalid_practice');
    const prior=await db.one('SELECT * FROM practice_submissions WHERE id = ?',body.id);if(prior&&prior.user_id!==user.id)throw fail('practice_not_found',404);if(prior){if(prior.task_id!==task.id||prior.code!==body.code||prior.explanation!==body.explanation||(body.mode==='draft')!==(JSON.parse(prior.result).verification==='draft'))throw fail('practice_conflict',409);return json({saved:true,result:JSON.parse(prior.result)});}
+   await practiceQuota(db,user.id);
    if(task.project){const project=projects.find(p=>p.id===task.project);const index=project.stages.indexOf(task.id);for(const id of project.stages.slice(0,index)){const previous=await db.one('SELECT result FROM practice_submissions WHERE user_id = ? AND task_id = ? ORDER BY created_at DESC,id DESC LIMIT 1',user.id,id);let r;try{r=JSON.parse(previous?.result||'{}');}catch{r={};}if(r.verification!=='server-verified'||!r.total||r.passed!==r.total)throw fail('project_stage_locked',409);}}
    let result;if(body.mode==='draft'){result={verification:'draft',evaluated:false};}else if(task.modality==='review'){
     if(body.consent!==true)throw fail('ai_consent_required');if(body.explanation.trim().length<40)throw fail('explanation_too_short');await reserveAI(db,user.id,'text',env);
@@ -128,6 +135,8 @@ export async function api(req,env){
   }
   if(p==='/api/github'&&method==='PUT'){
    if(!validateRepo(body.repository))throw fail('invalid_repository');
+   // Each repository change can cost five unauthenticated GitHub API calls shared by the whole Site.
+   const quota=await db.one('INSERT INTO ai_usage (user_id,day,kind,count) VALUES (?,?,?,1) ON CONFLICT(user_id,day,kind) DO UPDATE SET count=count+1 WHERE count < ? RETURNING count',user.id,new Date().toISOString().slice(0,10),'github-repo',GITHUB_REPO_CHANGES_PER_DAY);if(!quota)throw fail('github_rate_limited',429);
    const result=await githubRepo(db,body.repository);if(!result.repository) return json(result,422);
    await db.write('INSERT INTO github_profiles (user_id,repository) VALUES (?,?) ON CONFLICT(user_id) DO UPDATE SET repository=excluded.repository',user.id,body.repository);return json({saved:true,selected:body.repository,...result});
   }
@@ -154,6 +163,7 @@ export async function api(req,env){
    const sourceHash=Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');
    if(prior&&(prior.task_id!==taskId||prior.code!==body.code||JSON.parse(prior.result).sourceHash!==sourceHash))throw fail('code_run_conflict',409);
    if(prior)return json({saved:true,verification:'piston-executed-unscored',result:JSON.parse(prior.result).report});
+   await pistonQuota(db,user.id);
    const report=await executePiston(env,{language:body.language,code:body.code,stdin:body.stdin||''});
    const record={verification:'piston-executed-unscored',sourceHash,report};
    await db.write('INSERT INTO code_runs (id,user_id,task_id,code,result,created_at) VALUES (?,?,?,?,?,?)',body.id,user.id,taskId,body.code,JSON.stringify(record),new Date().toISOString());
@@ -164,6 +174,7 @@ export async function api(req,env){
    const prior=await db.one('SELECT user_id,task_id,code,result FROM code_runs WHERE id = ?',body.id);if(prior&&prior.user_id!==user.id)throw fail('code_run_not_found',404);
    if(prior&&(prior.task_id!==body.taskId||prior.code!==body.code))throw fail('code_run_conflict',409);
    if(prior)return json({saved:true,verification:'server-verified',result:JSON.parse(prior.result).report});
+   await codeQuota(db,user.id);
    const report=await execute(body.code,body.taskId==='playground'?null:body.taskId);
    const verified={...report,verification:'server-verified'};
    await db.write('INSERT INTO code_runs (id,user_id,task_id,code,result,created_at) VALUES (?,?,?,?,?,?)',body.id,user.id,body.taskId,body.code,JSON.stringify({verification:'server-verified',report:verified}),new Date().toISOString());return json({saved:true,verification:'server-verified',result:verified});

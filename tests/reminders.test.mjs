@@ -50,3 +50,15 @@ test('Web Push builds an encrypted RFC payload and never follows provider redire
  let payload;const status=await sendPush({...env,VAPID_PUBLIC_KEY:raw(key),VAPID_PRIVATE_KEY:key.d},{endpoint:subscription('encrypted').endpoint,keys:{p256dh:raw(receiver),auth:randomBytes(16).toString('base64url')}},'tr','daily',async(url,options)=>{payload=options;return new Response(null,{status:201});});
  assert.equal(status,201);assert.equal(payload.redirect,'manual');assert.ok(payload.body);assert.equal(new TextDecoder().decode(payload.body).includes('Çalışma'),false);assert.ok(new Headers(payload.headers).get('authorization').startsWith('vapid '));assert.equal(new Headers(payload.headers).get('content-encoding'),'aes128gcm');
 });
+test('dispatch pages past the first batch so later devices are not starved, and reports a send cap',async()=>{
+ const DB=localDb(),db=database({DB}),now=new Date('2026-10-05T10:01:00Z');
+ for(let i=0;i<7;i++){await saveReminder(db,'user-'+i,{enabled:true,time:i<5?'03:00':'10:00',timezone:'UTC',language:'en'});await saveSubscription(db,'user-'+i,subscription('device-'+i));}
+ const sent=[];const sender=async(env,sub)=>{sent.push(sub.endpoint);return 201;};
+ const report=await dispatchReminders(db,env,{now,sender,pageSize:2});
+ assert.equal(report.accepted,2,'the two due devices sort after several pages of not-due devices');assert.equal(report.truncated,undefined);
+ assert.deepEqual(sent.sort(),[subscription('device-5').endpoint,subscription('device-6').endpoint]);
+ const DB2=localDb(),db2=database({DB:DB2});for(let i=0;i<3;i++){await saveReminder(db2,'u'+i,{enabled:true,time:'10:00',timezone:'UTC',language:'en'});await saveSubscription(db2,'u'+i,subscription('cap-'+i));}
+ const capped=await dispatchReminders(db2,env,{now,sender:async()=>201,pageSize:2,maxSends:2});assert.equal(capped.accepted,2);assert.equal(capped.truncated,true);
+ assert.equal((await dispatchReminders(db2,env,{now:new Date('2026-10-05T10:20:00Z'),sender:async()=>201,pageSize:2,maxSends:2})).accepted,1,'the next run delivers the remaining device');
+ DB.close();DB2.close();
+});

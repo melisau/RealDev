@@ -60,21 +60,27 @@ export async function testReminder(db,user,body,env,fetcher=fetch,now=new Date()
  if(status===404||status===410)await removeSubscription(db,user,body.endpoint);
  if(status<200||status>=300)throw fail('push_delivery_failed',502);return {accepted:true};
 }
-export async function dispatchReminders(db,env,{now=new Date(),fetcher=fetch,sender=sendPush}={}){
+export async function dispatchReminders(db,env,{now=new Date(),fetcher=fetch,sender=sendPush,pageSize=200,maxSends=500}={}){
  if(!pushConfigured(env))throw fail('push_not_configured',503);
- const rows=await db.all('SELECT s.*,p.id AS subscription_id,p.subscription FROM reminder_settings s JOIN push_subscriptions p ON p.user_id=s.user_id WHERE s.enabled=1 ORDER BY p.id LIMIT 200');
- let accepted=0,failed=0;const at=now.toISOString();
+ let accepted=0,failed=0,after='',sends=0,truncated=false;const at=now.toISOString();
+ // Keyset paging over every enabled device: a fixed LIMIT would serve the same first page forever.
+ pages:while(true){
+ const rows=await db.all('SELECT s.*,p.id AS subscription_id,p.subscription FROM reminder_settings s JOIN push_subscriptions p ON p.user_id=s.user_id WHERE s.enabled=1 AND p.id>? ORDER BY p.id LIMIT ?',after,pageSize);
  for(const row of rows){
+  after=row.subscription_id;
   const {due,date}=dueReminder(row,now);if(!due)continue;
+  if(sends>=maxSends){truncated=true;break pages;}
   const id=row.subscription_id+'-'+date,claim=crypto.randomUUID();
   await db.write('INSERT OR IGNORE INTO reminder_deliveries (id,user_id,subscription_id,day,status,attempts,updated_at,claim) VALUES (?,?,?,?,?,0,?,?)',id,row.user_id,row.subscription_id,date,'pending','1970-01-01T00:00:00.000Z','');
   await db.write("UPDATE reminder_deliveries SET claim=?,updated_at=?,attempts=attempts+1 WHERE id=? AND status<>'accepted' AND attempts<3 AND updated_at<?",claim,at,id,new Date(now.getTime()-10*60000).toISOString());
   const delivery=await db.one('SELECT claim FROM reminder_deliveries WHERE id=?',id);if(delivery.claim!==claim)continue;
-  let status;try{status=await sender(env,JSON.parse(row.subscription),row.language,'realdev-daily-'+date,fetcher);}catch{status=503;}
+  sends++;let status;try{status=await sender(env,JSON.parse(row.subscription),row.language,'realdev-daily-'+date,fetcher);}catch{status=503;}
   const ok=status>=200&&status<300;ok?accepted++:failed++;
   await db.write('UPDATE reminder_deliveries SET status=?,http_status=?,updated_at=? WHERE id=? AND claim=?',ok?'accepted':'failed',status,at,id,claim);
   if(status===404||status===410)await db.write('DELETE FROM push_subscriptions WHERE id=? AND user_id=?',row.subscription_id,row.user_id);
  }
- const report={at,accepted,failed};await db.write('INSERT OR REPLACE INTO source_cache (key,payload,fetched_at) VALUES (?,?,?)','reminder-dispatch',JSON.stringify(report),at);
+ if(rows.length<pageSize)break;
+ }
+ const report={at,accepted,failed,...(truncated?{truncated:true}:{})};await db.write('INSERT OR REPLACE INTO source_cache (key,payload,fetched_at) VALUES (?,?,?)','reminder-dispatch',JSON.stringify(report),at);
  await db.write('DELETE FROM reminder_deliveries WHERE updated_at<?',new Date(now.getTime()-30*86400000).toISOString());return report;
 }
