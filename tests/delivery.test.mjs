@@ -51,3 +51,23 @@ test('Docker orchestration drops privilege and egress, separates tests and clean
 test('optional Piston gateway project forwarding keeps the private bearer and route boundary',async()=>{
  const token='t'.repeat(64);let forwarded;const server=createPistonGateway({token,projectUpstream:'http://127.0.0.1:2002',fetchImpl:async(url,options)=>{forwarded={url:String(url),options};return Response.json({suiteVersion:DELIVERY_VERSION});}});server.listen(0,'127.0.0.1');await once(server,'listening');try{const base='http://127.0.0.1:'+server.address().port;assert.equal((await fetch(base+'/api/v2/project-capabilities',{headers:{Authorization:'Bearer '+token}})).status,200);assert.equal(forwarded.options.headers.Authorization,'Bearer '+token);assert.equal(forwarded.url,'http://127.0.0.1:2002/api/v2/project-capabilities');assert.equal((await fetch(base+'/api/v2/project-jobs/../../execute',{headers:{Authorization:'Bearer '+token}})).status,404);}finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
 });
+test('finished project jobs do not exhaust gateway capacity; the longest-finished report is evicted first',async()=>{
+ const token='t'.repeat(64),realNow=Date.now;let offset=0;Date.now=()=>realNow()+offset;
+ const gateway=createProjectGateway({token,maxJobs:3,capabilities:async()=>({suiteVersion:DELIVERY_VERSION,assignments:[{id:'booking-api',available:true}]}),execute:async()=>({})});gateway.listen(0,'127.0.0.1');await once(gateway,'listening');
+ const base='http://127.0.0.1:'+gateway.address().port,headers={Authorization:'Bearer '+token,'Content-Type':'application/json'},id=i=>String(i).repeat(32);
+ const submit=async i=>(await fetch(base+'/api/v2/project-jobs',{method:'POST',headers,body:JSON.stringify({id:id(i),...starterFor('booking-api')})})).status;
+ const settle=()=>new Promise(resolve=>setTimeout(resolve,20));
+ try{for(let i=1;i<=3;i++){assert.equal(await submit(i),202);await settle();offset+=1000;}
+  assert.equal(await submit(4),202,'a full map of finished jobs must not reject new work');
+  assert.equal((await fetch(base+'/api/v2/project-jobs/'+id(1),{headers})).status,404);
+  assert.equal((await fetch(base+'/api/v2/project-jobs/'+id(2),{headers})).status,200);}
+ finally{Date.now=realNow;gateway.closeAllConnections();await new Promise(resolve=>gateway.close(resolve));}
+});
+test('a gateway full of running jobs still refuses new work',async()=>{
+ const token='t'.repeat(64),realNow=Date.now;let offset=0;Date.now=()=>realNow()+offset;const pending=[];
+ const gateway=createProjectGateway({token,maxJobs:2,capabilities:async()=>({suiteVersion:DELIVERY_VERSION,assignments:[{id:'booking-api',available:true}]}),execute:()=>new Promise(resolve=>pending.push(resolve))});gateway.listen(0,'127.0.0.1');await once(gateway,'listening');
+ const base='http://127.0.0.1:'+gateway.address().port,headers={Authorization:'Bearer '+token,'Content-Type':'application/json'};
+ const submit=async i=>(await fetch(base+'/api/v2/project-jobs',{method:'POST',headers,body:JSON.stringify({id:String(i).repeat(32),...starterFor('booking-api')})})).status;
+ try{assert.equal(await submit(1),202);assert.equal(await submit(2),202);assert.equal(await submit(3),429);}
+ finally{for(const resolve of pending)resolve({});Date.now=realNow;gateway.closeAllConnections();await new Promise(resolve=>gateway.close(resolve));}
+});

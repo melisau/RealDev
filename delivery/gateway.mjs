@@ -20,7 +20,11 @@ export function createProjectGateway({token,execute=runProject,capabilities=runn
    const body=JSON.parse(Buffer.concat(chunks).toString('utf8')),clean=validateDelivery(body),hash=await deliveryHash(clean);
    if(!/^[a-f0-9]{32,64}$/.test(body.id||''))throw Error('invalid_job_id');
    const old=jobs.get(body.id);if(old){send(old.sourceHash===hash?200:409,old.sourceHash===hash?old:{error:'job_conflict'});return;}
-   if(now-windowAt>60000){windowAt=now;count=0;}if(active>=2||count>=12||jobs.size>=maxJobs)throw Object.assign(Error('project_runner_busy'),{status:429});
+   if(now-windowAt>60000){windowAt=now;count=0;}
+   // Finished reports are kept for polling, but must not occupy capacity: evict the longest-finished job when full.
+   const busy=()=>Object.assign(Error('project_runner_busy'),{status:429});if(active>=2||count>=12)throw busy();
+   while(jobs.size>=maxJobs){let oldest=null;for(const [id,job] of jobs)if(job.finishedAt&&(!oldest||job.finishedAt<jobs.get(oldest).finishedAt))oldest=id;if(!oldest)break;jobs.delete(oldest);}
+   if(jobs.size>=maxJobs)throw busy();
    const caps=await capabilities();if(!caps.assignments.some(x=>x.id===clean.assignmentId&&x.available))throw Object.assign(Error('project_runtime_unavailable'),{status:503});
    const job={id:body.id,sourceHash:hash,status:'running',createdAt:new Date().toISOString()};jobs.set(body.id,job);active++;count++;
    Promise.resolve().then(()=>execute(clean,{jobId:body.id})).then(report=>{job.status='completed';job.report=report;}).catch(()=>{job.status='failed';job.error='project_execution_failed';}).finally(()=>{job.finishedAt=Date.now();active--;});
