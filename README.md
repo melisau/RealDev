@@ -59,6 +59,7 @@ The Site has distinct clean URLs for the workspace areas and public previews. On
 - `web/`: vanilla UI; `assessment.js` owns scans/notes, `learning.js` owns account controls, projects, AI feedback and audio.
 - `server/`: authenticated API, account lifecycle, curated catalogs, evidence, live feeds and server-only AI adapter.
 - `sandbox/`: QuickJS, authored practical tasks and optional Piston client.
+- `deploy/runner/`: Docker Compose runner host (Piston, project runner, Caddy) deployed automatically from the `production` branch over SSH; see `docs/runner-vds.md`.
 - QuickJS on the server: the Sites Worker runtime refuses to compile WebAssembly at runtime, so `npm run build` extracts QuickJS's binary to `dist/server/quickjs.wasm` and the Worker imports it as a precompiled module. The build re-grades a reference solution under that restriction. If the deployed Site returns `code_runtime_unavailable`, the server log line `QuickJS runtime unavailable` says why (for example, the module missing from the deployed archive).
 - `db/schema.ts`, `drizzle/`: D1 schema and generated migrations.
 - `tests/`: ownership, atomic deletion, source freshness, project prerequisites, sandbox execution, quote validation, quotas and audio consent.
