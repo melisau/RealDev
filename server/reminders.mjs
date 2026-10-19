@@ -20,12 +20,14 @@ export function validateSubscription(input){
  if(u.protocol!=='https:'||u.port||u.username||u.password||u.hash||!allowed||!input.keys||!/^[\w-]{87}$/.test(input.keys.p256dh)||!/^[\w-]{22}$/.test(input.keys.auth))throw fail('invalid_push_subscription');
  return {endpoint:u.href,keys:{p256dh:input.keys.p256dh,auth:input.keys.auth}};
 }
+export const REMINDER_WINDOW_MINUTES=135;
 export function dueReminder(settings,now=new Date()){
  const p=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:settings.timezone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(now).map(x=>[x.type,x.value]));
  const [h,m]=settings.time.split(':').map(Number),current=+p.hour*60+ +p.minute,target=h*60+m,delta=(current-target+1440)%1440;
- // Hourly cloud cadence; include a small grace window and yesterday's due time across midnight.
+ // Hourly scheduler (GitHub Actions can delay or skip a run). A 135-minute window lets the next run deliver after one
+ // missed run; the durable per-device daily claim still allows at most one reminder per local day.
  const date=current<target?new Date(Date.UTC(+p.year,+p.month-1,+p.day-1)).toISOString().slice(0,10):`${p.year}-${p.month}-${p.day}`;
- return {date,due:delta<75};
+ return {date,due:delta<REMINDER_WINDOW_MINUTES};
 }
 async function digest(value){return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)))).map(b=>b.toString(16).padStart(2,'0')).join('');}
 export async function reminderState(db,user,env){
@@ -62,7 +64,7 @@ export async function testReminder(db,user,body,env,fetcher=fetch,now=new Date()
 }
 export async function dispatchReminders(db,env,{now=new Date(),fetcher=fetch,sender=sendPush,pageSize=200,maxSends=500}={}){
  if(!pushConfigured(env))throw fail('push_not_configured',503);
- let accepted=0,failed=0,after='',sends=0,truncated=false;const at=now.toISOString();
+ let accepted=0,failed=0,expired=0,after='',sends=0,truncated=false;const at=now.toISOString();
  // Keyset paging over every enabled device: a fixed LIMIT would serve the same first page forever.
  pages:while(true){
  const rows=await db.all('SELECT s.*,p.id AS subscription_id,p.subscription FROM reminder_settings s JOIN push_subscriptions p ON p.user_id=s.user_id WHERE s.enabled=1 AND p.id>? ORDER BY p.id LIMIT ?',after,pageSize);
@@ -75,12 +77,13 @@ export async function dispatchReminders(db,env,{now=new Date(),fetcher=fetch,sen
   await db.write("UPDATE reminder_deliveries SET claim=?,updated_at=?,attempts=attempts+1 WHERE id=? AND status<>'accepted' AND attempts<3 AND updated_at<?",claim,at,id,new Date(now.getTime()-10*60000).toISOString());
   const delivery=await db.one('SELECT claim FROM reminder_deliveries WHERE id=?',id);if(delivery.claim!==claim)continue;
   sends++;let status;try{status=await sender(env,JSON.parse(row.subscription),row.language,'realdev-daily-'+date,fetcher);}catch{status=503;}
-  const ok=status>=200&&status<300;ok?accepted++:failed++;
-  await db.write('UPDATE reminder_deliveries SET status=?,http_status=?,updated_at=? WHERE id=? AND claim=?',ok?'accepted':'failed',status,at,id,claim);
+  // 404/410 mean the browser revoked the subscription: remove it and count it as cleanup, not a delivery failure.
+  const ok=status>=200&&status<300,gone=status===404||status===410;ok?accepted++:gone?expired++:failed++;
+  await db.write('UPDATE reminder_deliveries SET status=?,http_status=?,updated_at=? WHERE id=? AND claim=?',ok?'accepted':gone?'expired':'failed',status,at,id,claim);
   if(status===404||status===410)await db.write('DELETE FROM push_subscriptions WHERE id=? AND user_id=?',row.subscription_id,row.user_id);
  }
  if(rows.length<pageSize)break;
  }
- const report={at,accepted,failed,...(truncated?{truncated:true}:{})};await db.write('INSERT OR REPLACE INTO source_cache (key,payload,fetched_at) VALUES (?,?,?)','reminder-dispatch',JSON.stringify(report),at);
+ const report={at,accepted,failed,expired,...(truncated?{truncated:true}:{})};await db.write('INSERT OR REPLACE INTO source_cache (key,payload,fetched_at) VALUES (?,?,?)','reminder-dispatch',JSON.stringify(report),at);
  await db.write('DELETE FROM reminder_deliveries WHERE updated_at<?',new Date(now.getTime()-30*86400000).toISOString());return report;
 }
