@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {once} from 'node:events';
+import {once} from 'node:events';import {readFileSync} from 'node:fs';
 import {assignments,validateDelivery,deliveryHash,starterFor,DELIVERY_VERSION} from '../delivery/contracts.mjs';
 import {verifiedProjectReport,projectDeliveryEvidence} from '../server/delivery.mjs';
 import {createProjectGateway} from '../delivery/gateway.mjs';
@@ -70,4 +70,35 @@ test('a gateway full of running jobs still refuses new work',async()=>{
  const submit=async i=>(await fetch(base+'/api/v2/project-jobs',{method:'POST',headers,body:JSON.stringify({id:String(i).repeat(32),...starterFor('booking-api')})})).status;
  try{assert.equal(await submit(1),202);assert.equal(await submit(2),202);assert.equal(await submit(3),429);}
  finally{for(const resolve of pending)resolve({});Date.now=realNow;gateway.closeAllConnections();await new Promise(resolve=>gateway.close(resolve));}
+});
+test('Unity submissions cannot reach files, reflection or the test framework, including through lexical disguises',async()=>{
+ const {checkUnitySource}=await import('../delivery/contracts.mjs');
+ const wrap=body=>'namespace RealDev.Learner { public class QuestState { '+body+' } }';
+ const forged=[
+  'void W(){ System.IO.File.WriteAllText("/results/EditMode.xml","<test-case result=\\"Passed\\"/>"); }',
+  'void W(){ System . /* split */ IO . File.Delete("x"); }',
+  'void W(){ System.\n// split\nIO.File.Delete("x"); }',
+  'void W(){ var t = typeof(QuestState).Assembly; }',
+  'void W(){ object o = this; o.GetType(); }',
+  'void W(){ System.Action a = W; var m = a.Method; }',
+  'void W(){ var s = $"{System.Environment.UserName}"; }',
+  'void W(){ var u = "//"; System.IO.Directory.Delete("/results", true); }',
+  'void W(){ Sys\\u0074em.IO.File.Delete("x"); }',
+  'void W(){ @System.@IO.@File.Delete("x"); }',
+  'void W(){ UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.Object>(); }',
+  'void W(){ UnityEngine.Application.Quit(); }',
+  'unsafe void W(){ }',
+  'void W(){ var s = """raw"""; }'
+ ];
+ for(const body of forged)assert.throws(()=>checkUnitySource(wrap(body)),/unity_api_not_allowed|unity_source_invalid/,body);
+ // Mentions inside ordinary strings and comments are data, not calls.
+ checkUnitySource(wrap('// System.IO is not used here\n public string Note = "System.IO.File and typeof are only text"; public char Q = \'"\'; public string V = @"say ""//"" ok";'));
+ assert.throws(()=>validateDelivery({assignmentId:'unity-quest',files:[{path:'Assets/Learner/QuestState.cs',content:wrap(forged[0])}]}),/unity_api_not_allowed/);
+ validateDelivery(starterFor('unity-quest'));
+ const DB=localDb(),runner=mockRunner(),a=client(DB,'unity',{CUSTOMER_HTTP_PROJECT_RUNNER:runner});
+ try{const r=await a('deliveries',{id:'unity-forged',assignmentId:'unity-quest',files:[{path:'Assets/Learner/QuestState.cs',content:wrap(forged[1])}]});assert.equal(r.status,400);assert.equal(r.value.error,'unity_api_not_allowed');}finally{DB.close();}
+});
+test('the Unity entrypoint removes stale result files before each phase',()=>{
+ const script=readFileSync(new URL('../delivery/runner/start-unity.sh',import.meta.url),'utf8');
+ assert.ok(script.indexOf('rm -f "/results/$phase.xml"')>=0&&script.indexOf('rm -f "/results/$phase.xml"')<script.indexOf('/opt/unity/Editor/Unity'));
 });

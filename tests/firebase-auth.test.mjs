@@ -20,3 +20,16 @@ test('Firebase public config is readable, secrets stay private and API data stil
  const protectedResponse=await api(new Request('https://realdev.example/api/profile'),{FIREBASE_PROJECT_ID:env.FIREBASE_PROJECT_ID,FIREBASE_API_KEY:env.FIREBASE_API_KEY});assert.equal(protectedResponse.status,401);
 });
 
+test('with Firebase configured, a forwarded platform identity header never identifies an account',async()=>{
+ const {localDb}=await import('../scripts/local-db.mjs');const DB=localDb();
+ try{for(const id of ['someone','firebase:'+env.FIREBASE_PROJECT_ID+':firebaseUser_123']){const r=await api(new Request('https://realdev.example/api/state',{headers:{'oai-authenticated-user-id':id}}),{DB,...env});assert.equal(r.status,401,id);}
+  const original=globalThis.fetch;try{globalThis.fetch=async()=>Response.json({users:[{localId:'firebaseUser_123',email:'dev@example.com',emailVerified:true}]});const r=await api(new Request('https://realdev.example/api/state',{headers:{authorization:'Bearer '+'a'.repeat(40),'oai-authenticated-user-id':'someone-else'}}),{DB,...env});assert.equal(r.status,200);assert.equal((await r.json()).user.email,'dev@example.com');}finally{globalThis.fetch=original;}}
+ finally{DB.close();}
+});
+test('without Firebase, platform identity still works but cannot claim a Firebase namespace',async()=>{
+ const {localDb}=await import('../scripts/local-db.mjs');const DB=localDb();
+ try{assert.equal((await api(new Request('https://realdev.example/api/state',{headers:{'oai-authenticated-user-id':'local-preview-user'}}),{DB})).status,200);
+  assert.equal((await api(new Request('https://realdev.example/api/state',{headers:{'oai-authenticated-user-id':'firebase:realdev-test1:firebaseUser_123'}}),{DB})).status,401);
+  assert.equal((await api(new Request('https://realdev.example/api/state',{headers:{'oai-authenticated-user-id':'x'.repeat(300)}}),{DB})).status,401);}
+ finally{DB.close();}
+});

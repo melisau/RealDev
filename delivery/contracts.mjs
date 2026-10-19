@@ -6,10 +6,29 @@ export const assignments=[
  {id:'unity-quest',taskId:'takehome-unity',area:'unity',runtime:'unity',title:L('Unity: görev ve kayıt teslimi','Unity: quest and save delivery'),files:['Assets/Learner/QuestState.cs','Assets/Learner/QuestBehaviour.cs'],caseIds:['EditMode.UniqueReward','EditMode.Reset','EditMode.Migration','EditMode.Corrupt','PlayMode.Events','PlayMode.Disable','PlayMode.Pool','PlayMode.Scene'],scope:L('Gerçek Unity Editor EditMode + PlayMode testleri gerekir. Saf C# veya kullanıcı tarafından yüklenen XML motor doğrulaması sayılmaz.','Requires actual Unity Editor EditMode + PlayMode tests. Pure C# or learner-uploaded XML is not engine verification.'),contract:L('RealDev.Learner namespace: QuestState {int Rewards; int Collected; bool Collect(string id); void Reset(); static int LoadHealth(string json)}. A/B/C benzersiz toplanınca yalnız bir ödül; tekrar ID sayılmaz; Reset tüm durumu temizler. JSON {version,health}:v1 eski ölçek*2,v2 aynen; 0..100 sınırla, bozuk/desteklenmeyen→100. QuestBehaviour: MonoBehaviour; public QuestState State; static event yayımcısı QuestSignals.Collect(string id). Enable abone, disable temizle; ResetForPool() state’i sıfırlar. Sahne/nesne yok edilince callback kalmaz. Runner sabit proje, sinyal sınıfı ve testleri sağlar; yalnız iki kaynak dosyası teslim edilir.','Namespace RealDev.Learner: QuestState {int Rewards; int Collected; bool Collect(string id); void Reset(); static int LoadHealth(string json)}. Unique A/B/C yields one reward; duplicates do not count; Reset clears state. JSON {version,health}:v1 doubles legacy health,v2 keeps it; clamp0..100; malformed/unsupported→100. QuestBehaviour: MonoBehaviour; public QuestState State; static event publisher QuestSignals.Collect(string id). Subscribe on enable, clean up on disable; ResetForPool() resets state; no callbacks after destruction/scene unload. Runner supplies the fixed project, signals and tests; submit only the two source files.')}
 ];
 export const assignment=id=>assignments.find(x=>x.id===id);
+// Unity runs learner code in the same Editor process as the acceptance tests, so a submission could otherwise reach the
+// test framework, reflection or the filesystem and forge its own report. This is a mitigation, not a sandbox: the
+// operator image must still be disposable and network-less.
+const UNITY_DENIED=new Set(['IO','File','Directory','Path','Reflection','Assembly','Activator','Type','GetType','typeof','MethodInfo','FieldInfo','PropertyInfo','MemberInfo','MethodBase','TargetSite','DeclaringType','Method','Target','Diagnostics','Process','StackTrace','StackFrame','Environment','InteropServices','CompilerServices','Marshal','DllImport','extern','unsafe','fixed','stackalloc','dynamic','AppDomain','Net','Sockets','Http','Threading','Thread','ThreadPool','Security','UnityEditor','NUnit','TestTools','TestRunner','Application','Resources','FindObjectOfType','FindObjectsOfType','FindObjectsByType','FindFirstObjectByType','FindAnyObjectByType','__arglist','__makeref','__reftype','__refvalue']);
+export function unityCodeTokens(source){
+ // Remove comments and literal contents with a small C# lexer; interpolated and raw strings are refused because they can carry code.
+ let code='',i=0;const n=source.length;
+ while(i<n){const c=source[i],d=source[i+1];
+  if(c==='/'&&d==='/'){while(i<n&&source[i]!=='\n')i++;code+=' ';continue;}
+  if(c==='/'&&d==='*'){const end=source.indexOf('*/',i+2);if(end<0)throw Error('unity_source_invalid');i=end+2;code+=' ';continue;}
+  if(c==='$'||(c==='"'&&d==='"'&&source[i+2]==='"'))throw Error('unity_api_not_allowed');
+  if(c==='@'&&d==='"'){i+=2;while(i<n){if(source[i]==='"'){if(source[i+1]==='"'){i+=2;continue;}break;}i++;}if(i>=n)throw Error('unity_source_invalid');i++;code+=' "" ';continue;}
+  if(c==='"'||c==="'"){const q=c;i++;while(i<n&&source[i]!==q){if(source[i]==='\n')throw Error('unity_source_invalid');i+=source[i]==='\\'?2:1;}if(i>=n)throw Error('unity_source_invalid');i++;code+=' "" ';continue;}
+  code+=c;i++;}
+ if(code.includes('\\'))throw Error('unity_api_not_allowed');
+ return code.match(/@?[A-Za-z_][A-Za-z0-9_]*/g)||[];
+}
+export function checkUnitySource(source){for(const token of unityCodeTokens(source))if(UNITY_DENIED.has(token.replace(/^@/,'')))throw Error('unity_api_not_allowed');}
 export function validateDelivery(input){
  const a=assignment(input?.assignmentId);if(!a||!Array.isArray(input.files)||!input.files.length||input.files.length>a.files.length)throw Error('invalid_delivery');
  const seen=new Set();let bytes=0;const files=input.files.map(f=>{if(!f||typeof f.path!=='string'||!a.files.includes(f.path)||seen.has(f.path.toLowerCase())||typeof f.content!=='string'||f.content.includes('\0'))throw Error('invalid_delivery_file');seen.add(f.path.toLowerCase());const n=new TextEncoder().encode(f.content).length;if(n>60000)throw Error('delivery_too_large');bytes+=n;return {path:f.path,content:f.content.replace(/^\uFEFF/,'').replace(/\r\n/g,'\n')};});
  if(bytes>120000||!files.some(f=>f.path===a.files[0]&&f.content.trim()))throw Error('invalid_delivery');
+ if(a.runtime==='unity')for(const f of files)checkUnitySource(f.content);
  return {assignmentId:a.id,files:files.sort((a,b)=>a.path.localeCompare(b.path,'en'))};
 }
 export async function deliveryHash(input){const clean=validateDelivery(input),bytes=new TextEncoder().encode(JSON.stringify(clean));return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(x=>x.toString(16).padStart(2,'0')).join('');}
