@@ -3,5 +3,8 @@
  const safeReturnTo=value=>{if(typeof value!=='string'||!value.startsWith('/')||value.startsWith('//')||/[\\\u0000-\u001f]/.test(value)||value.includes('?')||value.includes('#'))return '/today';try{const url=new URL(value,location.origin);return url.origin===location.origin&&paths.has(url.pathname)?url.pathname:'/today';}catch{return '/today';}};
  const signInUrl=(value,mode='sign-in')=>'/auth.html?returnTo='+encodeURIComponent(safeReturnTo(value))+'#/'+(mode==='sign-up'?'sign-up':'sign-in');
  const returnTo=search=>safeReturnTo(new URLSearchParams(search||'').get('returnTo'));
- window.RealDevRoutes={safeReturnTo,signInUrl,returnTo};
+ // Decides what a signed-out page shows: public paths render, private paths wait for the session to be known,
+ // then go to sign-in with the current page as returnTo (only when sign-in is actually available).
+ const guestDecision=({path,signedIn,sessionKnown,canSignIn})=>{if(signedIn||!paths.has(path))return 'render';if(!sessionKnown)return 'wait';return canSignIn?'sign-in':'render';};
+ window.RealDevRoutes={safeReturnTo,signInUrl,returnTo,guestDecision};
 })();

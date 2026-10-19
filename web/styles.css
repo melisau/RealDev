@@ -9,3 +9,5 @@
 .concept-detail .concept-body{white-space:normal;line-height:1.8;color:var(--muted);font-size:13px}.concept-detail .concept-body br+br{display:block;content:"";margin-top:8px}
 .concept-detail .concept-body{white-space:normal;line-height:1.8;color:var(--muted);font-size:13px}.concept-detail .concept-body br+br{display:block;content:"";margin-top:8px}
 .public-demo-card .concept-body{white-space:normal;line-height:1.8;color:var(--muted);font-size:13px;margin:14px 0}
+
+.session-pending{min-height:40vh;display:grid;place-items:center;color:var(--muted,#667085);font-size:15px}

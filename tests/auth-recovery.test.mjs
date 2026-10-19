@@ -136,3 +136,13 @@ test('unverified sign-in offers resend and reports delivery failure without clai
  const user={emailVerified:false,sendEmailVerification:async()=>{throw {code:'auth/network-request-failed'};}};
  const a=await boot({signInImpl:async()=>({user})});a.nodes.get('authEmail').value='dev@example.com';a.nodes.get('authPassword').value='local-test-password';await a.nodes.get('authForm').emit('submit');assert.equal(a.redirect,'');assert.equal(a.nodes.get('resendVerification').hidden,false);await a.nodes.get('resendVerification').emit('click');assert.match(a.nodes.get('authStatus').textContent,/Bağlantı kurulamadı/);assert.equal(a.nodes.get('resendVerification').disabled,false);
 });
+test('signed-out private deep links wait for the session, then sign in and return; public paths and unavailable sign-in never redirect',()=>{
+ const window={};runInNewContext(readFileSync(new URL('../web/auth-redirect.js',import.meta.url),'utf8'),{window,location:{origin:'https://realdev.example'},URL,URLSearchParams});
+ const decide=(path,state)=>window.RealDevRoutes.guestDecision({path,signedIn:false,sessionKnown:true,canSignIn:true,...state});
+ assert.equal(decide('/code-history',{sessionKnown:false}),'wait');
+ assert.equal(decide('/code-history'),'sign-in');
+ assert.equal(window.RealDevRoutes.signInUrl('/code-history'),'/auth.html?returnTo=%2Fcode-history#/sign-in');
+ assert.equal(decide('/code-history',{canSignIn:false}),'render','a broken or absent sign-in must not trap the visitor on the sign-in page');
+ assert.equal(decide('/code-history',{signedIn:true,sessionKnown:false}),'render');
+ for(const path of ['/','/demo/questions','/demo/concepts','/unknown'])assert.equal(decide(path,{sessionKnown:false}),'render',path);
+});
