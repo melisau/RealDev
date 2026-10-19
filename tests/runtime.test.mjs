@@ -25,3 +25,30 @@ test('QuickJS interrupts loops, limits allocations and recovers for the next run
  const logs=await execute('for(let i=0;i<10000;i++)console.log("x".repeat(1000))');assert.ok(logs.logs.join('').length<=limits.outputChars);
  assert.equal((await execute('console.log(42)')).logs[0],'42');
 });
+test('on hosts that forbid compiling WebAssembly at runtime, a precompiled module still grades code and failures are a clear 503',async()=>{
+ const runtime=await import('../sandbox/runtime.mjs?embedder='+Date.now());
+ const {newQuickJSWASMModuleFromVariant}=await import('quickjs-emscripten-core');const {default:variant}=await import('@jitl/quickjs-singlefile-browser-release-sync');
+ const original=WebAssembly.instantiate,originalCompile=WebAssembly.compile;let bytes=null;
+ WebAssembly.instantiate=function(source){if(!bytes&&ArrayBuffer.isView(source)||!bytes&&source instanceof ArrayBuffer)bytes=new Uint8Array(source instanceof ArrayBuffer?source:source.buffer.slice(source.byteOffset,source.byteOffset+source.byteLength));return original.apply(this,arguments);};
+ await newQuickJSWASMModuleFromVariant(variant);WebAssembly.instantiate=original;assert.ok(bytes?.length>100000);
+ const solution='function solve(numbers){return numbers.filter(n=>n>0).reduce((s,n)=>s+n,0)}';
+ WebAssembly.instantiate=function(source){return source instanceof WebAssembly.Module?original.apply(this,arguments):Promise.reject(new WebAssembly.CompileError('Wasm code generation disallowed by embedder'));};
+ WebAssembly.compile=()=>Promise.reject(new WebAssembly.CompileError('Wasm code generation disallowed by embedder'));
+ const quiet=console.error;console.error=()=>{};
+ try{
+  await assert.rejects(runtime.execute(solution,'sum-positive'),e=>e.message==='code_runtime_unavailable'&&e.status===503,'embedded binary is refused like on Sites');
+  runtime.setQuickJSWasmModule(async()=>({not:'a module'}));await assert.rejects(runtime.execute(solution,'sum-positive'),/code_runtime_unavailable/);
+  const module=new WebAssembly.Module(bytes);runtime.setQuickJSWasmModule(async()=>module);
+  const report=await runtime.execute(solution,'sum-positive');assert.equal(report.passed,report.total);assert.ok(report.total>=4);
+  const looping=await runtime.execute('while(true){}');assert.ok(looping.error,'interrupts still apply with the precompiled module');
+  const again=await runtime.execute(solution,'sum-positive');assert.equal(again.passed,again.total,'the runtime recovers for the next run');
+ }finally{WebAssembly.instantiate=original;WebAssembly.compile=originalCompile;console.error=quiet;runtime.setQuickJSWasmModule(null);}
+});
+test('an unavailable code runtime returns code_runtime_unavailable and saves nothing',async()=>{
+ const {api}=await import('../server/api.mjs');const {localDb}=await import('../scripts/local-db.mjs');const runtime=await import('../sandbox/runtime.mjs');
+ const DB=localDb(),origin='https://realdev.test',call=(path,body)=>api(new Request(origin+'/api/'+path,{method:body?'POST':'GET',headers:{'oai-authenticated-user-id':'a',Origin:origin,'Content-Type':'application/json'},body:body&&JSON.stringify(body)}),{DB});
+ const quiet=console.error;console.error=()=>{};runtime.setQuickJSWasmModule(async()=>{throw Error('module missing from the Worker archive');});
+ try{const r=await call('code-runs',{id:'runtime-down',taskId:'playground',code:'console.log(1)'});assert.equal(r.status,503);assert.equal((await r.json()).error,'code_runtime_unavailable');
+  assert.equal((await (await call('code-runs')).json()).records.length,0);}
+ finally{console.error=quiet;runtime.setQuickJSWasmModule(null);DB.close();}
+});

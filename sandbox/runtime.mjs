@@ -1,11 +1,25 @@
-import {newQuickJSWASMModuleFromVariant} from 'quickjs-emscripten-core';
+import {newQuickJSWASMModuleFromVariant,newVariant} from 'quickjs-emscripten-core';
 import variant from '@jitl/quickjs-singlefile-browser-release-sync';
 import {codeTasks} from './tasks.mjs';
 export const limits={memoryBytes:16*1024*1024,stackBytes:256*1024,cpuMs:350,codeChars:12000,outputChars:4000};
 const canonical=value=>Array.isArray(value)?value.map(canonical):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(k=>[k,canonical(value[k])])):value;
+// Hosts such as Workers refuse to compile WebAssembly from bytes at runtime. The Worker entry registers a loader for a
+// precompiled module shipped next to the bundle; browsers and Node keep using the embedded binary.
+let wasmModuleLoader=null,variantPromise=null;
+export function setQuickJSWasmModule(loader){wasmModuleLoader=loader;variantPromise=null;}
+async function quickJSVariant(){
+ if(!wasmModuleLoader)return variant;
+ // Resolve and check the module here: errors thrown inside the Emscripten instantiate hook would escape this call.
+ const module=await wasmModuleLoader();if(!(module instanceof WebAssembly.Module))throw Error('invalid_wasm_module');
+ return newVariant(variant,{wasmModule:module});
+}
+async function quickJS(){
+ try{if(!variantPromise)variantPromise=quickJSVariant();return await newQuickJSWASMModuleFromVariant(await variantPromise);}
+ catch(error){variantPromise=null;console.error('QuickJS runtime unavailable',String(error?.message||error).slice(0,300));throw Object.assign(Error('code_runtime_unavailable'),{status:503});}
+}
 export async function execute(code,taskId=null){
  if(typeof code!=='string'||code.length>limits.codeChars)return {error:'code_limit',logs:[],cases:[]};
- const engine=await newQuickJSWASMModuleFromVariant(variant);const logs=[];let outputChars=0;
+ const engine=await quickJS();const logs=[];let outputChars=0;
  const rt=engine.newRuntime();rt.setMemoryLimit(limits.memoryBytes);rt.setMaxStackSize(limits.stackBytes);
  const deadline=Date.now()+limits.cpuMs;let ticks=0;rt.setInterruptHandler(()=>Date.now()>deadline||++ticks>15000);
  const task=codeTasks.find(t=>t.id===taskId);const cases=[];
