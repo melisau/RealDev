@@ -3,6 +3,10 @@ import {assets} from './assets.generated.mjs';
 import {database} from './db.mjs';
 import {dispatchReminders,authorizedDispatcher} from './reminders.mjs';
 import {pageForPath,renderPageDocument,robotsText,sitemapXml} from './page-routes.mjs';
+import {setQuickJSWasmModule} from '../sandbox/runtime.mjs';
+// The build writes this precompiled QuickJS module next to the Worker bundle (see scripts/build.mjs). A dynamic import
+// keeps the rest of the Site working even if the host does not ship the module; code runs then fail with a clear 503.
+setQuickJSWasmModule(()=>import('./quickjs.wasm').then(m=>m.default));
 export default {async fetch(request,env){
  const url=new URL(request.url);
  const path=url.pathname;
