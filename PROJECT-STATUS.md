@@ -17,7 +17,9 @@ Kontrol: 8 Ekim 2026. Bu kayıt içerik/kod incelemesi ve testleri ayırır; ba�
 - Hesaba bağlı aktif çalışma süresi ve /calendar takvimi: günlük/aylık süreler, renk skalası, saat dilimi, arka plan/boşta duraklama, dışa aktarma ve silme.
 - Üç yeni uygulama projesinde altı özgün görev: .NET sürüm/idempotency, Unity geç yanıt/ödül ledger, SQLite atomik checkout/ödeme olayı. Yerel Piston’da referanslar 5/5, başlangıçlar 0/5 test geçti.
 - Giriş ekranında Firebase e-postasıyla şifre kurtarma: e-posta formu, Türkçe/İngilizce mesajlar, tekrar gönderim beklemesi ve girişe dönüş. Gerçek posta kutusuna teslimat ayrıca doğrulanmalı.
-- Ana tarama kataloğunda 192 soru: 134 seçenekli senaryo, 56 hata teşhisi ve 2 güvenli ifade görevi. Ayrı kod/proje katalogları bu toplama dahil değildir.
+- Ana tarama kataloğunda 1.312 soru: 1.059 seçenekli senaryo, 251 hata teşhisi ve 2 güvenli ifade görevi. Ayrı kod/proje katalogları bu toplama dahil değildir.
+- 20 Ekim 2026: 1.120 soruluk özgün konu bankası (`server/topic-bank/`) eklendi; 13 alanın her birinde en az 100 soru var (frontend 100, .NET 103, Git 101, SQL 102, Unity 100, DevOps 100, API 100, test 100, veri yapıları 100, AI 100, veri 100, mobil 100, oyun 106). Her soru TR/EN metin, dört seçenek, açıklama ve konuyla eşleşen bir teknik kaynak içerir; kaynak yalnız arka plan referansıdır, metin kopyalanmamıştır.
+- Konu bankası denetimi: hesaplamalı/kod okuma cevapları (JavaScript, SQL, Python) çalıştırılarak doğrulandı; kaynak sayfası konuyla uyuşmayan sorular yeniden bağlandı. Kaynak URL'lerinin canlı erişimi bu ortamdan doğrulanamadı; yayından önce link kontrolü yapılmalı.
 - Son eklenen 52 özgün sorunun her biri Türkçe/İngilizce metin, dört seçenek, açıklama, ipucu, konu, başlangıç/orta seviye etiketi, biçim ve kontrol tarihli birincil teknik kaynak içerir.
 - Yeni sorular mevcut konu araması, kişisel rota, cevap geçmişi, notlar ve kütüphane akışlarını kullanır. Konu etiketleri de aranır.
 - Eski soru kimlikleri ve ilk sekiz soruluk tarama korunur. Yeni yanıtlar kendi soru sürümüyle kaydedilir.
