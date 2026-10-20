@@ -13,7 +13,7 @@ const errors=createErrorTasks();
 function client(DB,user='a',extra={}){return async(path,body,method='POST')=>{const r=await api(new Request('https://realdev.test/api/'+path,{method:body===undefined?'GET':method,headers:{'oai-authenticated-user-id':user,Origin:'https://realdev.test','Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)}),{DB,...extra});return {status:r.status,body:await r.json()};};}
 test('24 diagnostics cover 11 areas with hidden solutions and evidence-led repairs',()=>{
  assert.equal(errors.length,24);assert.equal(new Set(errors.map(t=>t.area)).size,11);
- assert.equal(tasks.filter(t=>t.kind==='error-diagnostic').length,56);
+ assert.equal(tasks.filter(t=>t.kind==='error-diagnostic'&&!t.id.startsWith('topic-')).length,56);
  for(const q of errors){
   assert.equal(tasks.find(t=>t.id===q.id).version,'2026-10-08.3');
   assert.equal(q.options.length,3);assert.equal(new Set(q.options.map(o=>o.en)).size,3);
