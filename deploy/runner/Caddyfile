@@ -1,0 +1,18 @@
+{
+	email {$ACME_EMAIL}
+	admin off
+}
+
+{$RUNNER_DOMAIN} {
+	# Project bundles are capped at 256 KiB by the gateway; reject anything larger before it reaches Node.
+	request_body {
+		max_size 300KB
+	}
+	reverse_proxy 127.0.0.1:2001 {
+		transport http {
+			dial_timeout 5s
+			response_header_timeout 30s
+		}
+	}
+	header -Server
+}

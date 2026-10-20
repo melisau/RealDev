@@ -1,0 +1,9 @@
+# Gateways use only Node built-ins; no npm install. docker-cli lets the project gateway start job containers.
+FROM node:24-alpine
+RUN apk add --no-cache docker-cli
+WORKDIR /app
+COPY scripts/piston-gateway.mjs scripts/verify-piston.mjs scripts/
+COPY sandbox/piston.mjs sandbox/
+COPY delivery/ delivery/
+COPY deploy/runner/health.mjs deploy/runner/install-runtimes.mjs deploy/runner/
+ENV NODE_ENV=production
