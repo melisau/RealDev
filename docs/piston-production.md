@@ -1,5 +1,7 @@
 # Production Piston connection
 
+> **Always-on setup:** [runner-vds.md](runner-vds.md) describes the Docker Compose runner host with HTTPS and automatic deploys from the `production` branch. The notes below remain the security background.
+
 ## Current activation status
 
 The local Piston Docker service supports Python, C# and Java and binds to `127.0.0.1:2000` only. Local execution smoke tests have passed in all three languages. As of 2026-10-19 the live Site points at a temporary HTTPS tunnel to the owner's computer; that route is currently unreachable and the local Docker engine is not running. This is not an always-on deployment. A dedicated always-on host and stable authenticated gateway, or a registered Sites tunnel to such a host, are still required. This repository does not provision a paid server, register a tunnel, or change the Site audience.
