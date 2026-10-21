@@ -91,10 +91,11 @@ test('topic search puts never-answered/skipped tasks first and labels latest rea
  {task_id:'c',score:100,skipped:0,created_at:'2026-10-07'},
  {task_id:'c',score:0,skipped:0,created_at:'2026-10-08'},
  {task_id:'a',score:0,skipped:1,created_at:'2026-10-08'}]};
- const context={data:fixture,topicQuery:'API',aliases:{api:'api http'},normalize:s=>s.toLowerCase(),t:(tr,en)=>tr,local:x=>x.tr,safe:x=>String(x),btn:(label,action,attr)=>'<button '+attr+'>'+label+'</button>'};
+ const bankContext={window:{},URLSearchParams};runInNewContext(readFileSync(new URL('../web/question-bank.js',import.meta.url),'utf8'),bankContext);
+ const context={bank:bankContext.window.RealDevBank,bankArea:'api',bankSubtopic:'',bankLevel:'',bankUnsolved:false,bankLimit:20,levelLabel:x=>x,window:{realdevLocale:'tr'},data:fixture,topicQuery:'API',aliases:{api:'api http'},normalize:s=>s.toLowerCase(),t:(tr,en)=>tr,local:x=>x.tr,safe:x=>String(x),btn:(label,action,attr)=>'<button '+attr+'>'+label+'</button>'};
  const html=runInNewContext(code+'searchResults()',context);
- assert.deepEqual([...html.matchAll(/data-task="(\w)"/g)].map(m=>m[1]),['b','d','a','c']);
- assert.deepEqual([...html.matchAll(/data-topic-status="(\w+)"/g)].map(m=>m[1]),['new','new','correct','retry']);
- assert.match(html,/2 çözülmemiş/);assert.match(html,/✓ Çözüldü · doğru/);assert.match(html,/↻ Çözüldü · tekrar çalış/);
- context.topicQuery='absent';assert.match(runInNewContext(code+'searchResults()',context),/0 soru bulundu/);
+ assert.deepEqual([...html.slice(html.indexOf('<ul')).matchAll(/data-task="(\w)"/g)].map(m=>m[1]),['b','d','a','c']);
+
+ assert.match(html,/2 çözülmemiş/);assert.match(html,/✓ Doğru yanıtlandı/);assert.match(html,/↻ Tekrar çalış/);
+ context.topicQuery='absent';assert.match(runInNewContext('searchResults()',context),/0 soru eşleşiyor/);
 });

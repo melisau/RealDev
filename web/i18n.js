@@ -1,5 +1,6 @@
 (function () {
   const translations = {
+    'Soru Bankası': 'Question Bank',
     'ÇALIŞMA ALANIN': 'YOUR WORKSPACE',
     'Bugün': 'Today',
     'Beceri haritam': 'Skill map',
