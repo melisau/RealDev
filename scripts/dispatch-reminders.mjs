@@ -3,8 +3,8 @@ import {pathToFileURL} from 'node:url';
 export const reminderOrigin='https://realdev.melisauyar.com';
 const fail=message=>{throw Error(message);};
 function report(value){
- if(!value||typeof value.at!=='string'||!Number.isFinite(Date.parse(value.at))||new Date(value.at).toISOString()!==value.at||!['accepted','failed'].every(key=>Number.isSafeInteger(value[key])&&value[key]>=0&&value[key]<=500)||(value.truncated!==undefined&&typeof value.truncated!=='boolean'))fail('invalid_dispatch_report');
- return {at:value.at,accepted:value.accepted,failed:value.failed,...(value.truncated?{truncated:true}:{})};
+ if(!value||typeof value.at!=='string'||!Number.isFinite(Date.parse(value.at))||new Date(value.at).toISOString()!==value.at||!['accepted','failed'].every(key=>Number.isSafeInteger(value[key])&&value[key]>=0&&value[key]<=500)||(value.expired!==undefined&&!(Number.isSafeInteger(value.expired)&&value.expired>=0&&value.expired<=500))||(value.truncated!==undefined&&typeof value.truncated!=='boolean'))fail('invalid_dispatch_report');
+ return {at:value.at,accepted:value.accepted,failed:value.failed,...(value.expired!==undefined?{expired:value.expired}:{}),...(value.truncated?{truncated:true}:{})};
 }
 
 // This caller has one destination and one purpose. Never follow a redirect with the dispatcher secret.
@@ -24,10 +24,13 @@ export async function dispatchAndVerify({token,origin=reminderOrigin,fetcher=fet
  return {...dispatched,verified:true};
 }
 
+// Expired subscriptions are routine cleanup; only real delivery failures or an incomplete batch need attention.
+export const exitCodeFor=result=>result.failed||result.truncated?1:0;
+
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
  try{
   const result=await dispatchAndVerify({token:process.env.REMINDER_DISPATCH_TOKEN});
   console.log(JSON.stringify(result));
-  if(result.failed||result.truncated)process.exitCode=1;
+  process.exitCode=exitCodeFor(result);
  }catch(error){console.error('Reminder dispatch failed: '+error.message);process.exitCode=1;}
 }

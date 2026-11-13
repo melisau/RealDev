@@ -10,7 +10,7 @@ const pathEntries = [
   ['/route', 'route', 'Learning route · RealDeveloper', 'Follow a personal developer learning route built from your practice evidence.', false],
   ['/calendar', 'calendar', 'Study calendar · RealDeveloper', 'Your private daily active study minutes and monthly learning calendar.', false],
   ['/history', 'history', 'Answer history · RealDeveloper', 'Review your saved answers and revisit questions from your account.', false],
-  ['/topics', 'topics', 'Topic search · RealDeveloper', 'Search software topics and find related practice in your account.', false],
+  ['/topics', 'topics', 'Question Bank · RealDeveloper', 'Choose an area, subtopic and level to practice questions.', false],
   ['/notes', 'notes', 'My notes · RealDeveloper', 'Review your private study notes and recorded learning gaps.', false],
   ['/library', 'library', 'Question library · RealDeveloper', 'Revisit questions saved to your personal developer practice library.', false],
   ['/lab', 'lab', 'Code lab · RealDeveloper', 'Write and run supported practice code in an isolated learning environment.', false],

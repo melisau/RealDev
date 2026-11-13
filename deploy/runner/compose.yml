@@ -1,0 +1,89 @@
+# Runner host for RealDev: Piston (Python/C#/Java), the project acceptance runner and an HTTPS reverse proxy.
+# Started by deploy-runner.sh as project "realdev-runner". Secrets live in /etc/realdev/runner.env (root, 0600);
+# non-secret settings (RUNNER_DOMAIN, ACME_EMAIL, DOCKER_GID) in /etc/realdev/runner.conf. Nothing secret is in Git.
+name: realdev-runner
+
+x-gateway: &gateway
+  build:
+    context: ../..
+    dockerfile: deploy/runner/Dockerfile.gateway
+  image: realdev-runner-gateway:${RELEASE:-local}
+  # Host networking keeps both gateways on 127.0.0.1, which the gateway code requires for its upstreams.
+  network_mode: host
+  restart: unless-stopped
+  env_file: /etc/realdev/runner.env
+  read_only: true
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+
+services:
+  piston:
+    image: ghcr.io/engineer-man/piston@sha256:2f66b7456189c4d713aa986d98eccd0b6ee16d26c7ec5f21b30e942756fd127a
+    # Piston needs privileges to build its per-job sandboxes. Its API is published on loopback only and is never
+    # reachable from outside; only the authenticated gateway talks to it.
+    privileged: true
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:2000:2000"
+    environment:
+      PISTON_DISABLE_NETWORKING: "true"
+      PISTON_MAX_CONCURRENT_JOBS: "2"
+      PISTON_MAX_PROCESS_COUNT: "32"
+      PISTON_MAX_OPEN_FILES: "32"
+      PISTON_MAX_FILE_SIZE: "1048576"
+      PISTON_OUTPUT_MAX_SIZE: "32768"
+      PISTON_COMPILE_TIMEOUT: "10000"
+      PISTON_RUN_TIMEOUT: "3000"
+      PISTON_COMPILE_CPU_TIME: "10000"
+      PISTON_RUN_CPU_TIME: "3000"
+      PISTON_COMPILE_MEMORY_LIMIT: "536870912"
+      PISTON_RUN_MEMORY_LIMIT: "268435456"
+    mem_limit: 3g
+    cpus: 2
+    pids_limit: 1024
+    volumes:
+      - /var/lib/realdev/piston:/piston
+
+  piston-gateway:
+    <<: *gateway
+    # Public entry (through Caddy): runtimes, execute and the project-job routes, all behind PISTON_API_KEY.
+    command: ["node", "scripts/piston-gateway.mjs"]
+    user: "10002:10002"
+    environment:
+      PISTON_GATEWAY_PORT: "2001"
+      PROJECT_RUNNER_URL: "http://127.0.0.1:2002"
+    depends_on: [piston, project-gateway]
+
+  project-gateway:
+    <<: *gateway
+    # Starts throwaway project containers through the Docker socket. Job sources are written under the same path on
+    # the host and in this container, so `docker run --mount source=...` resolves on the host.
+    command: ["node", "delivery/gateway.mjs"]
+    user: "10001:10001"
+    group_add: ["${DOCKER_GID:?set DOCKER_GID in /etc/realdev/runner.conf}"]
+    environment:
+      TMPDIR: /var/lib/realdev/jobs
+      # The Docker CLI needs a writable config directory; the container's root filesystem is read-only.
+      DOCKER_CONFIG: /var/lib/realdev/jobs/.docker-cli
+      HOME: /var/lib/realdev/jobs
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/realdev/jobs:/var/lib/realdev/jobs
+
+  caddy:
+    image: caddy:2.10
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      RUNNER_DOMAIN: ${RUNNER_DOMAIN:?set RUNNER_DOMAIN in /etc/realdev/runner.conf}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in /etc/realdev/runner.conf}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on: [piston-gateway]
+
+volumes:
+  caddy-data:
+  caddy-config:

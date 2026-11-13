@@ -1,0 +1,65 @@
+name: Deploy runner (production)
+
+# A merge into `production` deploys that exact commit to the runner host.
+on:
+  push:
+    branches: [production]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-runner
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Tests and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  deploy:
+    name: Deploy to runner host
+    needs: verify
+    # Skipped until the runner host is set up and the repository variable RUNNER_DOMAIN exists (see docs/runner-vds.md).
+    if: ${{ vars.RUNNER_DOMAIN != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    steps:
+      - name: Configure SSH (pinned host key, deploy-only key)
+        env:
+          SSH_KEY: ${{ secrets.RUNNER_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.RUNNER_SSH_KNOWN_HOSTS }}
+        run: |
+          test -n "$SSH_KEY" && test -n "$KNOWN_HOSTS" || { echo "RUNNER_SSH_KEY and RUNNER_SSH_KNOWN_HOSTS secrets are required"; exit 1; }
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
+      - name: Deploy ${{ github.sha }}
+        env:
+          HOST: ${{ vars.RUNNER_DOMAIN }}
+        run: |
+          # The server-side forced command only accepts a commit SHA; the key cannot open a shell.
+          ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes \
+              -o ConnectTimeout=20 -o ServerAliveInterval=30 "deploy@$HOST" "$GITHUB_SHA"
+      - name: Check the public endpoint
+        env:
+          HOST: ${{ vars.RUNNER_DOMAIN }}
+        run: |
+          code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "https://$HOST/api/v2/runtimes")"
+          echo "unauthenticated request -> $code"
+          test "$code" = 401
+      - name: Remove the key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key

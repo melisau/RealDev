@@ -8,7 +8,8 @@ test('reminder times and timezones are validated and midnight/DST use the local 
  assert.throws(()=>reminderSettings({enabled:true,time:'25:00',timezone:'UTC',language:'tr'}));assert.throws(()=>reminderSettings({enabled:true,time:'10:00',timezone:'No/Where',language:'tr'}));
  assert.deepEqual(dueReminder({time:'00:00',timezone:'Europe/Istanbul'},new Date('2026-10-05T21:05:00Z')),{date:'2026-10-06',due:true});
  assert.equal(dueReminder({time:'19:00',timezone:'Europe/Istanbul'},new Date('2026-10-05T15:59:00Z')).due,false);
- assert.equal(dueReminder({time:'19:00',timezone:'Europe/Istanbul'},new Date('2026-10-05T17:15:00Z')).due,false);
+ assert.equal(dueReminder({time:'19:00',timezone:'Europe/Istanbul'},new Date('2026-10-05T18:15:00Z')).due,false,'135 minutes after the chosen time the window has closed');
+ assert.equal(dueReminder({time:'19:00',timezone:'Europe/Istanbul'},new Date('2026-10-05T18:14:00Z')).due,true);
  assert.deepEqual(dueReminder({time:'23:30',timezone:'Europe/Istanbul'},new Date('2026-10-05T21:05:00Z')),{date:'2026-10-05',due:true});
  assert.equal(dueReminder({time:'01:15',timezone:'America/New_York'},new Date('2026-11-01T06:16:00Z')).due,true);
 });
@@ -28,7 +29,7 @@ test('closed-page dispatch claims devices once per local day, honours opt-out an
  await saveSubscription(db,'a',subscription('one'));await saveSubscription(db,'b',subscription('two'));
  let sends=0;const sender=async()=>{sends++;return 201;},now=new Date('2026-10-05T16:02:00Z');
  assert.equal((await dispatchReminders(db,env,{now,sender})).accepted,1);await dispatchReminders(db,env,{now:new Date('2026-10-05T16:17:00Z'),sender});assert.equal(sends,1);
- const expired=await dispatchReminders(db,env,{now:new Date('2026-10-06T16:02:00Z'),sender:async()=>410});assert.equal(expired.failed,1);assert.equal((await db.all('SELECT * FROM push_subscriptions WHERE user_id=?','a')).length,0);assert.equal((await db.all('SELECT * FROM push_subscriptions WHERE user_id=?','b')).length,1);DB.close();
+ const expired=await dispatchReminders(db,env,{now:new Date('2026-10-06T16:02:00Z'),sender:async()=>410});assert.equal(expired.expired,1);assert.equal(expired.failed,0);assert.equal((await db.all('SELECT * FROM push_subscriptions WHERE user_id=?','a')).length,0);assert.equal((await db.all('SELECT * FROM push_subscriptions WHERE user_id=?','b')).length,1);DB.close();
 });
 test('parallel dispatches do not duplicate a claimed delivery; temporary failure retries only after lease',async()=>{
  const DB=localDb(),db=database({DB});await saveReminder(db,'a',{enabled:true,time:'10:00',timezone:'UTC',language:'en'});await saveSubscription(db,'a',subscription('concurrent'));const now=new Date('2026-10-05T10:01:00Z');let calls=0;
@@ -61,4 +62,23 @@ test('dispatch pages past the first batch so later devices are not starved, and 
  const capped=await dispatchReminders(db2,env,{now,sender:async()=>201,pageSize:2,maxSends:2});assert.equal(capped.accepted,2);assert.equal(capped.truncated,true);
  assert.equal((await dispatchReminders(db2,env,{now:new Date('2026-10-05T10:20:00Z'),sender:async()=>201,pageSize:2,maxSends:2})).accepted,1,'the next run delivers the remaining device');
  DB.close();DB2.close();
+});
+test('one skipped hourly run still delivers the day\'s reminder once, including across midnight',async()=>{
+ const DB=localDb(),db=database({DB});await saveReminder(db,'a',{enabled:true,time:'19:00',timezone:'Europe/Istanbul',language:'tr'});await saveSubscription(db,'a',subscription('skipped-run'));
+ let sends=0;const sender=async()=>{sends++;return 201;};
+ // The 16:17 UTC run (19:17 local) was skipped by the scheduler; the 17:17 UTC run is 77 minutes late.
+ assert.equal((await dispatchReminders(db,env,{now:new Date('2026-10-05T17:17:00Z'),sender})).accepted,1);
+ await dispatchReminders(db,env,{now:new Date('2026-10-05T18:13:00Z'),sender});assert.equal(sends,1,'still one reminder per local day');
+ assert.deepEqual(dueReminder({time:'23:30',timezone:'Europe/Istanbul'},new Date('2026-10-05T22:40:00Z')),{date:'2026-10-05',due:true},'01:40 local still belongs to the previous day');
+ DB.close();
+});
+test('revoked subscriptions are cleanup, not failures; real failures still count',async()=>{
+ const DB=localDb(),db=database({DB}),now=new Date('2026-10-05T10:01:00Z');
+ for(const user of ['gone','down','ok']){await saveReminder(db,user,{enabled:true,time:'10:00',timezone:'UTC',language:'en'});await saveSubscription(db,user,subscription(user));}
+ const sender=async(env,sub)=>sub.endpoint.endsWith('/gone')?410:sub.endpoint.endsWith('/down')?503:201;
+ const report=await dispatchReminders(db,env,{now,sender});
+ assert.deepEqual({accepted:report.accepted,failed:report.failed,expired:report.expired},{accepted:1,failed:1,expired:1});
+ assert.equal((await db.all("SELECT * FROM push_subscriptions WHERE user_id='gone'")).length,0);
+ assert.equal((await db.one("SELECT status FROM reminder_deliveries WHERE user_id='gone'")).status,'expired');
+ DB.close();
 });

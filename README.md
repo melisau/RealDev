@@ -7,7 +7,7 @@ Turkish/English developer practice with persistent accounts, evidence-based asse
 - Template-based Python API/.NET/Unity project source submission with versioned acceptance reports, separate from written AI feedback. See [project delivery setup and verified scope](PROJECT-DELIVERY.md).
 - Guided first use, role explanations, account-local review observations and 24 public bilingual concept articles. See [first-use design and evaluation plan](FIRST-USE.md).
 
-- Eight-task initial scan and 192 bilingual assessment questions across 13 areas, including the latest 52 original sourced scenarios (8 October 2026). Topic tags are searchable; answers retain the individual question version. Choice results alone do not certify expertise. See [project status and remaining work](PROJECT-STATUS.md).
+- Eight-task initial scan and 1,312 bilingual assessment questions across 13 areas (at least 100 per area), including a 1,120-question original topic bank added on 20 October 2026; every question links a technical reference used only as background. Topic tags are searchable; answers retain the individual question version. Choice results alone do not certify expertise. See [project status and remaining work](PROJECT-STATUS.md).
 - Question notes, saved-question library, written explanations and answer/code history.
 - Four resumable projects (API service, search/offline sync, event ingestion/retrieval, and a versioned API/data service), each with implementation, debugging and transfer stages. Twelve executable Python/C# tasks use five independent cases each; the new SQLite tasks cover repeatable schema migrations, owner-scoped keyset pagination, idempotent batch ingestion, rollback and log-based debugging. Prerequisites are checked on the server; every submission is persisted under its owner.
 - Eleven sourced technical code reviews across API retries, SQL migrations, pagination incidents, React, .NET, Kubernetes, Unity, AI, data and game physics. Open-ended review responses use explicit self-review criteria and are not presented as automatically verified correctness.
@@ -59,6 +59,7 @@ The Site has distinct clean URLs for the workspace areas and public previews. On
 - `web/`: vanilla UI; `assessment.js` owns scans/notes, `learning.js` owns account controls, projects, AI feedback and audio.
 - `server/`: authenticated API, account lifecycle, curated catalogs, evidence, live feeds and server-only AI adapter.
 - `sandbox/`: QuickJS, authored practical tasks and optional Piston client.
+- `deploy/runner/`: Docker Compose runner host (Piston, project runner, Caddy) deployed automatically from the `production` branch over SSH; see `docs/runner-vds.md`.
 - QuickJS on the server: the Sites Worker runtime refuses to compile WebAssembly at runtime, so `npm run build` extracts QuickJS's binary to `dist/server/quickjs.wasm` and the Worker imports it as a precompiled module. The build re-grades a reference solution under that restriction. If the deployed Site returns `code_runtime_unavailable`, the server log line `QuickJS runtime unavailable` says why (for example, the module missing from the deployed archive).
 - `db/schema.ts`, `drizzle/`: D1 schema and generated migrations.
 - `tests/`: ownership, atomic deletion, source freshness, project prerequisites, sandbox execution, quote validation, quotas and audio consent.
