@@ -10,4 +10,7 @@ web/practice.js
 .env.local
 .env.*
 !.env.example
+!.env.vds.example
+delivery/runner/obj/
+delivery/runner/bin/
 .dev.vars

@@ -1,0 +1,28 @@
+# RealDev on the shared VDS. TLS terminates at the shared /opt/proxy Caddy; this container publishes no ports.
+name: realdev
+services:
+  web:
+    build:
+      context: .
+      dockerfile: deploy/vds/Dockerfile
+    image: realdev:local
+    container_name: realdev
+    restart: unless-stopped
+    env_file: .env.vds
+    expose:
+      - "8080"
+    volumes:
+      - realdev-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 512m
+    networks:
+      - berkdev-proxy
+volumes:
+  realdev-data:
+networks:
+  berkdev-proxy:
+    external: true
