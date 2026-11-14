@@ -5,6 +5,7 @@ import {loadEnvFile} from 'node:process';
 try{loadEnvFile('.env.local');}catch(error){if(error.code!=='ENOENT')throw error;}
 import {api} from '../server/api.mjs';
 import {localDb} from './local-db.mjs';
+import {withSecurityHeaders} from '../server/security-headers.mjs';
 import {pageForPath,renderPageDocument,robotsText,sitemapXml} from '../server/page-routes.mjs';
 const port=Number(process.env.REALDEV_PORT)||4317;if(!Number.isInteger(port)||port<1024||port>65535)throw Error('Invalid preview port');
 mkdirSync('.local',{recursive:true});const DB=localDb('.local/preview-'+port+'.sqlite');const host='http://127.0.0.1:'+port;
@@ -21,7 +22,7 @@ createServer(async(req,res)=>{
   else if(url.pathname==='/robots.txt')response=new Response(robotsText(host),{headers:{'content-type':'text/plain; charset=utf-8','cache-control':'no-store'}});
   else if(url.pathname==='/sitemap.xml')response=new Response(sitemapXml(host),{headers:{'content-type':'application/xml; charset=utf-8','cache-control':'no-store'}});
   else{const page=pageForPath(url.pathname),base=resolve('web'),file=resolve(base,page?'index.html':url.pathname==='/'?'index.html':'.'+(url.pathname==='/favicon.ico'?'/favicon.svg':url.pathname));if(!file.startsWith(base+sep)||!existsSync(file))response=new Response('Not found',{status:404});else{const body=readFileSync(file,'utf8'),document=page?renderPageDocument(body,url.pathname,host,{allowIndexing:false}):null;response=new Response(document?.html??body,{headers:{'content-type':(types[file.split('.').pop()]||'text/plain')+'; charset=utf-8','cache-control':'no-store',...(document?{'x-robots-tag':document.robots}:{})}});}}
-  res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));
+  response=withSecurityHeaders(response);res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));
  }catch(e){console.error(e);res.writeHead(500);res.end('Preview error');}
 }).listen(port,'127.0.0.1',()=>console.log('Local preview: '+host+' (isolated preview account)'));
 

@@ -43,15 +43,11 @@ This is the second way to host RealDev, next to the Sites Worker described in th
    ```
    realdev.example.com {
        encode zstd gzip
-       header {
-           Strict-Transport-Security "max-age=31536000"
-           X-Frame-Options "DENY"
-       }
        reverse_proxy realdev:8080
    }
    ```
 
-   The application itself sends only `X-Content-Type-Options` and `Referrer-Policy`; HSTS and framing protection must come from the proxy.
+   The application sets its own security headers on every response (`server/security-headers.mjs`): Content-Security-Policy, HSTS, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` and `Cross-Origin-Opener-Policy`. Do not repeat them in the proxy; a second copy sends duplicate headers and the two can drift apart.
 6. Verify:
 
    ```bash
