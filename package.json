@@ -20,7 +20,7 @@
   "dependencies": {
     "@block65/webcrypto-web-push": "2.0.0",
     "@jitl/quickjs-singlefile-browser-release-sync": "0.32.0",
-    "fast-xml-parser": "5.11.2",
+    "fast-xml-parser": "5.12.1",
     "quickjs-emscripten-core": "0.32.0"
   }
 }
