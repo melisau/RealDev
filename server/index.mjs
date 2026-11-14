@@ -4,10 +4,11 @@ import {database} from './db.mjs';
 import {dispatchReminders,authorizedDispatcher} from './reminders.mjs';
 import {pageForPath,renderPageDocument,robotsText,sitemapXml} from './page-routes.mjs';
 import {setQuickJSWasmModule} from '../sandbox/runtime.mjs';
+import {withSecurityHeaders} from './security-headers.mjs';
 // The build writes this precompiled QuickJS module next to the Worker bundle (see scripts/build.mjs). A dynamic import
 // keeps the rest of the Site working even if the host does not ship the module; code runs then fail with a clear 503.
 setQuickJSWasmModule(()=>import('./quickjs.wasm').then(m=>m.default));
-export default {async fetch(request,env){
+async function handle(request,env){
  const url=new URL(request.url);
  const path=url.pathname;
  if(path.startsWith('/internal/reminders/')){
@@ -26,4 +27,5 @@ export default {async fetch(request,env){
  if(!asset)return new Response('Not found',{status:404});
  const document=page?renderPageDocument(asset.body,path,url.origin):null,body=document?.html??asset.body;
  return new Response(request.method==='HEAD'?null:body,{headers:{'Content-Type':asset.type,'Cache-Control':'no-cache','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin',...(document?{'X-Robots-Tag':document.robots}:{})}});
-}};
+}
+export default {async fetch(request,env){return withSecurityHeaders(await handle(request,env));}};
