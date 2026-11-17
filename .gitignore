@@ -15,3 +15,7 @@ delivery/runner/obj/
 delivery/runner/bin/
 .dev.vars
 .claude/
+
+# Server-only backup settings (docs/vds-deploy.md)
+/backup.env
+/rclone.conf

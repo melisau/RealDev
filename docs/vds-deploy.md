@@ -70,6 +70,16 @@ Take a backup first when the update contains a new file in `drizzle/`. Migration
 
 ## Backup
 
+`deploy/vds/backup.sh` runs daily from `/etc/cron.d/realdev-backup` (03:45 UTC, log `/var/log/realdev-backup.log`). It makes a `VACUUM INTO` copy inside the running container, checks it with `PRAGMA integrity_check`, gzips it to `/var/backups/realdev/db/` (kept 14 days) and, when `BACKUP_REMOTE` is set in `/opt/realdev/backup.env`, copies it with rclone to an encrypted off-site remote (kept 60 days). The rclone configuration lives in `/opt/realdev/rclone.conf` (root, 0600, not in Git).
+
+```
+45 3 * * * root /opt/realdev/deploy/vds/backup.sh >> /var/log/realdev-backup.log 2>&1
+```
+
+To restore from an off-site copy, download it with the same rclone configuration, `gunzip` it, and follow **Restore** below.
+
+The manual equivalent of what the script does:
+
 `VACUUM INTO` writes a consistent single-file copy while the server keeps running. Do not copy `realdev.sqlite` directly from the volume: without its `-wal` file the copy can miss recent writes.
 
 ```bash
@@ -116,7 +126,7 @@ The two deployments have separate databases. Pointing the domain at the VDS does
 
 ## Not covered yet
 
-- Automated off-server backups and a rehearsed restore.
+- Backup failure alerting: a failed run only writes to the log.
 - External uptime monitoring and error alerting (the container health check restarts nothing by itself and notifies no one).
 - CI does not build this image; a broken Dockerfile is found only at deploy time.
 - Load testing against the 512 MB limit and single-process SQLite.
