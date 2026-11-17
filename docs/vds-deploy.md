@@ -76,7 +76,22 @@ Take a backup first when the update contains a new file in `drizzle/`. Migration
 45 3 * * * root /opt/realdev/deploy/vds/backup.sh >> /var/log/realdev-backup.log 2>&1
 ```
 
-To restore from an off-site copy, download it with the same rclone configuration, `gunzip` it, and follow **Restore** below.
+The off-site remote is `offsite:` (rclone `crypt`) over the private Backblaze B2 bucket `realdev-backups`, under `realdev/db/`. The B2 application key is limited to that bucket. The two crypt passwords are kept in a password manager; without them the copies cannot be decrypted.
+
+From this server, B2's download host (`f00x.backblazeb2.com`) is blocked: HTTPS to it is reset, while the API and upload hosts work. Uploads are fine, but `rclone cat`/`copy` from `offsite:` fail here. To download a copy on this server, go through B2's S3 endpoint with the same keys and passwords, read from `rclone.conf` inside the container so nothing is printed:
+
+```bash
+FILE=realdev-YYYY-MM-DDTHHMMZ.sqlite.gz
+docker run --rm -v /opt/realdev/rclone.conf:/c.conf:ro -v "$PWD":/out --entrypoint sh rclone/rclone:1.68.2 -c '
+g(){ sed -n "/^\[$1\]/,/^\[/s/^$2 = //p" /c.conf; }
+export RCLONE_CONFIG_S3B_TYPE=s3 RCLONE_CONFIG_S3B_PROVIDER=Other RCLONE_CONFIG_S3B_ENDPOINT=https://s3.us-east-005.backblazeb2.com
+export RCLONE_CONFIG_S3B_ACCESS_KEY_ID="$(g b2 account)" RCLONE_CONFIG_S3B_SECRET_ACCESS_KEY="$(g b2 key)"
+export RCLONE_CONFIG_S3C_TYPE=crypt RCLONE_CONFIG_S3C_REMOTE=s3b:realdev-backups/realdev
+export RCLONE_CONFIG_S3C_PASSWORD="$(g offsite password)" RCLONE_CONFIG_S3C_PASSWORD2="$(g offsite password2)"
+rclone cat --config /dev/null "s3c:db/'"$FILE"'" > "/out/'"$FILE"'"'
+```
+
+Then `gunzip` it and follow **Restore** below. This route was tested on 2026-11-17: the decrypted download matched the local copy byte for byte.
 
 The manual equivalent of what the script does:
 

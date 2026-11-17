@@ -65,7 +65,10 @@ if [ -n "$BACKUP_REMOTE" ]; then
   }
   remote() { case "$BACKUP_REMOTE" in *:) echo "$BACKUP_REMOTE$1" ;; *) echo "${BACKUP_REMOTE%/}/$1" ;; esac; }
   log "copying to off-site remote $BACKUP_REMOTE"
-  rclone copy "/data/db/$NAME.gz" "$(remote db)" || fail "off-site copy"
+  # Copy the folder with a filter rather than the single file: a single-file copy
+  # first HEADs the B2 download host (f00x.backblazeb2.com), which is blocked from
+  # this server, while folder copies only list and upload through the API hosts.
+  rclone copy "/data/db" "$(remote db)" --include "$NAME.gz" || fail "off-site copy"
   # A crypt remote has no comparable hash, so compare sizes.
   rclone check --one-way --size-only "/data/db" "$(remote db)" --include "$NAME.gz" >/dev/null 2>&1 \
     || fail "off-site copy does not match the local file"
