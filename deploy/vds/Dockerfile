@@ -14,7 +14,7 @@ WORKDIR /app
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/drizzle ./drizzle
 COPY --from=build /app/scripts/local-db.mjs ./scripts/local-db.mjs
-COPY --from=build /app/deploy/vds/server.mjs /app/deploy/vds/register.mjs /app/deploy/vds/wasm-loader.mjs ./deploy/vds/
+COPY --from=build /app/deploy/vds/server.mjs /app/deploy/vds/register.mjs /app/deploy/vds/wasm-loader.mjs /app/deploy/vds/backup-status.mjs ./deploy/vds/
 RUN echo '{"type":"module"}' > package.json && mkdir -p /data && chown node:node /data
 USER node
 EXPOSE 8080

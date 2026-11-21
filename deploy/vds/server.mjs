@@ -4,9 +4,10 @@
 import {createServer} from 'node:http';
 import {Readable} from 'node:stream';
 import {mkdirSync} from 'node:fs';
-import {dirname} from 'node:path';
+import {dirname,join} from 'node:path';
 import worker from '../../dist/server/index.js';
 import {localDb} from '../../scripts/local-db.mjs';
+import {backupStatusPath,backupStatusResponse} from './backup-status.mjs';
 
 const port=Number(process.env.PORT)||8080;
 const origin=new URL(process.env.PUBLIC_ORIGIN||'http://localhost:'+port).origin;
@@ -24,6 +25,7 @@ const server=createServer(async(req,res)=>{
  try{
   if(req.url==='/healthz'){res.writeHead(200,{'content-type':'text/plain'});res.end('ok');return;}
   const url=new URL(req.url,origin);
+  if(url.pathname===backupStatusPath){const result=backupStatusResponse({method:req.method,authorization:req.headers.authorization,origin:req.headers.origin,token:env.REMINDER_DISPATCH_TOKEN,file:join(dirname(dbFile),'backup-status.json')});res.writeHead(result.status,{'content-type':'application/json','cache-control':'no-store'});res.end(req.method==='HEAD'?undefined:JSON.stringify(result.body));return;}
   const headers=new Headers();
   for(const [name,value] of Object.entries(req.headers)){if(value===undefined||stripped.includes(name))continue;if(Array.isArray(value))for(const v of value)headers.append(name,v);else headers.set(name,value);}
   const hasBody=!['GET','HEAD'].includes(req.method);

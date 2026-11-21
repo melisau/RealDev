@@ -57,6 +57,7 @@ FILE="$BACKUP_DIR/db/$NAME.gz"
 log "pruning local copies older than $BACKUP_KEEP_DAYS days"
 find "$BACKUP_DIR/db" -name 'realdev-*.sqlite.gz' -type f -mtime +"$BACKUP_KEEP_DAYS" -delete
 
+OFFSITE=false
 if [ -n "$BACKUP_REMOTE" ]; then
   [ -r "$BACKUP_RCLONE_CONFIG" ] || fail "cannot read $BACKUP_RCLONE_CONFIG"
   rclone() {
@@ -74,6 +75,12 @@ if [ -n "$BACKUP_REMOTE" ]; then
     || fail "off-site copy does not match the local file"
   log "pruning off-site copies older than $BACKUP_REMOTE_KEEP_DAYS days"
   rclone delete --min-age "${BACKUP_REMOTE_KEEP_DAYS}d" "$(remote db)" || fail "off-site prune"
+  OFFSITE=true
 fi
+
+# Read by the scheduled production check. Only a fully successful run updates it.
+STATUS="{\"at\":\"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\",\"offsite\":$OFFSITE}"
+docker exec -e STATUS="$STATUS" "$CONTAINER" sh -c 'printf "%s" "$STATUS" > /data/backup-status.json.tmp && mv /data/backup-status.json.tmp /data/backup-status.json' \
+  || fail "writing backup status"
 
 log "done: $(du -h "$FILE" | cut -f1) in $FILE"

@@ -1,0 +1,31 @@
+name: Production check
+
+on:
+  workflow_dispatch:
+  schedule:
+    # UTC, every two hours. GitHub can delay scheduled runs, sometimes by hours.
+    - cron: '23 */2 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: realdev-production-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Site health and backup freshness
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the reviewed default branch
+        uses: actions/checkout@v7
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Check the live site and the last backup
+        env:
+          REMINDER_DISPATCH_TOKEN: ${{ secrets.REALDEV_REMINDER_DISPATCH_TOKEN }}
+        run: node scripts/check-production.mjs
