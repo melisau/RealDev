@@ -124,6 +124,12 @@ docker compose -f compose.vds.yaml start web
 
 Replace `realdev-STAMP.sqlite` with the backup's file name. The stale `-wal`/`-shm` files must be removed, otherwise SQLite replays old writes over the restored file. `1000:1000` is the `node` user in the image.
 
+## Production check
+
+`.github/workflows/production-check.yml` runs `scripts/check-production.mjs` every two hours. The run fails if `/healthz` stays unhealthy across three attempts, or if the last successful backup is older than 30 hours or was not copied off-site. GitHub then sends its normal failed-workflow notification, so keep Actions failure notifications enabled in GitHub settings. GitHub can delay scheduled runs by hours, so this is not a minute-level outage alarm.
+
+The backup script records its last success in `/data/backup-status.json`. The check reads it through `/internal/backup/status`, which requires the same bearer token as the reminder dispatcher and refuses browser-origin requests.
+
 ## Reminders
 
 `scripts/dispatch-reminders.mjs` (run hourly by `.github/workflows/reminders.yml`) calls exactly one origin, the `reminderOrigin` constant in that script. For this deployment to send daily reminders:
@@ -141,7 +147,7 @@ The two deployments have separate databases. Pointing the domain at the VDS does
 
 ## Not covered yet
 
-- Backup failure alerting: a failed run only writes to the log.
-- External uptime monitoring and error alerting (the container health check restarts nothing by itself and notifies no one).
+- Fast outage alerts: GitHub can delay the scheduled production check by hours.
+- Application error alerting (the container health check restarts nothing by itself and notifies no one).
 - CI does not build this image; a broken Dockerfile is found only at deploy time.
 - Load testing against the 512 MB limit and single-process SQLite.
